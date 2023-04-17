@@ -5,18 +5,14 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         Display display = new Display();
-        Graph g = new Graph();
-        //g.initGraph();
-        //g.initBigGraph();
-        g.initHugeGraph();
-        display.set_graph(g);
 
-        State s_final = new State(g, true);
-        s_final.current_node = 0;
-        s_final.clean[0] = false;
+        //display.set_graph(g);
 
-        State s_init = new State(g, false);
-        s_init.current_node = 0;
+        State s_final = new State();
+        //s_final.current_node = 0;
+        //s_final.clean[0] = false;
+
+        State s_init = new State();
 
         Search search = new Search(s_final, s_init);
         double start = System.currentTimeMillis();
