@@ -1,10 +1,10 @@
 import java.util.Comparator;
 
-public class Vehicle {
+public class Vehicle extends SceneElement {
     private boolean downward;
     private boolean parked = false;
-    private double x_position;
-    private String name;
+    //private double x_position;
+    //private String name;
 
 
     public Vehicle(String nam, boolean dwd) {
@@ -25,10 +25,6 @@ public class Vehicle {
         this.parked = parked;
     }
 
-    public void setX_position(double x_position) {
-        this.x_position = x_position;
-    }
-
     public String getName() {
         return name;
     }
@@ -37,9 +33,10 @@ public class Vehicle {
         return parked;
     }
 
-    public double getX_position() {
-        return x_position;
+    public String getType() {
+        return "";
     }
+
 }
 
 class VehicleXPositionComparator implements Comparator<Vehicle> {

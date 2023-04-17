@@ -2,17 +2,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class State {
+    private final double v_up = 3; // m.s-1
+    private final double v_down = 5; // m.s-1
+    private final double park_time = 4; // s
+
     public double g_score = 1000;
     public double f_score = 1000;
     public State cameFrom = null;
     private ArrayList<Vehicle> vehicles;
+    private ArrayList<ParkingPlace> parking_places;
+
 
     public State() {
         this.vehicles = new ArrayList<Vehicle>();
+        this.parking_places = new ArrayList<ParkingPlace>();
     }
 
     public void addVehicle(Vehicle v) {
         this.vehicles.add(v);
+    }
+    public void addParkingPlace(ParkingPlace p) {
+        this.parking_places.add(p);
     }
 
     public void removeVehicle(String vname) {
@@ -31,6 +41,12 @@ public class State {
             ret.vehicles.add(v.getCopy());
         }
 
+        // copy parking places list
+        for (ParkingPlace p : this.parking_places) {
+            ret.parking_places.add(p.getCopy());
+        }
+
+
         return ret;
     }
 
@@ -46,27 +62,38 @@ public class State {
     }
 
     public String getOrderedNames() {
-        Collections.sort(this.vehicles, new VehicleXPositionComparator());
+        ArrayList<SceneElement> elts = new ArrayList<SceneElement>();
+        elts.addAll(this.vehicles);
+        elts.addAll(this.parking_places);
+        Collections.sort(elts, new SceneElementXPositionComparator());
         String str = "";
-        for (Vehicle v : this.vehicles) {
-            str += v.getName();
+        for (SceneElement se : elts) {
+            str += se.getName();
         }
         return str;
     }
 
     public String toString() {
+        ArrayList<SceneElement> elts = new ArrayList<SceneElement>();
+        elts.addAll(this.vehicles);
+        elts.addAll(this.parking_places);
+        Collections.sort(elts, new SceneElementXPositionComparator());
         String ret = "";
-        for (Vehicle v : this.vehicles) {
-            ret += v.getName();
+        for (SceneElement se : elts) {
+            ret += se.getName();
             ret += " ";
-            ret += v.getX_position();
+            ret += se.getX_position();
+            ret += se.getType();
             ret += "\n";
         }
+        ret += "-------------\n";
         return ret;
     }
 
     public ArrayList<State> get_next_states() {
         ArrayList<State> ret = new ArrayList<State>();
+
+
 
         //ret.add(s);
 
