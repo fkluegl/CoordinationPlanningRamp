@@ -11,16 +11,20 @@ public class Main {
         Vehicle v1 = new Vehicle("V1", true); v1.setX_position(1.1);
         Vehicle v2 = new Vehicle("V2", true); v2.setX_position(2.2);
         Vehicle v3 = new Vehicle("V3", true); v3.setX_position(3.3);
+        Vehicle v4 = new Vehicle("V4", false); v4.setX_position(4.4);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(3.0);
 
         State s_final = new State();
 
         s_final.addVehicle(v2);
         s_final.addVehicle(v3);
+        s_final.addVehicle(v4);
         s_final.addVehicle(v1);
         s_final.addParkingPlace(p1);
 
         System.out.println(s_final);
+
+        s_final.get_next_states();
 
 
         //s_final.current_node = 0;

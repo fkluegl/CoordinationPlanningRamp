@@ -3,8 +3,6 @@ import java.util.Comparator;
 public class Vehicle extends SceneElement {
     private boolean downward;
     private boolean parked = false;
-    //private double x_position;
-    //private String name;
 
 
     public Vehicle(String nam, boolean dwd) {
@@ -33,18 +31,22 @@ public class Vehicle extends SceneElement {
         return parked;
     }
 
+    public boolean isDownward() {
+        return downward;
+    }
+
     public String getType() {
         return "";
     }
 
 }
 
-class VehicleXPositionComparator implements Comparator<Vehicle> {
+class VehicleXPositionComparatorReverse implements Comparator<Vehicle> {
     @Override
     public int compare(Vehicle v1, Vehicle v2) {
-        if (v1.getX_position() < v2.getX_position())
+        if (v1.getX_position() > v2.getX_position())
             return -1;
-        else if (v1.getX_position() > v2.getX_position())
+        else if (v1.getX_position() < v2.getX_position())
             return 1;
         return 0;
     }

@@ -31,3 +31,4 @@ class SceneElementXPositionComparator implements Comparator<SceneElement> {
         return 0;
     }
 }
+

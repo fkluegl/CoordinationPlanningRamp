@@ -1,7 +1,5 @@
 public class ParkingPlace extends SceneElement {
     private boolean occupied = false;
-    //private double x_position;
-    //private String name;
 
 
     public ParkingPlace(String nam) {
