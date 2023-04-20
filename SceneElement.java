@@ -14,9 +14,8 @@ public class SceneElement {
     public String getName() {
         return name;
     }
-
-    public String getType() {
-        return this.getType();
+    public String getTypeString() {
+        return this.getTypeString();
     }
 }
 

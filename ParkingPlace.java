@@ -15,7 +15,7 @@ public class ParkingPlace extends SceneElement {
         return ret;
     }
 
-    public String getType() {
+    public String getTypeString() {
         return " [parking]";
     }
 

@@ -3,6 +3,8 @@ import java.util.Comparator;
 public class Vehicle extends SceneElement {
     private boolean downward;
     private boolean parked = false;
+    private double speed;
+    private Action current_action;
 
 
     public Vehicle(String nam, boolean dwd) {
@@ -10,6 +12,9 @@ public class Vehicle extends SceneElement {
         this.name = nam;
         this.parked = false;
         this.x_position = 0;
+        if (this.downward) this.speed = 5.7;
+        else               this.speed = 3.1;
+        // 3.1 / 5.7
     }
 
     public Vehicle getCopy() {
@@ -35,8 +40,19 @@ public class Vehicle extends SceneElement {
         return downward;
     }
 
-    public String getType() {
-        return "";
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public String getTypeString() {
+        if (this.downward)
+            return " [↓]";
+        else
+            return " [↑]";
     }
 
 }
