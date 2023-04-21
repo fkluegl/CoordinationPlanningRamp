@@ -8,7 +8,7 @@ public class Main {
 
         //display.set_graph(g);
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(1.1);
+        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(1.1);  //todo: current action?
         Vehicle v2 = new Vehicle("V2", true); v2.setX_position(2.2);
         Vehicle v3 = new Vehicle("V3", true); v3.setX_position(3.3);
         Vehicle v4 = new Vehicle("V4", false); v4.setX_position(1.4);
@@ -16,15 +16,23 @@ public class Main {
 
         State s_final = new State();
 
+        s_final.addVehicle(v1);
         s_final.addVehicle(v2);
         s_final.addVehicle(v3);
         s_final.addVehicle(v4);
-        s_final.addVehicle(v1);
+        //s_final.addVehicle(v1);
         s_final.addParkingPlace(p1);
 
         System.out.println(s_final);
 
-        s_final.get_next_states();
+        ArrayList<State> ns = s_final.get_next_states();
+
+        System.out.println("-----------------------------------");
+
+        for (State s : ns) {
+            //System.out.println(s);
+            System.out.print(s.current_action_str());
+        }
 
 
         //s_final.current_node = 0;

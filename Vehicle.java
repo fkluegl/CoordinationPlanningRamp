@@ -14,13 +14,14 @@ public class Vehicle extends SceneElement {
         this.x_position = 0;
         if (this.downward) this.speed = 5.7;
         else               this.speed = 3.1;
-        // 3.1 / 5.7
+        this.current_action = new Action(Action.WAIT);
     }
 
     public Vehicle getCopy() {
         Vehicle ret = new Vehicle(this.name, this.downward);
         ret.parked = this.parked;
         ret.x_position = this.x_position;
+        ret.current_action = this.current_action.getCopy();
         return ret;
     }
 
@@ -44,15 +45,23 @@ public class Vehicle extends SceneElement {
         return speed;
     }
 
+    public void setCurrent_action(Action current_action) {
+        this.current_action = current_action;
+    }
+
+    public Action getCurrent_action() {
+        return current_action;
+    }
+
     public void setSpeed(double speed) {
         this.speed = speed;
     }
 
     public String getTypeString() {
         if (this.downward)
-            return " [↓]";
+            return " [↓] " + this.current_action.name;
         else
-            return " [↑]";
+            return " [↑] " + this.current_action.name;
     }
 
 }

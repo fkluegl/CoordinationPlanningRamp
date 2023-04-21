@@ -17,6 +17,10 @@ public class SceneElement {
     public String getTypeString() {
         return this.getTypeString();
     }
+
+    public SceneElement getCopy() {
+        return this.getCopy();
+    }
 }
 
 
