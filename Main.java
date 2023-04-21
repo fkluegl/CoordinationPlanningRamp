@@ -9,10 +9,11 @@ public class Main {
         //display.set_graph(g);
 
         Vehicle v1 = new Vehicle("V1", true); v1.setX_position(1.1);  //todo: current action?
-        Vehicle v2 = new Vehicle("V2", true); v2.setX_position(2.2);
+        Vehicle v2 = new Vehicle("V2", true); v2.setX_position(1.2);
         Vehicle v3 = new Vehicle("V3", true); v3.setX_position(3.3);
         Vehicle v4 = new Vehicle("V4", false); v4.setX_position(1.4);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(2.0);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(1.5);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(2.0);
 
         State s_final = new State();
 
@@ -20,8 +21,8 @@ public class Main {
         s_final.addVehicle(v2);
         s_final.addVehicle(v3);
         s_final.addVehicle(v4);
-        //s_final.addVehicle(v1);
         s_final.addParkingPlace(p1);
+        //s_final.addParkingPlace(p2);
 
         System.out.println(s_final);
 

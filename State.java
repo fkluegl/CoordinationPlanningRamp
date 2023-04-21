@@ -93,7 +93,7 @@ public class State {
         ArrayList<SceneElement> elts = new ArrayList<SceneElement>();
         elts.addAll(this.dw_vehicles);
         //elts.addAll(this.up_vehicles);
-        //elts.addAll(this.parking_places);
+        elts.addAll(this.parking_places);
         Collections.sort(elts, new SceneElementXPositionComparator());
         String ret = "";
         for (SceneElement se : elts) {
@@ -113,7 +113,10 @@ public class State {
         Collections.sort(elts, new SceneElementXPositionComparator());
         String ret = "";
         for (Vehicle se : elts) {
-            ret += se.getCurrent_action().getId();
+            int id = se.getCurrent_action().getId();
+            ret += id;
+            if (id == Action.PARK) ret += "(" + se.getCurrent_action().parameter.name + ") ";
+            else                   ret += "     ";
             ret += " ";
         }
         ret += "\n";
@@ -136,9 +139,13 @@ public class State {
             state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
             state_copy_1.compute_next_states_rec(id_vehicle + 1, Nv);
 
-            State state_copy_2 = this.getCopy();
-            state_copy_2.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.PARK));
-            state_copy_2.compute_next_states_rec(id_vehicle + 1, Nv);
+            //state_copy_2.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.PARK));
+            Vehicle v = this.dw_vehicles.get(id_vehicle);
+            ArrayList<ParkingPlace> pp_below = this.get_parking_places_below(v);
+            for (ParkingPlace pp : pp_below) {
+                State state_copy_2 = this.getCopy();
+                state_copy_2.compute_next_states_parking_rec(id_vehicle, pp, Nv);
+            }
 
             State state_copy_3 = this.getCopy();
             state_copy_3.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.WAIT));
@@ -146,14 +153,14 @@ public class State {
         }
     }
 
-    public void compute_next_states_parking_rec(int id_vehicle, int id_parking, int Nv) {
+    public void compute_next_states_parking_rec(int id_vehicle, ParkingPlace pp, int Nv) {
         if (id_vehicle == Nv) {
             this.next_states.add(this);
         }
         else {
             State state_copy_1 = this.getCopy();
-            state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
-            state_copy_1.compute_next_states_rec(id_vehicle, Nv);
+            state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.PARK, pp));
+            state_copy_1.compute_next_states_rec(id_vehicle + 1, Nv);
         }
     }
 

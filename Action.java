@@ -7,6 +7,7 @@ public class Action {
     String name;
     SceneElement parameter;
 
+
     public Action(int id_action, SceneElement... params) {
         this.id = id_action;
         if (id_action == EXIT) this.name = "Exit";
@@ -22,8 +23,9 @@ public class Action {
 
     public Action getCopy() {
         Action ret = new Action(this.id);
-        if (this.parameter != null)
-            ret.parameter = this.parameter.getCopy();
+        //if (this.parameter != null)
+        //    ret.parameter = this.parameter.getCopy();
+        ret.parameter = this.parameter;
         return ret;
     }
 
