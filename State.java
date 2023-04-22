@@ -2,10 +2,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class State {
-    private final static double park_time = 4.3; // s
-    private final static double x_max = 100.0; // m
+    public final static double parking_time = 3; // s
+    public final static double x_max = 100.0; // m
     private final static double safety_distance = 5.0; // m (center-to-center)
-
+    double start_time = 0;
     public double g_score = 1000;
     public double f_score = 1000;
     public State cameFrom = null;
@@ -15,7 +15,8 @@ public class State {
     private int Nup = 0;
     private int Npp = 0;
     private ArrayList<ParkingPlace> parking_places;
-    private static ArrayList<State> next_states;
+    private static ArrayList<State> states_actions;
+    private static MiniSimulator mini_simulator = new MiniSimulator();
 
 
     public State() {
@@ -64,11 +65,14 @@ public class State {
         ret.Ndw = this.Ndw;
         ret.Nup = this.Nup;
         ret.Npp = this.Npp;
+        ret.start_time = this.start_time;
         return ret;
     }
 
-
     public boolean equals(State s) {
+        // TODO!!!
+        System.out.println("State.equals() not implemented!");
+        System.exit(0);
         /*if (this.current_node != s.current_node)
             return false;
 
@@ -95,7 +99,7 @@ public class State {
     public String toString() {
         ArrayList<SceneElement> elts = new ArrayList<SceneElement>();
         elts.addAll(this.dw_vehicles);
-        //elts.addAll(this.up_vehicles);
+        elts.addAll(this.up_vehicles);
         elts.addAll(this.parking_places);
         Collections.sort(elts, new SceneElementXPositionComparator());
         String ret = "";
@@ -111,14 +115,15 @@ public class State {
     }
 
     public String current_action_str() {
-        ArrayList<Vehicle> elts = new ArrayList<Vehicle>();
+        ArrayList<Vehicle> elts = new ArrayList<>();
         elts.addAll(this.dw_vehicles);
         Collections.sort(elts, new SceneElementXPositionComparator());
         String ret = "";
         for (Vehicle se : elts) {
             int id = se.getCurrent_action().getId();
+            String id_str = se.getCurrent_action().getName();
             ret += id;
-            if (id == Action.PARK) ret += "(" + se.getCurrent_action().parameter.name + ") ";
+            if (id == Action.PARK) ret += "(" + se.getCurrent_action().getParameter().name + ") ";
             else                   ret += "     ";
             ret += " ";
         }
@@ -127,110 +132,111 @@ public class State {
     }
 
     public ArrayList<State> get_next_states() {
-        this.next_states = new ArrayList<State>();
-        this.compute_next_states_rec(0, this.dw_vehicles.size());
-        return this.next_states;
+        ArrayList<State> ret = new ArrayList<State>();
+        this.states_actions = new ArrayList<State>();
+
+        // enumerated possible actions to be applied to this state
+        this.enumerate_actions(0, this.dw_vehicles.size());
+
+        // get states resulting from events occurring during simulation
+        for (State s : this.states_actions) {
+            ArrayList<State> event_based_states = mini_simulator.simulate(s);
+            ret.addAll(event_based_states);
+        }
+        return this.states_actions; // todo: return ret;
     }
 
 
-    public void compute_next_states_rec(int id_vehicle, int Nv) {
+    public void enumerate_actions(int id_vehicle, int Nv) {
         if (id_vehicle == Nv) {
-            this.next_states.add(this);
+            this.states_actions.add(this);
         }
         else {
-            State state_copy_1 = this.getCopy();
-            state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
-            state_copy_1.compute_next_states_rec(id_vehicle + 1, Nv);
+            Vehicle v = this.dw_vehicles.get(id_vehicle);
+            //todo: check mandatory actions for v
 
+            // enumerate EXIT actions
+            //boolean exit_feasible = true;
+            //Vehicle facing = this.get_closest_upward_vehicle_below(v);
+            //if (facing != null)
+            //    exit_feasible = this.exist_enough_parking_place_between(v, facing);
+            boolean exit_feasible = !this.is_upward_vehicle_below(v);
+            if (exit_feasible) {
+                State state_copy_1 = this.getCopy();
+                state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
+                state_copy_1.enumerate_actions(id_vehicle + 1, Nv);
+            }
+            else {
+                System.out.println(v.getName() + " cannot exit because of vehicle upw below");
+            }
+
+            // enumerate PARK actions
             State state_copy_2 = this.getCopy();
-            Vehicle v = state_copy_2.dw_vehicles.get(id_vehicle);
             for (int p=0; p<this.Npp; p++)
-                state_copy_2.compute_next_states_parking_rec(id_vehicle, p, Nv);
+                state_copy_2.enumerate_parking_places(id_vehicle, p, Nv);
 
+            // enumerate WAIT actions
             State state_copy_3 = this.getCopy();
             state_copy_3.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.WAIT));
-            state_copy_3.compute_next_states_rec(id_vehicle + 1, Nv);
+            state_copy_3.enumerate_actions(id_vehicle + 1, Nv);
         }
     }
 
-    public void compute_next_states_parking_rec(int id_vehicle, int id_parking, int Nv) {
+    public void enumerate_parking_places(int id_vehicle, int id_parking, int Nv) {
         if (id_vehicle == Nv) {
-            this.next_states.add(this);
+            this.states_actions.add(this);
         }
         else {
-            // assigns parking places. filter: below and not occupied
+            // Assigns parking places, prunes out parking places which are:
+            //  - above
+            //  - booked
+            //  - with an upward vehicle in-between
             State state_copy_22 = this.getCopy();
             ParkingPlace pp = state_copy_22.parking_places.get(id_parking);
             Vehicle v = state_copy_22.dw_vehicles.get(id_vehicle);
-            if (!pp.isBooked() && pp.isBelow(v)) {
-                v.setCurrent_action(new Action(Action.PARK, pp));
-                pp.setBooked(true);
-                state_copy_22.compute_next_states_rec(id_vehicle + 1, Nv);
-            }
-        }
-    }
-
-
-    State feasible(ArrayList<Vehicle> dw_list, int[] actions) {
-        // return the expected resulting state, or null if infeasible
-        State resulting_state = this.getCopy();
-
-        // print current test
-        for (int i=0; i<dw_list.size(); i++) {
-            Vehicle v = dw_list.get(i);
-            int action = actions[i];
-            System.out.print(v.getName() + "-" + action + " ");
-        }
-
-        // first, check if upward vehicles can move up
-        // ...
-
-        // loop on ↓ vehicles, starting from bottom
-        for (int i=0; i<dw_list.size(); i++) {
-            Vehicle v = dw_list.get(i);
-            int action = actions[i];
-
-            if (action == Action.WAIT) {
-                // do nothing
-            }
-            else if (action == Action.EXIT) {
-                // test if v cannot exit
-                if (resulting_state.exist_upward_vehicle_below(v)) {
-                    System.out.print(" --> " + v.getName() + " cannot exit because of upward vehicle below.\n");
-                    return null;
-                }
-                // upd res_state
-            }
-            else if (action == Action.PARK) {
-                ArrayList<ParkingPlace> pp_below = resulting_state.get_parking_places_below(v);
-                if (pp_below.size() == 0) {
-                    System.out.print(" --> There are no parking places below " + v.getName() + ".\n");
-                    return null;
-                }
-                else {
-                    // loop on parking places below v
-                    for (ParkingPlace pp : pp_below) {
-                        if (resulting_state.exist_upward_vehicle_between(v, pp)) {
-                            System.out.print(" --> There is an upward vehicle between " + v.getName() + " and " + pp.getName() + ".\n");
-                            return null;
-                        }
+            if (!pp.isBooked()) {
+                if (pp.isBelow(v)) {
+                    if (!state_copy_22.exist_upward_vehicle_between(v, pp)) {
+                        v.setCurrent_action(new Action(Action.PARK, pp));
+                        pp.setBooked(true);
+                        state_copy_22.enumerate_actions(id_vehicle + 1, Nv);
                     }
                 }
-                // upd res_state
             }
         }
-
-        System.out.println();
-
-        return resulting_state;
     }
 
-    boolean exist_upward_vehicle_below(Vehicle v) {
-        // todo: check for PP!!!
-        for (Vehicle uv : this.dw_vehicles)
-            if (!uv.isDownward() && uv.x_position > v.x_position)
-                return true;
 
+    public double getStart_time() {
+        return start_time;
+    }
+
+    public ArrayList<Vehicle> getDw_vehicles() {
+        return dw_vehicles;
+    }
+
+    public void setStart_time(double start_time) {
+        this.start_time = start_time;
+    }
+
+    Vehicle get_closest_upward_vehicle_below(Vehicle v) {
+        Vehicle closest = null;
+        double min_dist = 1000;
+        for (Vehicle upv : this.up_vehicles)
+            if (upv.x_position > v.x_position) {
+                double d = upv.x_position - v.x_position;
+                if (d < min_dist) {
+                    min_dist = d;
+                    closest = upv;
+                }
+            }
+        return closest;
+    }
+
+    boolean is_upward_vehicle_below(Vehicle v) {
+        for (Vehicle upv : this.up_vehicles)
+            if (upv.x_position > v.x_position)
+                return true;
         return false;
     }
 
@@ -243,13 +249,39 @@ public class State {
         return ret;
     }
 
+    ArrayList<Vehicle> get_dw_vehicles_below(Vehicle v) {
+        ArrayList<Vehicle> ret = new ArrayList<>();
+        for (Vehicle dwv : this.dw_vehicles)
+            if (dwv.x_position > v.x_position)
+                ret.add(dwv);
+
+        return ret;
+    }
+
     boolean exist_upward_vehicle_between(Vehicle v, ParkingPlace pp) {
-        for (Vehicle uv : this.dw_vehicles)
-            if (!uv.isDownward()  &&  uv.x_position > (v.x_position + 0.1)  &&  uv.x_position < (pp.x_position - 0.1))
+        for (Vehicle upv : this.up_vehicles)
+            if (upv.x_position > (v.x_position + 0.1)  &&  upv.x_position < (pp.x_position - 0.1))
                 return true;
 
         return false;
     }
 
+    boolean exist_enough_parking_place_between(Vehicle dwv, Vehicle upv) {
+        int Ndw = 1;
+        int Npp = 0;
+
+        for (Vehicle v : this.dw_vehicles)
+            if (v.x_position > (dwv.x_position + 0.1) && v.x_position < (upv.x_position - 0.1))
+                Ndw ++;
+
+        for (ParkingPlace pp : this.parking_places)
+            if (pp.x_position > (dwv.x_position + 0.1) && pp.x_position < (upv.x_position - 0.1))
+                Npp ++;
+
+        if (Ndw > Npp)
+            return false;
+        else
+            return true;
+    }
 
 }

@@ -5,15 +5,18 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         Display display = new Display();
+        MiniSimulator mini_simultor = new MiniSimulator();
 
         //display.set_graph(g);
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(1.1);  //todo: current action?
-        Vehicle v2 = new Vehicle("V2", true); v2.setX_position(1.2);
-        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(3.3);
-        Vehicle v4 = new Vehicle("V4", false); v4.setX_position(1.4);
+        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(1.1);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(1.5);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(2.0);
+        Vehicle v4 = new Vehicle("V4", false); v4.setX_position(1.75);
+        Vehicle v2 = new Vehicle("V2", true); v2.setX_position(2.2);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(4.0);
+        Vehicle v5 = new Vehicle("V5", false); v5.setX_position(4.75);
+        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(5.3);
+
 
         State s_final = new State();
 
@@ -21,14 +24,15 @@ public class Main {
         s_final.addVehicle(v2);
         s_final.addVehicle(v3);
         s_final.addVehicle(v4);
+        s_final.addVehicle(v5);
         s_final.addParkingPlace(p1);
-        //s_final.addParkingPlace(p2);
+        s_final.addParkingPlace(p2);
 
         System.out.println(s_final);
 
         ArrayList<State> ns = s_final.get_next_states();
 
-        System.out.println("-----------------------------------");
+        System.out.println("[--- " + ns.size() + " successor states ---]");
 
         for (State s : ns) {
             //System.out.println(s);
