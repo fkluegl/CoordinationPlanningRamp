@@ -2,7 +2,7 @@ import java.util.Comparator;
 
 public class Vehicle extends SceneElement {
     private boolean downward;
-    private boolean parked = false;
+    private SceneElement parked_at;
     private double speed;
     private Action current_action;
 
@@ -10,7 +10,7 @@ public class Vehicle extends SceneElement {
     public Vehicle(String nam, boolean dwd) {
         this.downward = dwd;
         this.name = nam;
-        this.parked = false;
+        this.parked_at = null;
         this.x_position = 0;
         if (this.downward) this.speed = 5.7;
         else               this.speed = 3.1;
@@ -19,22 +19,18 @@ public class Vehicle extends SceneElement {
 
     public Vehicle getCopy() {
         Vehicle ret = new Vehicle(this.name, this.downward);
-        ret.parked = this.parked;
+        ret.parked_at = this.parked_at;
         ret.x_position = this.x_position;
         ret.current_action = this.current_action.getCopy();
         return ret;
     }
 
-    public void setParked(boolean parked) {
-        this.parked = parked;
+    public void setParked_at(SceneElement pp) {
+        this.parked_at = pp;
     }
 
     public String getName() {
         return name;
-    }
-
-    public boolean isParked() {
-        return parked;
     }
 
     public boolean isDownward() {

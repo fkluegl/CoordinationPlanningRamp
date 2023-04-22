@@ -1,18 +1,22 @@
 public class ParkingPlace extends SceneElement {
-    private boolean occupied = false;
+    private boolean booked = false;
 
 
     public ParkingPlace(String nam) {
         this.name = nam;
-        this.occupied = false;
+        this.booked = false;
         this.x_position = 0;
     }
 
     public ParkingPlace getCopy() {
         ParkingPlace ret = new ParkingPlace(this.name);
-        ret.occupied = this.occupied;
+        ret.booked = this.booked;
         ret.x_position = this.x_position;
         return ret;
+    }
+
+    public boolean isBelow(Vehicle v) {
+        return (this.x_position > v.x_position);
     }
 
     public String getTypeString() {
@@ -20,9 +24,11 @@ public class ParkingPlace extends SceneElement {
     }
 
 
-    public boolean isOccupied() {
-        return occupied;
+    public boolean isBooked() {
+        return booked;
     }
 
-
+    public void setBooked(boolean booked) {
+        this.booked = booked;
+    }
 }

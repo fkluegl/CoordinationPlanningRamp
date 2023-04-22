@@ -13,6 +13,7 @@ public class State {
     private ArrayList<Vehicle> up_vehicles;
     private int Ndw = 0;
     private int Nup = 0;
+    private int Npp = 0;
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> next_states;
 
@@ -29,6 +30,7 @@ public class State {
     }
     public void addParkingPlace(ParkingPlace p) {
         this.parking_places.add(p);
+        this.Npp ++;
     }
 
     public void removeVehicle(String vname) {
@@ -61,6 +63,7 @@ public class State {
         }
         ret.Ndw = this.Ndw;
         ret.Nup = this.Nup;
+        ret.Npp = this.Npp;
         return ret;
     }
 
@@ -139,13 +142,10 @@ public class State {
             state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
             state_copy_1.compute_next_states_rec(id_vehicle + 1, Nv);
 
-            //state_copy_2.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.PARK));
-            Vehicle v = this.dw_vehicles.get(id_vehicle);
-            ArrayList<ParkingPlace> pp_below = this.get_parking_places_below(v);
-            for (ParkingPlace pp : pp_below) {
-                State state_copy_2 = this.getCopy();
-                state_copy_2.compute_next_states_parking_rec(id_vehicle, pp, Nv);
-            }
+            State state_copy_2 = this.getCopy();
+            Vehicle v = state_copy_2.dw_vehicles.get(id_vehicle);
+            for (int p=0; p<this.Npp; p++)
+                state_copy_2.compute_next_states_parking_rec(id_vehicle, p, Nv);
 
             State state_copy_3 = this.getCopy();
             state_copy_3.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.WAIT));
@@ -153,14 +153,20 @@ public class State {
         }
     }
 
-    public void compute_next_states_parking_rec(int id_vehicle, ParkingPlace pp, int Nv) {
+    public void compute_next_states_parking_rec(int id_vehicle, int id_parking, int Nv) {
         if (id_vehicle == Nv) {
             this.next_states.add(this);
         }
         else {
-            State state_copy_1 = this.getCopy();
-            state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.PARK, pp));
-            state_copy_1.compute_next_states_rec(id_vehicle + 1, Nv);
+            // assigns parking places. filter: below and not occupied
+            State state_copy_22 = this.getCopy();
+            ParkingPlace pp = state_copy_22.parking_places.get(id_parking);
+            Vehicle v = state_copy_22.dw_vehicles.get(id_vehicle);
+            if (!pp.isBooked() && pp.isBelow(v)) {
+                v.setCurrent_action(new Action(Action.PARK, pp));
+                pp.setBooked(true);
+                state_copy_22.compute_next_states_rec(id_vehicle + 1, Nv);
+            }
         }
     }
 
