@@ -4,8 +4,8 @@ import java.util.Collections;
 public class State {
     public final static double parking_time = 3; // s
     public final static double x_max = 100.0; // m
-    private final static double safety_distance = 5.0; // m (center-to-center)
-    double start_time = 0;
+    public final static double safety_distance = 5.0; // m (center-to-center)
+    private double start_time = 0;
     public double g_score = 1000;
     public double f_score = 1000;
     public State cameFrom = null;
@@ -16,13 +16,17 @@ public class State {
     private int Npp = 0;
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> states_actions;
-    private static MiniSimulator mini_simulator = new MiniSimulator();
+    private static MiniSimulator mini_simulator;
 
 
     public State() {
         this.dw_vehicles = new ArrayList<Vehicle>();
         this.up_vehicles = new ArrayList<Vehicle>();
         this.parking_places = new ArrayList<ParkingPlace>();
+    }
+
+    public static void setMini_simulator(MiniSimulator mini_simulator) {
+        State.mini_simulator = mini_simulator;
     }
 
     public void addVehicle(Vehicle v) {
@@ -214,9 +218,16 @@ public class State {
     public ArrayList<Vehicle> getDw_vehicles() {
         return dw_vehicles;
     }
+    public ArrayList<Vehicle> getUp_vehicles() {
+        return up_vehicles;
+    }
 
-    public void setStart_time(double start_time) {
-        this.start_time = start_time;
+    public ArrayList<ParkingPlace> getParking_places() {
+        return parking_places;
+    }
+
+    public void increaseStart_time(double start_time) {
+        this.start_time += start_time;
     }
 
     Vehicle get_closest_upward_vehicle_below(Vehicle v) {

@@ -1,45 +1,75 @@
 import java.util.Comparator;
 
 public class Vehicle extends SceneElement {
+    public static int EVENT_OK = 0;
+    public static int EVENT_FINISHED = 1;
     private boolean downward;
-    private SceneElement parked_at;
     private double parking_progress = 0;
     private double speed;
     private Action current_action;
 
-
     public Vehicle(String nam, boolean dwd) {
         this.downward = dwd;
         this.name = nam;
-        this.parked_at = null;
         this.x_position = 0;
         if (this.downward) this.speed = 5.7;
         else               this.speed = 3.1;
         this.current_action = new Action(Action.WAIT);
     }
 
-    public boolean step(double time_step) {
+    public int step(double time_step) {
         if (current_action.getId() == Action.EXIT) {
             if (parking_progress > 0) { // then must leave the parking place first
                 parking_progress -= time_step / State.parking_time;
-                return false; // not finished
+                System.out.println(name + " leaving parking");
+                return EVENT_OK; // not finished
             }
             else {
-                if (x_position < State.x_max)
+                if (x_position < State.x_max) {
                     x_position += time_step * speed;
-                else
+                    System.out.println(name + " heading to exit");
+                    return EVENT_OK;
+                }
+                else {
                     current_action.setFinished(true);
+                    return EVENT_FINISHED;
+                }
             }
-
         }
         else if (this.current_action.getId() == Action.PARK) {
-
+            // first we need to possibly unpark...!
+            SceneElement pp = current_action.getParameter();
+            if (parking_progress > 0  &&  Math.abs(pp.x_position - x_position) > 1.0) { // case already in a parking place other than pp
+                parking_progress -= time_step / State.parking_time;
+                System.out.println(name + " leaving previous parking");
+                return EVENT_OK; // not finished
+            }
+            else {
+                if (x_position < pp.x_position  &&  parking_progress <= 0) {
+                    x_position += time_step * speed;
+                    System.out.println(name + " heading to parking " + pp.getName());
+                    return EVENT_OK;
+                }
+                else if (parking_progress < 1) {
+                    parking_progress += time_step / State.parking_time;
+                    System.out.println(name + " parking at " + pp.getName());
+                    return EVENT_OK; // not finished
+                }
+                else {
+                    current_action.setFinished(true);
+                    System.out.println(name + " parked at " + pp.getName() + "!!!");
+                    return EVENT_FINISHED;
+                }
+            }
+        }
+        else {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! THIS SHOULD NEVER NEVER NEVER NEVER NEVER HAPPEN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            return EVENT_OK; // not finished
         }
     }
 
     public Vehicle getCopy() {
         Vehicle ret = new Vehicle(this.name, this.downward);
-        ret.parked_at = this.parked_at.getCopy();
         ret.x_position = this.x_position;
         ret.speed = this.speed;
         ret.current_action = this.current_action.getCopy();
@@ -47,12 +77,12 @@ public class Vehicle extends SceneElement {
         return ret;
     }
 
-    public void setParked_at(SceneElement pp) {
-        this.parked_at = pp;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public double getParking_progress() {
+        return parking_progress;
     }
 
     public boolean isDownward() {

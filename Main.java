@@ -5,18 +5,18 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         Display display = new Display();
-        MiniSimulator mini_simultor = new MiniSimulator();
+        MiniSimulator mini_simultor = new MiniSimulator(display);
+        State.setMini_simulator(mini_simultor);
 
         //display.set_graph(g);
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(1.1);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(1.5);
-        Vehicle v4 = new Vehicle("V4", false); v4.setX_position(1.75);
-        Vehicle v2 = new Vehicle("V2", true); v2.setX_position(2.2);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(4.0);
-        Vehicle v5 = new Vehicle("V5", false); v5.setX_position(4.75);
-        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(5.3);
-
+        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
+        Vehicle v4 = new Vehicle("V4", false); v4.setX_position(30);
+        Vehicle v2 = new Vehicle("V2", true); v2.setX_position(40);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50);
+        Vehicle v5 = new Vehicle("V5", false); v5.setX_position(60);
+        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(70);
 
         State s_final = new State();
 
@@ -29,6 +29,9 @@ public class Main {
         s_final.addParkingPlace(p2);
 
         System.out.println(s_final);
+
+        //display.set_state(s_final);
+        //display.refresh();
 
         ArrayList<State> ns = s_final.get_next_states();
 
