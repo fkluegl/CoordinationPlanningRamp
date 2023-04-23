@@ -15,8 +15,8 @@ public class Main {
         Vehicle v4 = new Vehicle("V4", false); v4.setX_position(30);
         Vehicle v2 = new Vehicle("V2", true); v2.setX_position(40);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50);
-        Vehicle v5 = new Vehicle("V5", false); v5.setX_position(60);
-        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(70);
+        Vehicle v5 = new Vehicle("V5", false); v5.setX_position(65);
+        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(90);
 
         State s_final = new State();
 

@@ -23,28 +23,10 @@ public class Display extends JFrame {
     @Override
     public void paint(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g.clearRect(550, 1, 650, 1200);
+        g.clearRect(500, 1, 700, 1200);
 
         if (display_state == null)
             return;
-
-        for (Vehicle v : display_state.getDw_vehicles()) {
-            g2d.setStroke(new BasicStroke(3));
-            g2d.setPaint(Color.GREEN);
-            int Y = (int)v.getX_position() * 10;
-            g2d.drawOval(600, Y, 20, 40);
-            g2d.setPaint(Color.BLACK);
-            g2d.drawString(v.getName(), 600, Y + 20);
-        }
-
-        for (Vehicle v : display_state.getUp_vehicles()) {
-            g2d.setStroke(new BasicStroke(3));
-            g2d.setPaint(Color.RED);
-            int Y = (int)v.getX_position() * 10;
-            g2d.drawOval(600, Y, 20, 40);
-            g2d.setPaint(Color.BLACK);
-            g2d.drawString(v.getName(), 600, Y  + 20);
-        }
 
         for (ParkingPlace pp : display_state.getParking_places()) {
             g2d.setStroke(new BasicStroke(3));
@@ -54,7 +36,26 @@ public class Display extends JFrame {
             g2d.drawString(pp.getName(), 460, Y  + 25);
         }
 
-        //g2d.drawLine(X + n.radius / 2, Y + n.radius / 2, X2 + n.radius / 2, Y2 + n.radius / 2);
+        for (Vehicle v : display_state.getDw_vehicles()) {
+            g2d.setStroke(new BasicStroke(6));
+            g2d.setPaint(Color.GREEN);
+            int X = 600 - (int)(v.getParking_progress() * 80);
+            int Y = (int)v.getX_position() * 10;
+            g2d.drawOval(X, Y, 20, 40);
+            g2d.setPaint(Color.BLACK);
+            g2d.drawString(v.getName(), X, Y + 20);
+        }
+
+        for (Vehicle v : display_state.getUp_vehicles()) {
+            g2d.setStroke(new BasicStroke(6));
+            g2d.setPaint(Color.RED);
+            int Y = (int)v.getX_position() * 10;
+            g2d.drawOval(600, Y, 20, 40);
+            g2d.setPaint(Color.BLACK);
+            g2d.drawString(v.getName(), 600, Y  + 20);
+        }
+
+        g2d.drawLine(500, 1000, 700, 1000);
     }
 
 }

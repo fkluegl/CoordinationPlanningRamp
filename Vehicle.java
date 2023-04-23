@@ -3,36 +3,45 @@ import java.util.Comparator;
 public class Vehicle extends SceneElement {
     public static int EVENT_OK = 0;
     public static int EVENT_FINISHED = 1;
+    public static int EVENT_EXIT_TOP = 2;
+    public static int EVENT_EXIT_BOTTOM = 3;
     private boolean downward;
     private double parking_progress = 0;
     private double speed;
     private Action current_action;
+    private boolean debug_step = false;
 
     public Vehicle(String nam, boolean dwd) {
         this.downward = dwd;
         this.name = nam;
         this.x_position = 0;
-        if (this.downward) this.speed = 5.7;
-        else               this.speed = 3.1;
-        this.current_action = new Action(Action.WAIT);
+        if (this.downward) {
+            this.speed = 5.7;
+            this.current_action = new Action(Action.WAIT);
+        }
+        else {
+            this.speed = 2.1;
+            this.current_action = new Action(Action.GO_UP);
+        }
     }
 
     public int step(double time_step) {
         if (current_action.getId() == Action.EXIT) {
             if (parking_progress > 0) { // then must leave the parking place first
                 parking_progress -= time_step / State.parking_time;
-                System.out.println(name + " leaving parking");
+                if (debug_step) System.out.println(name + " leaving parking");
                 return EVENT_OK; // not finished
             }
             else {
                 if (x_position < State.x_max) {
                     x_position += time_step * speed;
-                    System.out.println(name + " heading to exit");
+                    if (debug_step) System.out.println(name + " heading to exit");
                     return EVENT_OK;
                 }
                 else {
                     current_action.setFinished(true);
-                    return EVENT_FINISHED;
+                    System.out.println("[EVENT_EXIT_BOTTOM] " + name + " has exited bottom.");
+                    return EVENT_EXIT_BOTTOM;
                 }
             }
         }
@@ -41,29 +50,39 @@ public class Vehicle extends SceneElement {
             SceneElement pp = current_action.getParameter();
             if (parking_progress > 0  &&  Math.abs(pp.x_position - x_position) > 1.0) { // case already in a parking place other than pp
                 parking_progress -= time_step / State.parking_time;
-                System.out.println(name + " leaving previous parking");
+                if (debug_step) System.out.println(name + " leaving previous parking");
                 return EVENT_OK; // not finished
             }
             else {
                 if (x_position < pp.x_position  &&  parking_progress <= 0) {
                     x_position += time_step * speed;
-                    System.out.println(name + " heading to parking " + pp.getName());
+                    if (debug_step) System.out.println(name + " heading to parking " + pp.getName());
                     return EVENT_OK;
                 }
                 else if (parking_progress < 1) {
                     parking_progress += time_step / State.parking_time;
-                    System.out.println(name + " parking at " + pp.getName());
+                    if (debug_step) System.out.println(name + " parking at " + pp.getName());
                     return EVENT_OK; // not finished
                 }
                 else {
                     current_action.setFinished(true);
-                    System.out.println(name + " parked at " + pp.getName() + "!!!");
+                    System.out.println("[EVENT_FINISHED] " + name + " has parked.");
                     return EVENT_FINISHED;
                 }
             }
         }
+        else if (!downward) {
+            x_position -= time_step * speed;
+            if (x_position < 0) {
+                current_action.setFinished(true);
+                System.out.println("[EVENT_EXIT_TOP] " + name + " has exited top.");
+                return EVENT_EXIT_TOP;
+            }
+            else
+                return EVENT_OK;
+        }
         else {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! THIS SHOULD NEVER NEVER NEVER NEVER NEVER HAPPEN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            // case action = WAIT
             return EVENT_OK; // not finished
         }
     }

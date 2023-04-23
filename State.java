@@ -126,7 +126,7 @@ public class State {
         for (Vehicle se : elts) {
             int id = se.getCurrent_action().getId();
             String id_str = se.getCurrent_action().getName();
-            ret += id;
+            ret += id_str;
             if (id == Action.PARK) ret += "(" + se.getCurrent_action().getParameter().name + ") ";
             else                   ret += "     ";
             ret += " ";

@@ -2,6 +2,7 @@ public class Action {
     public final static int EXIT = 0;
     public final static int PARK = 1;
     public final static int WAIT = 2;
+    public final static int GO_UP = 3;
     private int id;
     private String name;
     private SceneElement parameter;
@@ -21,6 +22,10 @@ public class Action {
         else if (id_action == WAIT) {
             this.name = "Wait";
             this.finished = true;
+        }
+        else if (id_action == GO_UP) {
+            this.name = "Go up";
+            this.finished = false;
         }
         else {
             System.out.println("Continue what?");
