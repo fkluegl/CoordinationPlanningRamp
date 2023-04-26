@@ -57,10 +57,12 @@ public class State {
         State ret = new State();
         // copy vehicle lists
         for (Vehicle v : this.dw_vehicles) {
-            ret.dw_vehicles.add(v.getCopy());
+            if (!v.isOut())
+                ret.dw_vehicles.add(v.getCopy());
         }
         for (Vehicle v : this.up_vehicles) {
-            ret.up_vehicles.add(v.getCopy());
+            if (!v.isOut())
+                ret.up_vehicles.add(v.getCopy());
         }
         // copy parking places list
         for (ParkingPlace p : this.parking_places) {
@@ -95,7 +97,8 @@ public class State {
         Collections.sort(elts, new SceneElementXPositionComparator());
         String str = "";
         for (SceneElement se : elts) {
-            str += se.getName();
+            if (!se.isOut())
+                str += se.getName();
         }
         return str;
     }
@@ -144,9 +147,12 @@ public class State {
 
         // get states resulting from events occurring during simulation
         for (State s : this.states_actions) {
-            ArrayList<State> event_based_states = mini_simulator.simulate(s);
-            ret.addAll(event_based_states);
+            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy()); // because simulate(s) modifies s
+            if (event_based_states != null)
+                ret.addAll(event_based_states);
         }
+
+        System.out.println("Simulation has generated " + ret.size() + " states.");
         return this.states_actions; // todo: return ret;
     }
 
@@ -157,22 +163,17 @@ public class State {
         }
         else {
             Vehicle v = this.dw_vehicles.get(id_vehicle);
-            //todo: check mandatory actions for v
+            //todo: check mandatory actions for v?
 
             // enumerate EXIT actions
-            //boolean exit_feasible = true;
-            //Vehicle facing = this.get_closest_upward_vehicle_below(v);
-            //if (facing != null)
-            //    exit_feasible = this.exist_enough_parking_place_between(v, facing);
             boolean exit_feasible = !this.is_upward_vehicle_below(v);
             if (exit_feasible) {
                 State state_copy_1 = this.getCopy();
                 state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
                 state_copy_1.enumerate_actions(id_vehicle + 1, Nv);
             }
-            else {
+            else
                 System.out.println(v.getName() + " cannot exit because of vehicle upw below");
-            }
 
             // enumerate PARK actions
             State state_copy_2 = this.getCopy();

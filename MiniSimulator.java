@@ -9,6 +9,18 @@ public class MiniSimulator {
     }
 
     public ArrayList<State> simulate(State s) {
+        // check if a vehicle intends to park at a parking place with a waiting vehicle
+        for (Vehicle v : s.getDw_vehicles())
+            if (v.getCurrent_action().getId() == Action.PARK) {
+                ParkingPlace pp = (ParkingPlace)v.getCurrent_action().getParameter();
+                Vehicle pv = pp.getParked_vehicle();
+                if (pv != null)
+                    if (pv.getCurrent_action().getId() == Action.WAIT) {
+                        System.out.println("Bound to failure: " + v.getName() + " cannot park at " + pp.getName() + " because " + pv.getName() + " waits there!");
+                        return null;
+                    }
+            }
+
         // initialize finished flags for PARK and EXIT
         for (Vehicle v : s.getDw_vehicles())
             if (v.getCurrent_action().getId() != Action.WAIT)
@@ -25,25 +37,29 @@ public class MiniSimulator {
         display.refresh();
         System.out.println("Simulate actions: " + s.current_action_str());
         System.out.println();
+        String hash_str = s.getOrderedNames();
 
         while (simulation_not_finished(s)) {
             display.refresh();
-            try { Thread.sleep(60); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            try { Thread.sleep(50); } catch (InterruptedException e) { throw new RuntimeException(e); }
             simulation_time += DT;
             for (Vehicle v : s.getDw_vehicles())
             {
                 if (v.getCurrent_action().isFinished())
                     continue;
 
-                feedback = v.step(DT);
-                if (feedback == Vehicle.EVENT_FINISHED  ||  feedback == Vehicle.EVENT_EXIT_BOTTOM) {
+                if (v.isOut()) feedback = Vehicle.EVENT_OK;
+                else           feedback = v.step(DT);
+                if (feedback == Vehicle.EVENT_VEHICLE_PARKED  ||  feedback == Vehicle.EVENT_EXIT_BOTTOM) {
+                    if (feedback == Vehicle.EVENT_EXIT_BOTTOM)
+                        v.setIs_out(true);
                     State s_copy = s.getCopy();
                     s_copy.increaseStart_time(simulation_time);
                     ret.add(s_copy);
                 }
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
-                    return ret;
+                    return null;
                 }
             }
             for (Vehicle v : s.getUp_vehicles())
@@ -51,16 +67,27 @@ public class MiniSimulator {
                 if (v.getCurrent_action().isFinished())
                     continue;
 
-                feedback = v.step(DT);
-                if (feedback == Vehicle.EVENT_FINISHED  ||  feedback == Vehicle.EVENT_EXIT_TOP) {
+                if (v.isOut()) feedback = Vehicle.EVENT_OK;
+                else           feedback = v.step(DT);
+                if (feedback == Vehicle.EVENT_EXIT_TOP) {
+                    v.setIs_out(true);
                     State s_copy = s.getCopy();
                     s_copy.increaseStart_time(simulation_time);
                     ret.add(s_copy);
                 }
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
-                    return ret;
+                    return null;
                 }
+            }
+            // check is qualitative change has occured
+            String new_hstr = s.getOrderedNames();
+            if (!hash_str.equals(new_hstr)) {
+                hash_str = new_hstr;
+                System.out.println("[new hash string] " + new_hstr + " - " + simulation_time);
+                State s_copy = s.getCopy();
+                s_copy.increaseStart_time(simulation_time);
+                ret.add(s_copy);
             }
         }
         return ret;
@@ -83,7 +110,7 @@ public class MiniSimulator {
 
         for (Vehicle v1 : elts)
             for (Vehicle v2 : elts)
-                if (v1 != v2) {
+                if (v1 != v2  &&  !v1.isOut()  &&  !v2.isOut()) {
                     if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
                         if (v1.getParking_progress() <= 0  && v2.getParking_progress() <= 0) {
                             System.out.println("COLLISION between " + v1.getName() + " and " + v2.getName() + " !!!");

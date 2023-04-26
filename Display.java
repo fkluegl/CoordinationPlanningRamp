@@ -1,29 +1,29 @@
-import javax.swing.*;
+import javax.swing.Timer;
+import javax.swing.JPanel;
 import java.awt.*;
 
-public class Display extends JFrame {
+public class Display extends JPanel {
     State display_state;
 
     public Display() {
-        setTitle("Ramp:");
-        setSize(1200, 1200);
         setVisible(true);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setBackground(Color.WHITE);
     }
-
 
     public void set_state(State s) {
         display_state = s;
     }
 
     public void refresh() {
-        paint(getGraphics());
+        paintComponent(getGraphics());
     }
 
+
     @Override
-    public void paint(Graphics g) {
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        g.clearRect(500, 1, 700, 1200);
+        g2d.clearRect(500, 1, 700, 1200);
 
         if (display_state == null)
             return;
@@ -56,6 +56,9 @@ public class Display extends JFrame {
         }
 
         g2d.drawLine(500, 1000, 700, 1000);
+
+
     }
+
 
 }

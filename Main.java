@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -8,7 +9,11 @@ public class Main {
         MiniSimulator mini_simultor = new MiniSimulator(display);
         State.setMini_simulator(mini_simultor);
 
-        //display.set_graph(g);
+        JFrame jFrame = new JFrame();
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jFrame.setSize(1200, 1200);
+        jFrame.add(display);
+        jFrame.setVisible(true);
 
         Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);

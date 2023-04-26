@@ -5,15 +5,18 @@ public class Vehicle extends SceneElement {
     public static int EVENT_FINISHED = 1;
     public static int EVENT_EXIT_TOP = 2;
     public static int EVENT_EXIT_BOTTOM = 3;
+    public static int EVENT_VEHICLE_PARKED = 4;
     private boolean downward;
     private double parking_progress = 0;
     private double speed;
+    private boolean is_out;
     private Action current_action;
     private boolean debug_step = false;
 
     public Vehicle(String nam, boolean dwd) {
         this.downward = dwd;
         this.name = nam;
+        this.is_out = false;
         this.x_position = 0;
         if (this.downward) {
             this.speed = 5.7;
@@ -47,10 +50,12 @@ public class Vehicle extends SceneElement {
         }
         else if (this.current_action.getId() == Action.PARK) {
             // first we need to possibly unpark...!
-            SceneElement pp = current_action.getParameter();
+            ParkingPlace pp = (ParkingPlace) current_action.getParameter();
             if (parking_progress > 0  &&  Math.abs(pp.x_position - x_position) > 1.0) { // case already in a parking place other than pp
                 parking_progress -= time_step / State.parking_time;
                 if (debug_step) System.out.println(name + " leaving previous parking");
+                if (pp.hasParkedVehicle())
+                    pp.removeParked_vehicle();
                 return EVENT_OK; // not finished
             }
             else {
@@ -66,8 +71,9 @@ public class Vehicle extends SceneElement {
                 }
                 else {
                     current_action.setFinished(true);
-                    System.out.println("[EVENT_FINISHED] " + name + " has parked.");
-                    return EVENT_FINISHED;
+                    System.out.println("[EVENT_VEHICLE_PARKED] " + name + " has parked.");
+                    pp.setParked_vehicle(this);
+                    return EVENT_VEHICLE_PARKED;
                 }
             }
         }
@@ -93,6 +99,7 @@ public class Vehicle extends SceneElement {
         ret.speed = this.speed;
         ret.current_action = this.current_action.getCopy();
         ret.parking_progress = this.parking_progress;
+        ret.is_out = this.is_out;
         return ret;
     }
 
@@ -110,6 +117,14 @@ public class Vehicle extends SceneElement {
 
     public double getSpeed() {
         return speed;
+    }
+
+    public boolean isOut() {
+        return is_out;
+    }
+
+    public void setIs_out(boolean is_out) {
+        this.is_out = is_out;
     }
 
     public void setCurrent_action(Action current_action) {

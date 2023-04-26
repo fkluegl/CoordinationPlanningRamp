@@ -21,6 +21,9 @@ public class SceneElement {
     public SceneElement getCopy() {
         return this.getCopy();
     }
+    public boolean isOut() {
+        return this.isOut();
+    }
 }
 
 
