@@ -2,10 +2,10 @@ import java.util.Comparator;
 
 public class Vehicle extends SceneElement {
     public static int EVENT_OK = 0;
-    public static int EVENT_FINISHED = 1;
-    public static int EVENT_EXIT_TOP = 2;
-    public static int EVENT_EXIT_BOTTOM = 3;
-    public static int EVENT_VEHICLE_PARKED = 4;
+    public static int EVENT_EXIT_TOP = 1;
+    public static int EVENT_EXIT_BOTTOM = 2;
+    public static int EVENT_VEHICLE_PARKED = 3;
+    public static int EVENT_PASSED_PARKING = 4;
     private boolean downward;
     private double parking_progress = 0;
     private double speed;
@@ -29,6 +29,7 @@ public class Vehicle extends SceneElement {
     }
 
     public int step(double time_step) {
+        double Dpp1 = getDeltaXToClosestParkingPlace();
         if (current_action.getId() == Action.EXIT) {
             if (parking_progress > 0) { // then must leave the parking place first
                 parking_progress -= time_step / State.parking_time;
@@ -39,7 +40,14 @@ public class Vehicle extends SceneElement {
                 if (x_position < State.x_max) {
                     x_position += time_step * speed;
                     if (debug_step) System.out.println(name + " heading to exit");
-                    return EVENT_OK;
+                    // check if parking place was passed
+                    double Dpp2 = getDeltaXToClosestParkingPlace();
+                    if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
+                        System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
+                        return EVENT_PASSED_PARKING;
+                    }
+                    else
+                        return EVENT_OK;
                 }
                 else {
                     current_action.setFinished(true);
@@ -62,7 +70,14 @@ public class Vehicle extends SceneElement {
                 if (x_position < pp.x_position  &&  parking_progress <= 0) {
                     x_position += time_step * speed;
                     if (debug_step) System.out.println(name + " heading to parking " + pp.getName());
-                    return EVENT_OK;
+                    // check if parking place was passed
+                    double Dpp2 = getDeltaXToClosestParkingPlace();
+                    if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
+                        System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
+                        return EVENT_PASSED_PARKING;
+                    }
+                    else
+                        return EVENT_OK;
                 }
                 else if (parking_progress < 1) {
                     parking_progress += time_step / State.parking_time;
@@ -84,13 +99,36 @@ public class Vehicle extends SceneElement {
                 System.out.println("[EVENT_EXIT_TOP] " + name + " has exited top.");
                 return EVENT_EXIT_TOP;
             }
-            else
-                return EVENT_OK;
+            else {
+                // check if parking place was passed
+                double Dpp2 = getDeltaXToClosestParkingPlace();
+                if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
+                    System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
+                    return EVENT_PASSED_PARKING;
+                }
+                else
+                    return EVENT_OK;
+            }
         }
         else {
             // case action = WAIT
             return EVENT_OK; // not finished
         }
+    }
+
+    private double getDeltaXToClosestParkingPlace() {
+        double shift;
+        if (downward) shift = -5.0;
+        else          shift =  5.0;
+        double DeltaX = 1000;
+        for (ParkingPlace pp : parentState.getParking_places()) {
+            double delta = x_position + shift - pp.x_position;
+            if (Math.abs(delta) < 2) { // to make sure we make 2 consecutive measurements to the same parking place
+                if (Math.abs(delta) < Math.abs(DeltaX))
+                    DeltaX = delta;
+            }
+        }
+        return DeltaX;
     }
 
     public Vehicle getCopy() {
@@ -100,6 +138,7 @@ public class Vehicle extends SceneElement {
         ret.current_action = this.current_action.getCopy();
         ret.parking_progress = this.parking_progress;
         ret.is_out = this.is_out;
+        ret.parentState = this.parentState;
         return ret;
     }
 

@@ -21,11 +21,11 @@ public class MiniSimulator {
                     }
             }
 
-        // initialize finished flags for PARK and EXIT
+        // initialize finished flags for vehicles committed to PARK and EXIT
         for (Vehicle v : s.getDw_vehicles())
             if (v.getCurrent_action().getId() != Action.WAIT)
                 v.getCurrent_action().setFinished(false);
-        // initialize finished flags for GO_UP
+        // initialize finished flags for vehicles committed to GO_UP
         for (Vehicle v : s.getUp_vehicles())
             v.getCurrent_action().setFinished(false);
 
@@ -37,7 +37,6 @@ public class MiniSimulator {
         display.refresh();
         System.out.println("Simulate actions: " + s.current_action_str());
         System.out.println();
-        String hash_str = s.getOrderedNames();
 
         while (simulation_not_finished(s)) {
             display.refresh();
@@ -50,7 +49,7 @@ public class MiniSimulator {
 
                 if (v.isOut()) feedback = Vehicle.EVENT_OK;
                 else           feedback = v.step(DT);
-                if (feedback == Vehicle.EVENT_VEHICLE_PARKED  ||  feedback == Vehicle.EVENT_EXIT_BOTTOM) {
+                if (feedback == Vehicle.EVENT_VEHICLE_PARKED  ||  feedback == Vehicle.EVENT_EXIT_BOTTOM  ||  feedback == Vehicle.EVENT_PASSED_PARKING) {
                     if (feedback == Vehicle.EVENT_EXIT_BOTTOM)
                         v.setIs_out(true);
                     State s_copy = s.getCopy();
@@ -69,8 +68,9 @@ public class MiniSimulator {
 
                 if (v.isOut()) feedback = Vehicle.EVENT_OK;
                 else           feedback = v.step(DT);
-                if (feedback == Vehicle.EVENT_EXIT_TOP) {
-                    v.setIs_out(true);
+                if (feedback == Vehicle.EVENT_EXIT_TOP  ||  feedback == Vehicle.EVENT_PASSED_PARKING) {
+                    if (feedback == Vehicle.EVENT_EXIT_TOP)
+                        v.setIs_out(true);
                     State s_copy = s.getCopy();
                     s_copy.increaseStart_time(simulation_time);
                     ret.add(s_copy);
@@ -79,15 +79,6 @@ public class MiniSimulator {
                 if (something_collides(s)) {
                     return null;
                 }
-            }
-            // check is qualitative change has occured
-            String new_hstr = s.getOrderedNames();
-            if (!hash_str.equals(new_hstr)) {
-                hash_str = new_hstr;
-                System.out.println("[new hash string] " + new_hstr + " - " + simulation_time);
-                State s_copy = s.getCopy();
-                s_copy.increaseStart_time(simulation_time);
-                ret.add(s_copy);
             }
         }
         return ret;
@@ -113,7 +104,7 @@ public class MiniSimulator {
                 if (v1 != v2  &&  !v1.isOut()  &&  !v2.isOut()) {
                     if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
                         if (v1.getParking_progress() <= 0  && v2.getParking_progress() <= 0) {
-                            System.out.println("COLLISION between " + v1.getName() + " and " + v2.getName() + " !!!");
+                            System.out.println("((( COLLISION ))) between " + v1.getName() + " and " + v2.getName() + " !!!");
                             return true;
                         }
                     }

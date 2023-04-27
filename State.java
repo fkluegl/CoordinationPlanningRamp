@@ -32,10 +32,12 @@ public class State {
     public void addVehicle(Vehicle v) {
         if (v.isDownward()) this.dw_vehicles.add(v);
         else                this.up_vehicles.add(v);
+        v.setParentState(this);
     }
     public void addParkingPlace(ParkingPlace p) {
         this.parking_places.add(p);
         this.Npp ++;
+        p.setParentState(this);
     }
 
     public void removeVehicle(String vname) {
@@ -97,8 +99,7 @@ public class State {
         Collections.sort(elts, new SceneElementXPositionComparator());
         String str = "";
         for (SceneElement se : elts) {
-            if (!se.isOut())
-                str += se.getName();
+            str += se.getName();
         }
         return str;
     }
@@ -147,7 +148,7 @@ public class State {
 
         // get states resulting from events occurring during simulation
         for (State s : this.states_actions) {
-            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy()); // because simulate(s) modifies s
+            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy()); // because simulate(x) modifies x
             if (event_based_states != null)
                 ret.addAll(event_based_states);
         }
@@ -163,7 +164,6 @@ public class State {
         }
         else {
             Vehicle v = this.dw_vehicles.get(id_vehicle);
-            //todo: check mandatory actions for v?
 
             // enumerate EXIT actions
             boolean exit_feasible = !this.is_upward_vehicle_below(v);
@@ -173,7 +173,7 @@ public class State {
                 state_copy_1.enumerate_actions(id_vehicle + 1, Nv);
             }
             else
-                System.out.println(v.getName() + " cannot exit because of vehicle upw below");
+                System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot exit because of vehicle Up vehicle below.");
 
             // enumerate PARK actions
             State state_copy_2 = this.getCopy();
@@ -206,6 +206,8 @@ public class State {
                         pp.setBooked(true);
                         state_copy_22.enumerate_actions(id_vehicle + 1, Nv);
                     }
+                    else
+                        System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot park because of Up vehicle in-between.");
                 }
             }
         }

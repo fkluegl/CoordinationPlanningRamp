@@ -3,6 +3,7 @@ import java.util.Comparator;
 public class SceneElement {
     protected double x_position;
     protected String name;
+    protected State parentState;
 
     public double getX_position() {
         return x_position;
@@ -19,10 +20,19 @@ public class SceneElement {
     }
 
     public SceneElement getCopy() {
-        return this.getCopy();
+        SceneElement ret = this.getCopy();
+        return ret;
     }
     public boolean isOut() {
         return this.isOut();
+    }
+
+    public void setParentState(State parentState) {
+        this.parentState = parentState;
+    }
+
+    public State getParentState() {
+        return parentState;
     }
 }
 

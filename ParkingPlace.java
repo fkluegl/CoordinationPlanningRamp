@@ -15,6 +15,7 @@ public class ParkingPlace extends SceneElement {
         ret.booked = this.booked;
         ret.x_position = this.x_position;
         ret.parked_vehicle = this.parked_vehicle;
+        ret.parentState = this.parentState;
         return ret;
     }
 
@@ -45,8 +46,6 @@ public class ParkingPlace extends SceneElement {
     public boolean isOut() {
         return false;
     }
-
-
     public boolean isBooked() {
         return booked;
     }
