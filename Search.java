@@ -23,6 +23,7 @@ public class Search {
 
         while (openSet.size() > 0) {
             State current = openSet.poll();
+            System.out.print("current (polled) state = " + current.current_action_str());
             nb_explored_states ++;
             if (current.equals(final_state)) {
                 return reconstruct_path(current);
@@ -30,8 +31,8 @@ public class Search {
 
             ArrayList<State> successors = current.get_next_states();
             for (State succ : successors) {
-                //double D = 1;
-                double D = distance_to_goal(succ);
+                double D = 1;
+                //double D = distance_to_goal(succ);
                 double tentative_gScore = current.g_score + D;
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
@@ -53,7 +54,7 @@ public class Search {
     }
 
     private double distance_to_goal(State s) {
-        return 1000;
+        return s.getDw_vehicles().size() + s.getUp_vehicles().size();
     }
 
     private boolean is_in_openSet(State x) {

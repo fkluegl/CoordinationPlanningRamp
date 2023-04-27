@@ -8,7 +8,7 @@ public class MiniSimulator {
         display = disp;
     }
 
-    public ArrayList<State> simulate(State s) {
+    public ArrayList<State> simulate(State s, boolean introspection) {
         // check if a vehicle intends to park at a parking place with a waiting vehicle
         for (Vehicle v : s.getDw_vehicles())
             if (v.getCurrent_action().getId() == Action.PARK) {
@@ -41,8 +41,10 @@ public class MiniSimulator {
         System.out.println();
 
         while (simulation_not_finished(s)) {
-            display.refresh();
-            try { Thread.sleep(50); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            if (introspection) {
+                display.refresh();
+                try { Thread.sleep(25); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            }
             simulation_time += DT;
             for (Vehicle v : s.getDw_vehicles())
             {
@@ -56,7 +58,7 @@ public class MiniSimulator {
                         v.setIs_out(true);
                     State s_copy = s.getCopy();
                     s_copy.increaseStart_time(simulation_time);
-                    if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!1");
+                    if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!");
                     ret.add(s_copy);
                 }
                 // check for collision --> end of the simulation

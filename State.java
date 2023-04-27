@@ -14,15 +14,17 @@ public class State {
     private int Ndw = 0;
     private int Nup = 0;
     private int Npp = 0;
+    private ArrayList<Vehicle> initial_dw_vehicles;
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> states_actions;
-    private static MiniSimulator mini_simulator;
+    public static MiniSimulator mini_simulator;
 
 
     public State() {
         this.dw_vehicles = new ArrayList<Vehicle>();
         this.up_vehicles = new ArrayList<Vehicle>();
         this.parking_places = new ArrayList<ParkingPlace>();
+        this.initial_dw_vehicles = new ArrayList<Vehicle>();
     }
 
     public static void setMini_simulator(MiniSimulator mini_simulator) {
@@ -88,6 +90,9 @@ public class State {
         for (ParkingPlace p : this.parking_places) {
             ret.parking_places.add(p.getCopy());
         }
+        for (Vehicle v : this.initial_dw_vehicles) {
+            ret.initial_dw_vehicles.add(v.getCopy());
+        }
         ret.Ndw = ret.dw_vehicles.size();
         ret.Nup = ret.up_vehicles.size();
         ret.Npp = this.Npp;
@@ -96,16 +101,14 @@ public class State {
     }
 
     public boolean equals(State s) {
-        // TODO!!!
-        System.out.println("State.equals() not implemented!");
-        System.exit(0);
-        /*if (this.current_node != s.current_node)
+        if (this.Ndw != s.Ndw)
             return false;
-
-        for (int i=0; i<size; i++)
-            if (this.clean[i] != s.clean[i])
-                return false;
-*/
+        if (this.Nup != s.Nup)
+            return false;
+        for (Vehicle v1 : dw_vehicles)
+            for (Vehicle v2 : s.getDw_vehicles())
+                if (v1.name == v2.name  &&  v1.x_position != v2.x_position)
+                    return false;
         return true;
     }
 
@@ -157,6 +160,19 @@ public class State {
         return ret;
     }
 
+    public String initial_vehicle_action_str() {
+        String ret = "";
+        for (Vehicle v : this.initial_dw_vehicles) {
+            int id = v.getCurrent_action().getId();
+            String id_str = v.getCurrent_action().getName();
+            ret += v.getName() + ": " + id_str;
+            if (id == Action.PARK) ret += "(" + v.getCurrent_action().getParameter().name + ") ";
+            else                   ret += "     ";
+            ret += " ";
+        }
+        return ret;
+    }
+
     public ArrayList<State> get_next_states() {
         ArrayList<State> ret = new ArrayList<State>();
         this.states_actions = new ArrayList<State>();
@@ -166,15 +182,28 @@ public class State {
 
         // get states resulting from events occurring during simulation
         for (State s : this.states_actions) {
-            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy()); // because simulate(x) modifies x
-            if (event_based_states != null)
-                ret.addAll(event_based_states);
+            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false); // because simulate(x) modifies x
+            if (event_based_states != null) {
+                for (State ebs : event_based_states) {
+                    for (Vehicle v : s.getDw_vehicles())  // to remember what actions have been applied on s to produce ebs
+                        ebs.initial_dw_vehicles.add(v);
+                    ret.add(ebs);
+                }
+            }
         }
 
         System.out.println("Simulation has generated " + ret.size() + " states.");
-        return this.states_actions; // todo: return ret;
+        return ret;
     }
 
+    public void assignActions(ArrayList<Vehicle> vehicles) {
+        for (Vehicle v1 : dw_vehicles) {
+            for (Vehicle v2 : vehicles) {
+                if (v1.name.equals(v2.name))
+                    v1.setCurrent_action(v2.getCurrent_action());
+            }
+        }
+    }
 
     public void enumerate_actions(int id_vehicle, int Nv) {
         if (id_vehicle == Nv) {
@@ -245,6 +274,10 @@ public class State {
 
     public ArrayList<ParkingPlace> getParking_places() {
         return parking_places;
+    }
+
+    public ArrayList<Vehicle> getInitial_dw_vehicles() {
+        return initial_dw_vehicles;
     }
 
     public void increaseStart_time(double start_time) {

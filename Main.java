@@ -22,54 +22,45 @@ public class Main {
         Vehicle v2 = new Vehicle("V2", true); v2.setParkedAt(p2);//v2.setX_position(40);
         Vehicle v3 = new Vehicle("V3", true); v3.setX_position(90);
 
-        State s_final = new State();
-
-        s_final.addVehicle(v1);
-        s_final.addVehicle(v2);
-        s_final.addVehicle(v3);
-        s_final.addVehicle(v4);
-        s_final.addVehicle(v5);
-        s_final.addParkingPlace(p1);
-        s_final.addParkingPlace(p2);
-
-        System.out.println(s_final);
-
-        //display.set_state(s_final);
-        //display.refresh();
-
-        ArrayList<State> ns = s_final.get_next_states();
-
-        System.out.println("[--- " + ns.size() + " successor states ---]");
-
-        for (State s : ns) {
-            //System.out.println(s);
-            System.out.print(s.current_action_str());
-        }
-
-
-        //s_final.current_node = 0;
-        //s_final.clean[0] = false;
-
-        /*
         State s_init = new State();
 
-        Search search = new Search(s_final, s_init);
+        s_init.addVehicle(v1);
+        s_init.addVehicle(v2);
+        s_init.addVehicle(v3);
+        s_init.addVehicle(v4);
+        s_init.addVehicle(v5);
+        s_init.addParkingPlace(p1);
+        s_init.addParkingPlace(p2);
+
+        System.out.println(s_init);
+
+        State s_final = new State(); // implicitly: contains no vehicles
+
+        Search search = new Search(s_init, s_final);
         double start = System.currentTimeMillis();
         ArrayList<State> solution = search.AStar();
         double end = System.currentTimeMillis();
         System.out.printf("search time = %.2f\n", (end - start) / 1000);
         System.out.printf("nb explored states = %d\n", search.nb_explored_states);
-        System.out.printf("solution length = %d", solution.size());
+        System.out.printf("solution length = %d\n", solution.size());
 
-        for (int i = 0; i < solution.size(); i++) {
-            State s = solution.get(i);
-            display.set_state(s);
-            display.refresh();
-            TimeUnit.MILLISECONDS.sleep(1000);
+        State s0 = s_init.getCopy();
+        s0.assignActions(solution.get(solution.size()-1).getInitial_dw_vehicles());
+        System.out.println("- step0: " + solution.get(solution.size()-1).getInitial_dw_vehicles());
+        State.mini_simulator.simulate(s0, true);
+
+        for (int i = solution.size() - 1; i > 0; i--) {
+            Thread.sleep(1000);
+            State s = solution.get(i).getCopy();
+            s.assignActions(solution.get(i-1).getInitial_dw_vehicles());
+            //display.set_state(s);
+            //display.refresh();
+            State.mini_simulator.simulate(s, true);
+            System.out.println("- step" + (solution.size() - i) + ": " + solution.get(i-1).initial_vehicle_action_str());
         }
-        display.set_state(s_final);
-        display.refresh();
-*/
+        //display.set_state(s_final);
+        //display.refresh();
+
     }
 }
 
