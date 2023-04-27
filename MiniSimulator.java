@@ -16,10 +16,12 @@ public class MiniSimulator {
                 Vehicle pv = pp.getParked_vehicle();
                 if (pv != null)
                     if (pv.getCurrent_action().getId() == Action.WAIT) {
-                        System.out.println("Bound to failure: " + v.getName() + " cannot park at " + pp.getName() + " because " + pv.getName() + " waits there!");
+                        System.out.println("[PRE-SIM] Bound to failure: " + v.getName() + " cannot park at " + pp.getName() + " because " + pv.getName() + " waits there!");
                         return null;
                     }
             }
+
+        // (todo: also check if a vehicle wants to exit while another Dw vehicle waits unparked)
 
         // initialize finished flags for vehicles committed to PARK and EXIT
         for (Vehicle v : s.getDw_vehicles())
@@ -54,6 +56,7 @@ public class MiniSimulator {
                         v.setIs_out(true);
                     State s_copy = s.getCopy();
                     s_copy.increaseStart_time(simulation_time);
+                    if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!1");
                     ret.add(s_copy);
                 }
                 // check for collision --> end of the simulation
@@ -73,6 +76,7 @@ public class MiniSimulator {
                         v.setIs_out(true);
                     State s_copy = s.getCopy();
                     s_copy.increaseStart_time(simulation_time);
+                    if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!1");
                     ret.add(s_copy);
                 }
                 // check for collision --> end of the simulation

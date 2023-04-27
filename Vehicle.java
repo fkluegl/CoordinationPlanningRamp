@@ -131,6 +131,12 @@ public class Vehicle extends SceneElement {
         return DeltaX;
     }
 
+    public void setParkedAt(ParkingPlace pp) {
+        pp.setParked_vehicle(this);
+        parking_progress = 1;
+        x_position = pp.x_position;
+    }
+
     public Vehicle getCopy() {
         Vehicle ret = new Vehicle(this.name, this.downward);
         ret.x_position = this.x_position;
