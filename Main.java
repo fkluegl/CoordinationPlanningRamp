@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Main {
 
@@ -20,7 +21,10 @@ public class Main {
         Vehicle v5 = new Vehicle("V5", false); v5.setX_position(40);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50);
         Vehicle v2 = new Vehicle("V2", true); v2.setParkedAt(p2);//v2.setX_position(40);
-        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(90);
+        Vehicle v6 = new Vehicle("V6", false); v6.setX_position(60);
+        Vehicle v3 = new Vehicle("V3", true); v3.setX_position(70);
+        ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(80);
+        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(90);
 
         State s_init = new State();
 
@@ -29,8 +33,11 @@ public class Main {
         s_init.addVehicle(v3);
         s_init.addVehicle(v4);
         s_init.addVehicle(v5);
+        s_init.addVehicle(v6);
+        s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
+        s_init.addParkingPlace(p3);
 
         System.out.println(s_init);
 
@@ -42,56 +49,31 @@ public class Main {
         double end = System.currentTimeMillis();
         System.out.printf("search time = %.2f\n", (end - start) / 1000);
         System.out.printf("nb explored states = %d\n", search.nb_explored_states);
-        System.out.printf("solution length = %d\n", solution.size());
-
-        State s0 = s_init.getCopy();
-        s0.assignActions(solution.get(solution.size()-1).getInitial_dw_vehicles());
-        System.out.println("- step0: " + solution.get(solution.size()-1).getInitial_dw_vehicles());
-        State.mini_simulator.simulate(s0, true);
-
-        for (int i = solution.size() - 1; i > 0; i--) {
-            Thread.sleep(1000);
-            State s = solution.get(i).getCopy();
-            s.assignActions(solution.get(i-1).getInitial_dw_vehicles());
-            //display.set_state(s);
-            //display.refresh();
-            State.mini_simulator.simulate(s, true);
-            System.out.println("- step" + (solution.size() - i) + ": " + solution.get(i-1).initial_vehicle_action_str());
+        if (solution == null) {
+            System.out.printf("!!! No solution !!!\n");
         }
-        //display.set_state(s_final);
-        //display.refresh();
+        else
+        {
+            System.out.printf("solution length = %d\n", solution.size());
+
+            State s0 = s_init.getCopy();
+            s0.assignActions(solution.get(1).getInitial_dw_vehicles());
+            solution.add(s0);
+            Collections.reverse(solution);
+
+            for (int i = 0; i < solution.size() - 1; i++) {
+                State s = solution.get(i);
+                s.assignActions(solution.get(i + 1).getInitial_dw_vehicles());
+                System.out.println("- step" + i + ": " + solution.get(i + 1).initial_vehicle_action_str());
+            }
+
+            for (int i = 0; i < solution.size() - 1; i++) {
+                //Thread.sleep(500);
+                State s = solution.get(i).getCopy();
+                State.mini_simulator.simulate(s, true, true);
+            }
+        }
 
     }
 }
 
-/*
-Results for g = euclidian distance  and  h = 1 * count_clean_nodes(s)
-#nodes      #states     #actions        time
-15          2700        27              0.15
-30          --------------------------------
-45          --------------------------------
-
-Results for g = euclidian distance  and  h = 2 * count_clean_nodes(s)
-#nodes      #states     #actions        time
-15          100         27              0.01
-30          1000        56              0.07
-45          40000       88              5.0
-
-Results for g = euclidian distance  and  h = 3 * count_clean_nodes(s)
-#nodes      #states     #actions        time
-15          80          27              0.01
-30          315         56              0.05
-45          434         84              0.06
-
-Results for g = euclidian distance  and  h = 4 * count_clean_nodes(s)
-#nodes      #states     #actions        time
-15          72          27              0.01
-30          221         56              0.02
-45          313         84              0.02
-
-Results for g = euclidian distance  and  h = 5 * count_clean_nodes(s)
-#nodes      #states     #actions        time
-15          72          27              0.01
-30          206         56              0.02
-45          296         84              0.02
- */

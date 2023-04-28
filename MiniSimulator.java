@@ -8,7 +8,7 @@ public class MiniSimulator {
         display = disp;
     }
 
-    public ArrayList<State> simulate(State s, boolean introspection) {
+    public ArrayList<State> simulate(State s, boolean introspection, boolean stop_when_dw_finished) {
         // check if a vehicle intends to park at a parking place with a waiting vehicle
         for (Vehicle v : s.getDw_vehicles())
             if (v.getCurrent_action().getId() == Action.PARK) {
@@ -30,20 +30,21 @@ public class MiniSimulator {
         // initialize finished flags for vehicles committed to GO_UP
         for (Vehicle v : s.getUp_vehicles())
             v.getCurrent_action().setFinished(false);
+        // initialize state duration
+        s.setDuration(0);
 
         ArrayList<State> ret = new ArrayList<>();
         double simulation_time = 0.0;
         double DT = 0.1;
         int feedback = -1;
         display.set_state(s);
-        display.refresh();
         System.out.println("Simulate actions: " + s.current_action_str());
         System.out.println();
 
-        while (simulation_not_finished(s)) {
+        while (simulation_not_finished(s, stop_when_dw_finished)) {
             if (introspection) {
                 display.refresh();
-                try { Thread.sleep(25); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                try { Thread.sleep(50); } catch (InterruptedException e) { throw new RuntimeException(e); }
             }
             simulation_time += DT;
             for (Vehicle v : s.getDw_vehicles())
@@ -57,6 +58,7 @@ public class MiniSimulator {
                     if (feedback == Vehicle.EVENT_EXIT_BOTTOM)
                         v.setIs_out(true);
                     State s_copy = s.getCopy();
+                    s_copy.setDuration(simulation_time);
                     s_copy.increaseStart_time(simulation_time);
                     if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!");
                     ret.add(s_copy);
@@ -77,6 +79,7 @@ public class MiniSimulator {
                     if (feedback == Vehicle.EVENT_EXIT_TOP)
                         v.setIs_out(true);
                     State s_copy = s.getCopy();
+                    s_copy.setDuration(simulation_time);
                     s_copy.increaseStart_time(simulation_time);
                     if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!1");
                     ret.add(s_copy);
@@ -90,13 +93,16 @@ public class MiniSimulator {
         return ret;
     }
 
-    boolean simulation_not_finished(State s) {
+    boolean simulation_not_finished(State s, boolean stop_when_dw_finished) {
         for (Vehicle v : s.getDw_vehicles())
             if (v.getCurrent_action().getId() != Action.WAIT  &&  !v.getCurrent_action().isFinished())
                 return true;
-        for (Vehicle v : s.getUp_vehicles())
-            if (!v.getCurrent_action().isFinished())
-                return true;
+        if (!stop_when_dw_finished)
+        {
+            for (Vehicle v : s.getUp_vehicles())
+                if (!v.getCurrent_action().isFinished())
+                    return true;
+        }
         return false;
     }
 

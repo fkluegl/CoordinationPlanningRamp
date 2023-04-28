@@ -14,6 +14,7 @@ public class State {
     private int Ndw = 0;
     private int Nup = 0;
     private int Npp = 0;
+    private double duration;
     private ArrayList<Vehicle> initial_dw_vehicles;
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> states_actions;
@@ -25,6 +26,7 @@ public class State {
         this.up_vehicles = new ArrayList<Vehicle>();
         this.parking_places = new ArrayList<ParkingPlace>();
         this.initial_dw_vehicles = new ArrayList<Vehicle>();
+        this.duration = 0;
     }
 
     public static void setMini_simulator(MiniSimulator mini_simulator) {
@@ -182,11 +184,12 @@ public class State {
 
         // get states resulting from events occurring during simulation
         for (State s : this.states_actions) {
-            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false); // because simulate(x) modifies x
+            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false, false); // because simulate(x) modifies x
             if (event_based_states != null) {
                 for (State ebs : event_based_states) {
+                    ebs.initial_dw_vehicles.clear();
                     for (Vehicle v : s.getDw_vehicles())  // to remember what actions have been applied on s to produce ebs
-                        ebs.initial_dw_vehicles.add(v);
+                        ebs.initial_dw_vehicles.add(v.getCopy());
                     ret.add(ebs);
                 }
             }
@@ -282,6 +285,14 @@ public class State {
 
     public void increaseStart_time(double start_time) {
         this.start_time += start_time;
+    }
+
+    public void setDuration(double duration) {
+        this.duration = duration;
+    }
+
+    public double getDuration() {
+        return duration;
     }
 
     Vehicle get_closest_upward_vehicle_below(Vehicle v) {

@@ -19,7 +19,7 @@ public class Search {
         openSet = new PriorityQueue<State>(16, new StateComparator());
         openSet.add(init_state);
         init_state.g_score = 0;
-        init_state.f_score = h(init_state);
+        init_state.f_score = 1000; //h(init_state);
 
         while (openSet.size() > 0) {
             State current = openSet.poll();
@@ -31,13 +31,12 @@ public class Search {
 
             ArrayList<State> successors = current.get_next_states();
             for (State succ : successors) {
-                double D = 1;
-                //double D = distance_to_goal(succ);
-                double tentative_gScore = current.g_score + D;
+                //double tentative_gScore = current.g_score + 1;
+                double tentative_gScore = current.g_score + succ.getDuration();
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
-                    succ.f_score = tentative_gScore + h(succ);
+                    succ.f_score = tentative_gScore; // + h(succ);
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);
                         //if (openSet.size() % 1000 == 0)
@@ -49,12 +48,37 @@ public class Search {
         return null;
     }
 
+
     private double h(State s) {
-        return this.distance_to_goal(s);
+        return time_to_goal(s);
+    }
+
+    private double time_to_goal(State s) {
+        double t = 0;
+        for (Vehicle v : s.getDw_vehicles())
+            if (!v.isOut())
+                t += (State.x_max - v.getX_position()) / v.getSpeed();
+
+        for (Vehicle v : s.getUp_vehicles())
+            if (!v.isOut())
+                t += v.getX_position() / v.getSpeed();
+
+        return t;
+        //return s.getDw_vehicles().size() + s.getUp_vehicles().size();
     }
 
     private double distance_to_goal(State s) {
-        return s.getDw_vehicles().size() + s.getUp_vehicles().size();
+        double D = 0;
+        for (Vehicle v : s.getDw_vehicles())
+            if (!v.isOut())
+                D += (State.x_max - v.getX_position());
+
+        for (Vehicle v : s.getUp_vehicles())
+            if (!v.isOut())
+                D += v.getX_position();
+
+        return D;
+        //return s.getDw_vehicles().size() + s.getUp_vehicles().size();
     }
 
     private boolean is_in_openSet(State x) {
