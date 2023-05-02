@@ -35,7 +35,7 @@ public class MiniSimulator {
 
         ArrayList<State> ret = new ArrayList<>();
         double simulation_time = 0.0;
-        double DT = 0.1;
+        double DT = 0.05;
         int feedback = -1;
         display.set_state(s);
         System.out.println("Simulate actions: " + s.current_action_str());
@@ -44,7 +44,7 @@ public class MiniSimulator {
         while (simulation_not_finished(s, stop_when_dw_finished)) {
             if (introspection) {
                 display.refresh();
-                try { Thread.sleep(50); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
             }
             simulation_time += DT;
             for (Vehicle v : s.getDw_vehicles())

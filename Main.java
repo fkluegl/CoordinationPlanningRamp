@@ -68,7 +68,7 @@ public class Main {
             }
 
             for (int i = 0; i < solution.size() - 1; i++) {
-                //Thread.sleep(500);
+                System.out.println("- step" + i + ": " + solution.get(i + 1).initial_vehicle_action_str());
                 State s = solution.get(i).getCopy();
                 State.mini_simulator.simulate(s, true, true);
             }

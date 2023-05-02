@@ -49,8 +49,8 @@ public class Search {
     }
 
     private double G(State s) {
-        return 1;
-        //return s.getDuration();
+        //return 1;
+        return s.getDuration();
     }
     private double H(State s) {
         return 0;
