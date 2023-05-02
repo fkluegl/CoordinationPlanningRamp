@@ -14,11 +14,6 @@ public class Display extends JPanel {
         display_state = s;
     }
 
-    public void refresh() {
-        paintComponent(getGraphics());
-    }
-
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
