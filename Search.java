@@ -32,11 +32,11 @@ public class Search {
             ArrayList<State> successors = current.get_next_states();
             for (State succ : successors) {
                 //double tentative_gScore = current.g_score + 1;
-                double tentative_gScore = current.g_score + succ.getDuration();
+                double tentative_gScore = current.g_score + G(succ);
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
-                    succ.f_score = tentative_gScore; // + h(succ);
+                    succ.f_score = tentative_gScore + H(succ);
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);
                         //if (openSet.size() % 1000 == 0)
@@ -48,9 +48,13 @@ public class Search {
         return null;
     }
 
-
-    private double h(State s) {
-        return time_to_goal(s);
+    private double G(State s) {
+        return 1;
+        //return s.getDuration();
+    }
+    private double H(State s) {
+        return 0;
+        //return time_to_goal(s);
     }
 
     private double time_to_goal(State s) {

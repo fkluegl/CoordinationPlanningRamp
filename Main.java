@@ -4,7 +4,7 @@ import java.util.Collections;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Display display = new Display();
         MiniSimulator mini_simultor = new MiniSimulator(display);
         State.setMini_simulator(mini_simultor);
