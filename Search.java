@@ -53,21 +53,30 @@ public class Search {
         return s.getDuration();
     }
     private double H(State s) {
-        return 0;
-        //return time_to_goal(s);
+        //return 0;
+        return time_to_goal(s);
     }
 
     private double time_to_goal(State s) {
-        double t = 0;
+        double maxt = 0;
+        double t;
         for (Vehicle v : s.getDw_vehicles())
-            if (!v.isOut())
-                t += (State.x_max - v.getX_position()) / v.getSpeed();
+            if (!v.isOut()) {
+                t = (State.x_max - v.getX_position()) / v.getSpeed();
+                if (t > maxt) {
+                    maxt = t;
+                }
+            }
 
         for (Vehicle v : s.getUp_vehicles())
-            if (!v.isOut())
-                t += v.getX_position() / v.getSpeed();
+            if (!v.isOut()) {
+                t = v.getX_position() / v.getSpeed();
+                if (t > maxt) {
+                    maxt = t;
+                }
+            }
 
-        return t;
+        return maxt;
         //return s.getDw_vehicles().size() + s.getUp_vehicles().size();
     }
 
