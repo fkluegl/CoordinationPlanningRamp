@@ -8,10 +8,17 @@ public class Vehicle extends SceneElement {
     public static int EVENT_PASSED_PARKING = 4;
     private boolean downward;
     private double parking_progress = 0;
+    private double min_speed;
+    private double max_speed;
     private double speed;
     private boolean is_out;
     private Action current_action;
     private boolean debug_step = false;
+    // ---------------------------------------------------------------------------
+    private boolean parked = false;
+    private boolean in_ramp = false;
+    private boolean first = false;
+
 
     public Vehicle(String nam, boolean dwd) {
         this.downward = dwd;
@@ -19,6 +26,8 @@ public class Vehicle extends SceneElement {
         this.is_out = false;
         this.x_position = 0;
         if (this.downward) {
+            this.min_speed = 4.0;
+            this.max_speed = 8.0;
             this.speed = 5.7;
             this.current_action = new Action(Action.WAIT);
         }

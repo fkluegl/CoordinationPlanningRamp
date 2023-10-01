@@ -17,7 +17,7 @@ public class State {
     private double duration;
     private ArrayList<Vehicle> initial_dw_vehicles;
     private ArrayList<ParkingPlace> parking_places;
-    private static ArrayList<State> states_actions;
+    private static ArrayList<State> next_states;
     public static MiniSimulator mini_simulator;
 
 
@@ -177,13 +177,13 @@ public class State {
 
     public ArrayList<State> get_next_states() {
         ArrayList<State> ret = new ArrayList<State>();
-        this.states_actions = new ArrayList<State>();
+        this.next_states = new ArrayList<State>();
 
         // enumerated possible actions to be applied to this state
         this.enumerate_actions(0, this.dw_vehicles.size());
 
-        // get states resulting from events occurring during simulation
-        for (State s : this.states_actions) {
+        // get states resulting from events occurring during simulation            //TODO: Could be not needed anymore !
+        for (State s : this.next_states) {
             ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false, false); // because simulate(x) modifies x
             if (event_based_states != null) {
                 for (State ebs : event_based_states) {
@@ -210,7 +210,7 @@ public class State {
 
     public void enumerate_actions(int id_vehicle, int Nv) {
         if (id_vehicle == Nv) {
-            this.states_actions.add(this);
+            this.next_states.add(this);
         }
         else {
             Vehicle v = this.dw_vehicles.get(id_vehicle);
@@ -239,7 +239,7 @@ public class State {
 
     public void enumerate_parking_places(int id_vehicle, int id_parking, int Nv) {
         if (id_vehicle == Nv) {
-            this.states_actions.add(this);
+            this.next_states.add(this);
         }
         else {
             // Assigns parking places, prunes out parking places which are:
