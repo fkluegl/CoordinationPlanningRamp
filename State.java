@@ -19,6 +19,9 @@ public class State {
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> next_states;
     public static MiniSimulator mini_simulator;
+    // ----------------------------------------------------------------------
+    public ArrayList<Boolean> park_clear;
+    public ArrayList<Boolean> prepark_clear;
 
 
     public State() {
@@ -26,6 +29,8 @@ public class State {
         this.up_vehicles = new ArrayList<Vehicle>();
         this.parking_places = new ArrayList<ParkingPlace>();
         this.initial_dw_vehicles = new ArrayList<Vehicle>();
+        this.park_clear = new ArrayList<Boolean>();
+        this.prepark_clear = new ArrayList<Boolean>();
         this.duration = 0;
     }
 
@@ -44,10 +49,13 @@ public class State {
         }
         v.setParentState(this);
     }
-    public void addParkingPlace(ParkingPlace p) {
-        this.parking_places.add(p);
+    public void addParkingPlace(ParkingPlace pp) {
+        this.parking_places.add(pp);
+        this.park_clear.add(true);
+        this.prepark_clear.add(true);
+        pp.id = Npp;
         this.Npp ++;
-        p.setParentState(this);
+        pp.setParentState(this);
     }
 
     public boolean allVehiclesOut() {
@@ -94,6 +102,13 @@ public class State {
         }
         for (Vehicle v : this.initial_dw_vehicles) {
             ret.initial_dw_vehicles.add(v.getCopy());
+        }
+        // copy park_clear and preparked_clear flags
+        for (Boolean b : this.park_clear) {
+            ret.park_clear.add(b);
+        }
+        for (Boolean b : this.prepark_clear) {
+            ret.prepark_clear.add(b);
         }
         ret.Ndw = ret.dw_vehicles.size();
         ret.Nup = ret.up_vehicles.size();
@@ -177,13 +192,14 @@ public class State {
 
     public ArrayList<State> get_next_states() {
         ArrayList<State> ret = new ArrayList<State>();
-        this.next_states = new ArrayList<State>();
+        next_states = new ArrayList<State>();
 
         // enumerated possible actions to be applied to this state
-        this.enumerate_actions(0, this.dw_vehicles.size());
+        enumerate_actions(0, dw_vehicles.size());
+        System.out.println("CURRENT ACTIONS: " + current_action_str());
 
         // get states resulting from events occurring during simulation            //TODO: Could be not needed anymore !
-        for (State s : this.next_states) {
+        for (State s : next_states) {
             ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false, false); // because simulate(x) modifies x
             if (event_based_states != null) {
                 for (State ebs : event_based_states) {
@@ -205,6 +221,13 @@ public class State {
                 if (v1.name.equals(v2.name))
                     v1.setCurrent_action(v2.getCurrent_action());
             }
+        }
+    }
+
+    public void printCurrentActions() {
+        System.out.println("CURRENT ACTIONS:");
+        for(Vehicle v : this.dw_vehicles) {
+            System.out.printf("%s : %s\n", v.name, v.getCurrent_action().getName());
         }
     }
 

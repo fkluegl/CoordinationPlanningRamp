@@ -155,6 +155,10 @@ public class Vehicle extends SceneElement {
         ret.parking_progress = this.parking_progress;
         ret.is_out = this.is_out;
         ret.parentState = this.parentState;
+        ret.parked = this.parked;
+        ret.preparked = this.preparked;
+        ret.in_ramp = this.in_ramp;
+        ret.first = this.first;
         return ret;
     }
 
@@ -199,6 +203,22 @@ public class Vehicle extends SceneElement {
             return " [↓] " + this.current_action.getName();
         else
             return " [↑] " + this.current_action.getName();
+    }
+
+    public boolean isParked() {
+        return parked;
+    }
+
+    public boolean isPreparked() {
+        return preparked;
+    }
+
+    public boolean isIn_ramp() {
+        return in_ramp;
+    }
+
+    public boolean isFirst() {
+        return first;
     }
 
 }

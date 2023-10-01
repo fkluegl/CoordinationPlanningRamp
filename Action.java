@@ -29,7 +29,10 @@ public class Action {
         }
         else if (id_action == WAIT) {
             this.name = "Wait";
-            this.finished = true;
+            this.finished = true;  // waiting gets finished immediately!
+        }
+        else if (id_action == ENTER) {
+            this.name = "Enter";
         }
         else if (id_action == GO_UP) {
             this.name = "Go up";
@@ -40,6 +43,50 @@ public class Action {
         }
         if (params.length > 0)
             this.parameter = params[0];
+    }
+
+    public boolean fulfills_preconditions(State s, Vehicle v) {
+        if (this.id == EXIT) {
+            if (!v.isParked() && v.isIn_ramp())
+                return true;
+            else
+                return false;
+        }
+        else if (this.id == PREPARK) {
+            if (!v.isParked() && !v.isPreparked() && v.isIn_ramp())
+                return true;
+            else
+                return false;
+        }
+        else if (this.id == PARK) {
+            if (!v.isParked() && s.park_clear.get(this.parameter.id) && v.isPreparked() && v.isIn_ramp())
+                return true;
+            else
+                return false;
+        }
+        else if (this.id == UNPARK) {
+            if (v.isParked() && s.prepark_clear.get(this.parameter.id))
+                return true;
+            else
+                return false;
+        }
+        else if (this.id == WAIT) {
+            if (v.isParked() || v.isFirst())
+                return true;
+            else
+                return false;
+        }
+        else if (this.id == ENTER) {
+            if (!v.isIn_ramp() && v.isFirst())
+                return true;
+            else
+                return false;
+        }
+        else {
+            System.out.println("This action has a weir id!");
+            System.exit(0);
+            return false;
+        }
     }
 
     public Action getCopy() {
