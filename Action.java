@@ -1,8 +1,11 @@
 public class Action {
     public final static int EXIT = 0;
     public final static int PARK = 1;
+    public final static int PREPARK = 11;
+    public final static int UNPARK = 12;
     public final static int WAIT = 2;
-    public final static int GO_UP = 3;
+    public final static int ENTER = 3;
+    public final static int GO_UP = 4;
     private int id;
     private String name;
     private SceneElement parameter;
@@ -11,13 +14,18 @@ public class Action {
 
     public Action(int id_action, SceneElement... params) {
         this.id = id_action;
+        this.finished = false;
         if (id_action == EXIT) {
             this.name = "Exit";
-            this.finished = false;
         }
         else if (id_action == PARK) {
             this.name = "Park";
-            this.finished = false;
+        }
+        else if (id_action == PREPARK) {
+            this.name = "Pre-park";
+        }
+        else if (id_action == UNPARK) {
+            this.name = "Unpark";
         }
         else if (id_action == WAIT) {
             this.name = "Wait";
@@ -25,7 +33,6 @@ public class Action {
         }
         else if (id_action == GO_UP) {
             this.name = "Go up";
-            this.finished = false;
         }
         else {
             System.out.println("Continue what?");

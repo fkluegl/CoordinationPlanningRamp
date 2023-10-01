@@ -16,6 +16,7 @@ public class Vehicle extends SceneElement {
     private boolean debug_step = false;
     // ---------------------------------------------------------------------------
     private boolean parked = false;
+    private boolean preparked = false;
     private boolean in_ramp = false;
     private boolean first = false;
 
