@@ -191,6 +191,28 @@ public class Vehicle extends SceneElement {
         return current_action;
     }
 
+    public void apply_current_action_effects() {
+        if (current_action.getId() == Action.EXIT) {
+            in_ramp = false;
+            is_out = true;
+        }
+        else if (current_action.getId() == Action.WAIT) {
+            return;  // WAIT changes nothing
+        }
+        else if (current_action.getId() == Action.PARK) {
+            parentState.setParked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
+            parentState.removePreparked_vehicle(this);
+        }
+        else if (current_action.getId() == Action.PREPARK) {
+            parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
+        }
+        else if (current_action.getId() == Action.UNPARK) {
+            parentState.removeParked_vehicle(this);
+            parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
+        }
+
+    }
+
     public void setSpeed(double speed) {
         this.speed = speed;
     }

@@ -51,8 +51,6 @@ public class State {
     }
     public void addParkingPlace(ParkingPlace pp) {
         parking_places.add(pp);
-        //park_clear.add(true);
-        //prepark_clear.add(true);
         pp.id = Npp;
         Npp ++;
         pp.setParentState(this);
@@ -60,8 +58,8 @@ public class State {
 
     public void setParked_vehicle(Vehicle v, ParkingPlace pp) {
         parked_at[v.id] = pp.id;
-        v.setParking_progress(1);
-        v.x_position = pp.x_position;
+        v.setParking_progress(1);       //TODO: adjust
+        v.x_position = pp.x_position;   //TODO: adjust
     }
 
     public Vehicle getParked_vehicle(ParkingPlace pp) {
@@ -82,6 +80,24 @@ public class State {
 
     public void removeParked_vehicle(Vehicle v) {
         parked_at[v.id] = -1;
+    }
+
+    public void setPreparked_vehicle(Vehicle v, ParkingPlace pp) {
+        preparked_at[v.id] = pp.id;
+        v.setParking_progress(1);       //TODO: adjust
+        v.x_position = pp.x_position;   //TODO: adjust
+    }
+
+    public Vehicle getPreparked_vehicle(ParkingPlace pp) {
+        for (int i=0; i<Ndw; i++) {
+            if (parked_at[i] == pp.id)
+                return dw_vehicles.get(i);
+        }
+        return null;
+    }
+
+    public void removePreparked_vehicle(Vehicle v) {
+        preparked_at[v.id] = -1;
     }
 
     public boolean allVehiclesOut() {
@@ -262,7 +278,11 @@ public ArrayList<State> get_next_states2() {
         }
     }
 
-    //TODO: Apply symbolic effects of actions on states
+    // Apply symbolic effects of actions on states
+    for (State s : ret) {
+        for (Vehicle v : s.dw_vehicles)
+            v.apply_current_action_effects();
+    }
 
     System.out.println("Simulation has generated " + ret.size() + " states.");
     return ret;
@@ -347,35 +367,53 @@ public ArrayList<State> get_next_states2() {
         else {
             Vehicle v = dw_vehicles.get(id_vehicle);
 
-            boolean testpreconditions = fulfills_preconditions(v, Action.EXIT);
-            if (testpreconditions)
-                System.out.println("YES!");
-            else
-                System.out.println("NO!");
-
             // enumerate EXIT actions
+            boolean exit_precondition = fulfills_preconditions(v, Action.EXIT);
             boolean exit_feasible = !this.is_upward_vehicle_below(v);       // GEOMETRIC
-            if (exit_feasible) {
+
+            if (exit_precondition && exit_feasible) {
                 State state_copy_1 = this.getCopy();
                 state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
-                state_copy_1.enumerate_actions(id_vehicle + 1, Nv);
+                state_copy_1.enumerate_actions2(id_vehicle + 1, Nv);
             }
             else
                 System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot EXIT because of vehicle Up vehicle below.");
 
             // enumerate PARK actions
             State state_copy_2 = this.getCopy();
-            for (int p=0; p<this.Npp; p++)
-                state_copy_2.enumerate_parking_places2(id_vehicle, p, Nv);
+            for (int p=0; p<this.Npp; p++) {
+                boolean park_precondition = fulfills_preconditions(v, Action.PARK, p);
+                if (park_precondition)
+                    state_copy_2.enumerate_parking_places2(id_vehicle, p, Nv, Action.PARK);
+            }
+
+            // enumerate PREPARK actions
+            State state_copy_3 = this.getCopy();
+            for (int p=0; p<this.Npp; p++) {
+                boolean prepark_precondition = fulfills_preconditions(v, Action.PREPARK, p);
+                if (prepark_precondition)
+                    state_copy_3.enumerate_parking_places2(id_vehicle, p, Nv, Action.PREPARK);
+            }
+
+            // enumerate UNPARK actions
+            State state_copy_4 = this.getCopy();
+            for (int p=0; p<this.Npp; p++) {
+                boolean unpark_precondition = fulfills_preconditions(v, Action.UNPARK, p);
+                if (unpark_precondition)
+                    state_copy_4.enumerate_parking_places2(id_vehicle, p, Nv, Action.UNPARK);
+            }
 
             // enumerate WAIT actions
-            State state_copy_3 = this.getCopy();
-            state_copy_3.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.WAIT));
-            state_copy_3.enumerate_actions(id_vehicle + 1, Nv);
+            boolean wait_precondition = fulfills_preconditions(v, Action.WAIT);
+            if (wait_precondition) {
+                State state_copy_5 = this.getCopy();
+                state_copy_5.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.WAIT));
+                state_copy_5.enumerate_actions2(id_vehicle + 1, Nv);
+            }
         }
     }
 
-    public void enumerate_parking_places2(int id_vehicle, int id_parking, int Nv) {
+    public void enumerate_parking_places2(int id_vehicle, int id_parking, int Nv, int id_action) {
         if (id_vehicle == Nv) {
             this.next_states.add(this);
         }
@@ -387,12 +425,12 @@ public ArrayList<State> get_next_states2() {
             State state_copy_22 = this.getCopy();
             ParkingPlace pp = state_copy_22.parking_places.get(id_parking);
             Vehicle v = state_copy_22.dw_vehicles.get(id_vehicle);
-            if (!pp.isBooked()) {                                                   // LOGIC
+            if (!pp.isBooked()) {                                                   // LOGIC //TODO: remove later
                 if (pp.isBelow(v)) {                                                // GEOMETRIC
                     if (!state_copy_22.exist_upward_vehicle_between(v, pp)) {       // GEOMETRIC
-                        v.setCurrent_action(new Action(Action.PARK, pp));
-                        pp.setBooked(true);
-                        state_copy_22.enumerate_actions(id_vehicle + 1, Nv);
+                        v.setCurrent_action(new Action(id_action, pp));
+                        pp.setBooked(true); //TODO: remove later
+                        state_copy_22.enumerate_actions2(id_vehicle + 1, Nv);
                     }
                     else
                         System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot PARK because of Up vehicle in-between.");

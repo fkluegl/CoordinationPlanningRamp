@@ -59,6 +59,8 @@ public class Action {
     }
 
     public SceneElement getParameter() {
+        if (parameter == null)
+            System.out.println("parameter is NULLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
         return parameter;
     }
 
