@@ -3,6 +3,7 @@ import java.util.Collections;
 
 public class State {
     public final static double parking_time = 3; // s
+    public final static double x_min = 0.0;   // m
     public final static double x_max = 100.0; // m
     public final static double safety_distance = 5.0; // m (center-to-center)
     private double start_time = 0;
@@ -265,26 +266,18 @@ public ArrayList<State> get_next_states2() {
     //  * PARK / PREPARK / UNPARK with same destination and different vehicles
     //  * ...
 
-    // get states resulting from events occurring during simulation            //TODO: Could be not needed anymore !
-    for (State s : next_states) {
-        ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false, false); // because simulate(x) modifies x
-        if (event_based_states != null) {
-            for (State ebs : event_based_states) {
-                ebs.initial_dw_vehicles.clear();
-                for (Vehicle v : s.getDw_vehicles())  // to remember what actions have been applied on s to produce ebs
-                    ebs.initial_dw_vehicles.add(v.getCopy());
-                ret.add(ebs);
-            }
-        }
-    }
+    // keep states not resulting in a collision
+    for (State s : next_states)
+        if (mini_simulator.simulate2(s))  // simulate(x) modifies x, so s is the geometrical result of applying current_actions on s' parent
+            ret.add(s);
 
-    // Apply symbolic effects of actions on states
+    // Apply symbolic effects of actions on original states
     for (State s : ret) {
         for (Vehicle v : s.dw_vehicles)
             v.apply_current_action_effects();
     }
 
-    System.out.println("Simulation has generated " + ret.size() + " states.");
+    System.out.println("Simulation has kept " + ret.size() + " states.");
     return ret;
 }
 

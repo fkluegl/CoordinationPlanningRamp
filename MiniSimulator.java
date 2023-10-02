@@ -93,6 +93,48 @@ public class MiniSimulator {
         return ret;
     }
 
+    public boolean simulate2(State s) {
+        // initialize state duration
+        s.setDuration(0);
+
+        double simulation_time = 0.0;
+        double DT = 0.025;
+        int feedback = -1;
+        display.set_state(s);
+        System.out.println("Simulate actions: " + s.current_action_str());
+        System.out.println();
+
+        while (!all_actions_finished(s)) {
+            simulation_time += DT;
+
+            for (Vehicle v : s.getDw_vehicles())
+            {
+                if (v.getCurrent_action().isFinished())
+                    continue;
+
+                v.step2(DT);
+
+                // check for collision --> end of the simulation
+                if (something_collides(s)) {
+                    return false;
+                }
+            }
+            for (Vehicle v : s.getUp_vehicles())
+            {
+                if (v.getCurrent_action().isFinished())
+                    continue;
+
+                v.step2(DT);
+
+                // check for collision --> end of the simulation
+                if (something_collides(s)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     boolean simulation_not_finished(State s, boolean stop_when_dw_finished) {
         for (Vehicle v : s.getDw_vehicles())
             if (v.getCurrent_action().getId() != Action.WAIT  &&  !v.getCurrent_action().isFinished())
@@ -104,6 +146,18 @@ public class MiniSimulator {
                     return true;
         }
         return false;
+    }
+
+    boolean all_actions_finished(State s) {
+        for (Vehicle v : s.getDw_vehicles())
+            if (!v.getCurrent_action().isFinished())
+                return false;
+
+        for (Vehicle v : s.getUp_vehicles())
+            if (!v.getCurrent_action().isFinished())
+                return false;
+
+        return true;
     }
 
     boolean something_collides(State s) {
