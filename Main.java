@@ -38,7 +38,7 @@ public class Main {
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);
-        v2.setParkedAt(p2);
+        s_init.setParked_vehicle(v2, p2);
 
         System.out.println(s_init);
 

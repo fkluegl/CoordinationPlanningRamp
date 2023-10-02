@@ -13,7 +13,7 @@ public class MiniSimulator {
         for (Vehicle v : s.getDw_vehicles())
             if (v.getCurrent_action().getId() == Action.PARK) {
                 ParkingPlace pp = (ParkingPlace)v.getCurrent_action().getParameter();
-                Vehicle pv = pp.getParked_vehicle();
+                Vehicle pv = s.getParked_vehicle(pp);
                 if (pv != null)
                     if (pv.getCurrent_action().getId() == Action.WAIT) {
                         System.out.println("[PRE-SIM] Bound to failure: " + v.getName() + " cannot park at " + pp.getName() + " because " + pv.getName() + " waits there!");

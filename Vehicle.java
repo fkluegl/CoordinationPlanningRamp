@@ -15,9 +15,7 @@ public class Vehicle extends SceneElement {
     private Action current_action;
     private boolean debug_step = false;
     // ---------------------------------------------------------------------------
-    private boolean parked = false;
-    private boolean preparked = false;
-    private boolean in_ramp = false;
+    private boolean in_ramp;
     private boolean first = false;
 
 
@@ -25,6 +23,7 @@ public class Vehicle extends SceneElement {
         this.downward = dwd;
         this.name = nam;
         this.is_out = false;
+        this.in_ramp = true;
         this.x_position = 0;
         if (this.downward) {
             this.min_speed = 4.0;
@@ -72,8 +71,8 @@ public class Vehicle extends SceneElement {
             if (parking_progress > 0  &&  Math.abs(pp.x_position - x_position) > 1.0) { // case already in a parking place other than pp
                 parking_progress -= time_step / State.parking_time;
                 if (debug_step) System.out.println(name + " leaving previous parking");
-                if (pp.hasParkedVehicle())
-                    pp.removeParked_vehicle();
+                if (parentState.hasParkedVehicle(pp))
+                    parentState.removeParked_vehicle(this);
                 return EVENT_OK; // not finished
             }
             else {
@@ -97,7 +96,7 @@ public class Vehicle extends SceneElement {
                 else {
                     current_action.setFinished(true);
                     System.out.println("[EVENT_VEHICLE_PARKED] " + name + " has parked.");
-                    pp.setParked_vehicle(this);
+                    parentState.setParked_vehicle(this, pp);
                     return EVENT_VEHICLE_PARKED;
                 }
             }
@@ -141,13 +140,6 @@ public class Vehicle extends SceneElement {
         return DeltaX;
     }
 
-    public void setParkedAt(ParkingPlace pp) {
-        pp.setParked_vehicle(this);
-        parentState.parked_at.set(id, pp.id);
-        parking_progress = 1;
-        x_position = pp.x_position;
-    }
-
     public Vehicle getCopy() {
         Vehicle ret = new Vehicle(this.name, this.downward);
         ret.x_position = this.x_position;
@@ -156,8 +148,6 @@ public class Vehicle extends SceneElement {
         ret.parking_progress = this.parking_progress;
         ret.is_out = this.is_out;
         ret.parentState = this.parentState;
-        ret.parked = this.parked;
-        ret.preparked = this.preparked;
         ret.in_ramp = this.in_ramp;
         ret.first = this.first;
         ret.id = this.id;
@@ -172,6 +162,10 @@ public class Vehicle extends SceneElement {
         return parking_progress;
     }
 
+    public void setParking_progress(double pprog) {
+        parking_progress = pprog;
+    }
+
     public boolean isDownward() {
         return downward;
     }
@@ -184,8 +178,9 @@ public class Vehicle extends SceneElement {
         return is_out;
     }
 
-    public void setIs_out(boolean is_out) {
-        this.is_out = is_out;
+    public void setIs_out(boolean io) {
+        is_out = io;
+        in_ramp = !is_out;
     }
 
     public void setCurrent_action(Action current_action) {
@@ -208,11 +203,17 @@ public class Vehicle extends SceneElement {
     }
 
     public boolean isParked() {
-        return parked;
+        if (parentState.parked_at[id] != -1)
+            return true;
+        else
+            return false;
     }
 
     public boolean isPreparked() {
-        return preparked;
+        if (parentState.preparked_at[id] != -1)
+            return true;
+        else
+            return false;
     }
 
     public boolean isIn_ramp() {
