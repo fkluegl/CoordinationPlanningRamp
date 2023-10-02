@@ -20,7 +20,7 @@ public class Main {
         Vehicle v4 = new Vehicle("V4", false); v4.setX_position(30);
         Vehicle v5 = new Vehicle("V5", false); v5.setX_position(40);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50);
-        Vehicle v2 = new Vehicle("V2", true); v2.setParkedAt(p2);//v2.setX_position(40);
+        Vehicle v2 = new Vehicle("V2", true); //v2.setX_position(40);
         Vehicle v6 = new Vehicle("V6", false); v6.setX_position(60);
         Vehicle v3 = new Vehicle("V3", true); v3.setX_position(70);
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(80);
@@ -38,6 +38,7 @@ public class Main {
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);
+        v2.setParkedAt(p2);
 
         System.out.println(s_init);
 

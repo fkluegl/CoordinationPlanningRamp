@@ -20,8 +20,10 @@ public class State {
     private static ArrayList<State> next_states;
     public static MiniSimulator mini_simulator;
     // ----------------------------------------------------------------------
-    public ArrayList<Boolean> park_clear;
-    public ArrayList<Boolean> prepark_clear;
+    public ArrayList<Boolean> park_clear;       // still needed?
+    public ArrayList<Boolean> prepark_clear;    // still needed?
+    public ArrayList<Integer> parked_at;
+    public ArrayList<Integer> preparked_at;
 
 
     public State() {
@@ -31,6 +33,8 @@ public class State {
         this.initial_dw_vehicles = new ArrayList<Vehicle>();
         this.park_clear = new ArrayList<Boolean>();
         this.prepark_clear = new ArrayList<Boolean>();
+        this.parked_at = new ArrayList<Integer>();
+        this.preparked_at = new ArrayList<Integer>();
         this.duration = 0;
     }
 
@@ -40,21 +44,23 @@ public class State {
 
     public void addVehicle(Vehicle v) {
         if (v.isDownward()) {
-            this.dw_vehicles.add(v);
-            this.Ndw ++;
+            dw_vehicles.add(v);
+            v.id = Ndw;     // id from their respective list!!
+            Ndw ++;
         }
         else {
-            this.up_vehicles.add(v);
-            this.Nup ++;
+            up_vehicles.add(v);
+            v.id = Ndw;     // id from their respective list!!
+            Nup ++;
         }
         v.setParentState(this);
     }
     public void addParkingPlace(ParkingPlace pp) {
-        this.parking_places.add(pp);
-        this.park_clear.add(true);
-        this.prepark_clear.add(true);
+        parking_places.add(pp);
+        park_clear.add(true);
+        prepark_clear.add(true);
         pp.id = Npp;
-        this.Npp ++;
+        Npp ++;
         pp.setParentState(this);
     }
 
@@ -103,12 +109,19 @@ public class State {
         for (Vehicle v : this.initial_dw_vehicles) {
             ret.initial_dw_vehicles.add(v.getCopy());
         }
-        // copy park_clear and preparked_clear flags
+        // copy park_clear and prepark_clear flags
         for (Boolean b : this.park_clear) {
             ret.park_clear.add(b);
         }
         for (Boolean b : this.prepark_clear) {
             ret.prepark_clear.add(b);
+        }
+        // copy parked_at and preparked_at flags
+        for (Integer i : this.parked_at) {
+            ret.parked_at.add(i);
+        }
+        for (Integer i : this.preparked_at) {
+            ret.preparked_at.add(i);
         }
         ret.Ndw = ret.dw_vehicles.size();
         ret.Nup = ret.up_vehicles.size();
@@ -198,6 +211,10 @@ public class State {
         enumerate_actions(0, dw_vehicles.size());
         System.out.println("CURRENT ACTIONS: " + current_action_str());
 
+        //TODO here: remove all states with logical conflicts:  (then we should not need isBooked any longer)
+        //  * PARK / PREPARK / UNPARK with same destination and different vehicles
+        //  * ...
+
         // get states resulting from events occurring during simulation            //TODO: Could be not needed anymore !
         for (State s : next_states) {
             ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false, false); // because simulate(x) modifies x
@@ -237,6 +254,8 @@ public class State {
         }
         else {
             Vehicle v = this.dw_vehicles.get(id_vehicle);
+
+            boolean testpreconditions = fulfills_preconditions(v, Action.EXIT);
 
             // enumerate EXIT actions
             boolean exit_feasible = !this.is_upward_vehicle_below(v);
@@ -286,6 +305,49 @@ public class State {
         }
     }
 
+    public boolean fulfills_preconditions(Vehicle v, int action, int... param) {
+        if (action == Action.EXIT) {
+            if (!v.isParked() && v.isIn_ramp())
+                return true;
+            else
+                return false;
+        }
+        else if (action == Action.PREPARK) {
+            if (!v.isParked() && !v.isPreparked() && v.isIn_ramp())
+                return true;
+            else
+                return false;
+        }
+        else if (action == Action.PARK) {
+            if (!v.isParked() && park_clear.get(param[0]) && v.isPreparked() && v.isIn_ramp())
+                return true;
+            else
+                return false;
+        }
+        else if (action == Action.UNPARK) {
+            if (v.isParked() && prepark_clear.get(param[0]))
+                return true;
+            else
+                return false;
+        }
+        else if (action == Action.WAIT) {
+            if (v.isParked() || v.isFirst())
+                return true;
+            else
+                return false;
+        }
+        else if (action == Action.ENTER) {
+            if (!v.isIn_ramp() && v.isFirst())
+                return true;
+            else
+                return false;
+        }
+        else {
+            System.out.println("This action has a weird id!");
+            System.exit(0);
+            return false;
+        }
+    }
 
     public double getStart_time() {
         return start_time;

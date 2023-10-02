@@ -16,6 +16,7 @@ public class ParkingPlace extends SceneElement {
         ret.x_position = this.x_position;
         ret.parked_vehicle = this.parked_vehicle;
         ret.parentState = this.parentState;
+        ret.id = this.id;
         return ret;
     }
 

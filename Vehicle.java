@@ -143,6 +143,7 @@ public class Vehicle extends SceneElement {
 
     public void setParkedAt(ParkingPlace pp) {
         pp.setParked_vehicle(this);
+        parentState.parked_at.set(id, pp.id);
         parking_progress = 1;
         x_position = pp.x_position;
     }
@@ -159,6 +160,7 @@ public class Vehicle extends SceneElement {
         ret.preparked = this.preparked;
         ret.in_ramp = this.in_ramp;
         ret.first = this.first;
+        ret.id = this.id;
         return ret;
     }
 
