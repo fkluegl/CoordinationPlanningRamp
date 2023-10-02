@@ -29,7 +29,7 @@ public class Search {
                 return reconstruct_path(current);
             }
 
-            ArrayList<State> successors = current.get_next_states();
+            ArrayList<State> successors = current.get_next_states2();
             for (State succ : successors) {
                 //double tentative_gScore = current.g_score + 1;
                 double tentative_gScore = current.g_score + G(succ);
