@@ -6,6 +6,7 @@ public class Vehicle extends SceneElement {
     public static int EVENT_EXIT_BOTTOM = 2;
     public static int EVENT_VEHICLE_PARKED = 3;
     public static int EVENT_PASSED_PARKING = 4;
+    public static int ACTION_COMPLETED = 5;
     private boolean downward;
     private double parking_progress = 0;
     private double min_speed;
@@ -32,7 +33,7 @@ public class Vehicle extends SceneElement {
             this.current_action = new Action(Action.WAIT);
         }
         else {
-            this.speed = 2.1;
+            this.speed = 1.6;
             this.current_action = new Action(Action.GO_UP);
         }
     }
@@ -125,75 +126,58 @@ public class Vehicle extends SceneElement {
         }
     }
 
-    public void step2(double time_step) {
+    public int step2(double time_step) {
         if (current_action.getId() == Action.EXIT) {
             if (x_position < State.x_max) {
                 x_position += time_step * speed;
             }
             else {
+                System.out.println("[EXIT] " + name + " has exited bottom.");
                 current_action.setFinished(true);
-                System.out.println("[EVENT_EXIT_BOTTOM] " + name + " has exited bottom.");
+                return ACTION_COMPLETED;
             }
-
         }
-        else if (this.current_action.getId() == Action.PARK) {
+        else if (current_action.getId() == Action.PREPARK) {
             ParkingPlace pp = (ParkingPlace) current_action.getParameter();
-            if (parking_progress > 0  &&  Math.abs(pp.x_position - x_position) > 1.0) { // case already in a parking place other than pp
-                parking_progress -= time_step / State.parking_time;
-                if (debug_step) System.out.println(name + " leaving previous parking");
-                if (parentState.hasParkedVehicle(pp))
-                    parentState.removeParked_vehicle(this);
-                return EVENT_OK; // not finished
+            if (x_position < pp.x_position) {
+                x_position += time_step * speed;
             }
             else {
-                if (x_position < pp.x_position  &&  parking_progress <= 0) {
-                    x_position += time_step * speed;
-                    if (debug_step) System.out.println(name + " heading to parking " + pp.getName());
-                    // check if parking place was passed
-                    double Dpp2 = getDeltaXToClosestParkingPlace();
-                    if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
-                        System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
-                        return EVENT_PASSED_PARKING;
-                    }
-                    else
-                        return EVENT_OK;
-                }
-                else if (parking_progress < 1) {
-                    parking_progress += time_step / State.parking_time;
-                    if (debug_step) System.out.println(name + " parking at " + pp.getName());
-                    return EVENT_OK; // not finished
-                }
-                else {
-                    current_action.setFinished(true);
-                    System.out.println("[EVENT_VEHICLE_PARKED] " + name + " has parked.");
-                    parentState.setParked_vehicle(this, pp);
-                    return EVENT_VEHICLE_PARKED;
-                }
+                System.out.println("[PREPARK] " + name + " has reached pre-parking place.");
+                current_action.setFinished(true);
+                return ACTION_COMPLETED;
             }
         }
-        else if (!downward) {
-            x_position -= time_step * speed;
-            if (x_position < 0) {
-                current_action.setFinished(true);
-                System.out.println("[EVENT_EXIT_TOP] " + name + " has exited top.");
-                return EVENT_EXIT_TOP;
+        else if (current_action.getId() == Action.PARK) {
+            if (parking_progress < 1) {
+                parking_progress += time_step / State.parking_time;
             }
             else {
-                // check if parking place was passed
+                System.out.println("[PARK] " + name + " has parked.");
+                current_action.setFinished(true);
+                return ACTION_COMPLETED;
+            }
+        }
+        else if (current_action.getId() == Action.GO_UP) {
+
+            if (x_position > 0) {
+                double Dpp1 = getDeltaXToClosestParkingPlace();
+                x_position -= time_step * speed;
                 double Dpp2 = getDeltaXToClosestParkingPlace();
                 if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
                     System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
                     return EVENT_PASSED_PARKING;
                 }
-                else
-                    return EVENT_OK;
+            }
+            else {
+                System.out.println("[GO_UP] " + name + " has exited top.");
+                current_action.setFinished(true);
+                return ACTION_COMPLETED;
             }
         }
-        else {
-            // case action = WAIT
-            return EVENT_OK; // not finished
-        }
+        return EVENT_OK;
     }
+
     private double getDeltaXToClosestParkingPlace() {
         double shift;
         if (downward) shift = -5.0;
@@ -209,14 +193,14 @@ public class Vehicle extends SceneElement {
         return DeltaX;
     }
 
-    public Vehicle getCopy() {
+    public Vehicle getCopy(State dady) {
         Vehicle ret = new Vehicle(this.name, this.downward);
         ret.x_position = this.x_position;
         ret.speed = this.speed;
         ret.current_action = this.current_action.getCopy();
         ret.parking_progress = this.parking_progress;
         ret.is_out = this.is_out;
-        ret.parentState = this.parentState;
+        ret.parentState = dady;
         ret.in_ramp = this.in_ramp;
         ret.first = this.first;
         ret.id = this.id;
@@ -279,7 +263,7 @@ public class Vehicle extends SceneElement {
             parentState.removeParked_vehicle(this);
             parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
         }
-
+        //TODO: ENTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     public void setSpeed(double speed) {
