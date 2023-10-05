@@ -103,7 +103,7 @@ public class MiniSimulator {
         double DT = 0.025;
         int feedback = -1;
         display.set_state(s);
-        System.out.println("Simulate actions: " + s.current_action_str());
+        System.out.println("[MINISIMULATOR] Simulate actions: " + s.current_action_str());
         System.out.println();
 
         main_loop:
@@ -115,14 +115,21 @@ public class MiniSimulator {
 
             for (Vehicle v : s.getDw_vehicles())
             {
-                if (v.getCurrent_action().isFinished() && v.getCurrent_action().getId() != Action.WAIT)
-                    continue;
+                if (v.getCurrent_action().isFinished() && v.getCurrent_action().getId() != Action.WAIT)      //TODO: remove?
+                    continue;                                                                                //TODO: remove?
 
                 int event = v.step2(DT);
-                if (event == Vehicle.ACTION_COMPLETED)
+                if (event == Vehicle.ACTION_COMPLETED) {
                     v.apply_current_action_effects();  // applies effects to v.parentState
-                if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING)
+                    if (v.getCurrent_action().getId() == Action.EXIT)
+                        s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
                     ret.add(s.getCopy());
+                    break main_loop;
+                }
+                else if (event == Vehicle.EVENT_PASSED_PARKING) {
+                    ret.add(s.getCopy());
+                    break main_loop;
+                }
 
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
@@ -135,10 +142,18 @@ public class MiniSimulator {
                     continue;
 
                 int event = v.step2(DT);
-                if (event == Vehicle.ACTION_COMPLETED)
+
+                if (event == Vehicle.ACTION_COMPLETED) {
                     v.apply_current_action_effects();  // applies effects to v.parentState
-                if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING)
+                    if (v.getCurrent_action().getId() == Action.GO_UP)
+                        s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
                     ret.add(s.getCopy());
+                    break main_loop;
+                }
+                else if (event == Vehicle.EVENT_PASSED_PARKING) {
+                    ret.add(s.getCopy());
+                    break main_loop;
+                }
 
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {

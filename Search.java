@@ -23,7 +23,7 @@ public class Search {
 
         while (openSet.size() > 0) {
             State current = openSet.poll();
-            System.out.print("current (polled) state = " + current.current_action_str());
+            //System.out.print("[ASTAR] polled state = " + current.current_action_str());
             nb_explored_states ++;
             if (current.equals(final_state)) {
                 return reconstruct_path(current);

@@ -158,6 +158,16 @@ public class Vehicle extends SceneElement {
                 return ACTION_COMPLETED;
             }
         }
+        else if (current_action.getId() == Action.UNPARK) {
+            if (parking_progress > 0) {
+                parking_progress -= time_step / State.parking_time;
+            }
+            else {
+                System.out.println("[UNPARK] " + name + " has unparked.");
+                current_action.setFinished(true);
+                return ACTION_COMPLETED;
+            }
+        }
         else if (current_action.getId() == Action.GO_UP) {
 
             if (x_position > 0) {
@@ -253,15 +263,18 @@ public class Vehicle extends SceneElement {
             return;  // WAIT changes nothing
         }
         else if (current_action.getId() == Action.PARK) {
-            parentState.setParked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
+            parentState.setParked_vehicle(this, getPreParkingPlace());
             parentState.removePreparked_vehicle(this);
         }
         else if (current_action.getId() == Action.PREPARK) {
             parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
         }
         else if (current_action.getId() == Action.UNPARK) {
+            parentState.setPreparked_vehicle(this, getParkingPlace());
             parentState.removeParked_vehicle(this);
-            parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
+        }
+        else if (current_action.getId() == Action.GO_UP) {
+            System.out.println("//TODO: apply_current_action_effects for GO_UP");
         }
         //TODO: ENTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
@@ -289,6 +302,22 @@ public class Vehicle extends SceneElement {
             return true;
         else
             return false;
+    }
+
+    public ParkingPlace getPreParkingPlace() {
+        int pppid = parentState.preparked_at[id];
+        if (pppid != -1)
+            return parentState.getParking_places().get(pppid);
+        else
+            return null;
+    }
+
+    public ParkingPlace getParkingPlace() {
+        int pppid = parentState.parked_at[id];
+        if (pppid != -1)
+            return parentState.getParking_places().get(pppid);
+        else
+            return null;
     }
 
     public boolean isIn_ramp() {

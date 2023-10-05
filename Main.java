@@ -15,7 +15,7 @@ public class Main {
         jFrame.add(display);
         jFrame.setVisible(true);
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
         Vehicle v4 = new Vehicle("V4", false); v4.setX_position(30);
         Vehicle v5 = new Vehicle("V5", false); v5.setX_position(40);
@@ -38,7 +38,18 @@ public class Main {
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);
-        s_init.setParked_vehicle(v2, p2);
+        s_init.setParked_vehicle(v2, p2);*/
+
+        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);
+        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(30);
+
+        State s_init = new State();
+
+        s_init.addVehicle(v1);
+        s_init.addVehicle(v7);
+        s_init.addParkingPlace(p1);
+
 
         System.out.println(s_init);
 
@@ -61,6 +72,11 @@ public class Main {
             s0.assignActions(solution.get(1).getInitial_dw_vehicles());
             solution.add(s0);
             Collections.reverse(solution);
+
+            for (int i = 0; i < solution.size() - 1; i++) {
+                State s = solution.get(i);
+                System.out.println("- step" + i + ": " + solution.get(i + 1).vehicle_action_str());
+            }
 
             for (int i = 0; i < solution.size() - 1; i++) {
                 State s = solution.get(i);

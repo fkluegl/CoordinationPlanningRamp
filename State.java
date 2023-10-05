@@ -208,7 +208,12 @@ public class State {
             int id = se.getCurrent_action().getId();
             String id_str = se.getName() + "." + se.getCurrent_action().getName();
             ret += id_str;
-            if (id == Action.PARK || id == Action.PREPARK || id == Action.UNPARK) ret += "(" + se.getCurrent_action().getParameter().name + ") ";
+            if (id == Action.PREPARK)
+                ret += "(" + se.getCurrent_action().getParameter().name + ") ";
+            else if (id == Action.PARK)
+                ret += "(" + se.getPreParkingPlace().getName() + ") ";
+            else if (id == Action.UNPARK)
+                ret += "(" + se.getParkingPlace().getName() + ") ";
             else                   ret += "     ";
             ret += " ";
         }
@@ -219,6 +224,19 @@ public class State {
     public String initial_vehicle_action_str() {
         String ret = "";
         for (Vehicle v : this.initial_dw_vehicles) {
+            int id = v.getCurrent_action().getId();
+            String id_str = v.getCurrent_action().getName();
+            ret += v.getName() + ": " + id_str;
+            if (id == Action.PARK) ret += "(" + v.getCurrent_action().getParameter().name + ") ";
+            else                   ret += "     ";
+            ret += " ";
+        }
+        return ret;
+    }
+
+    public String vehicle_action_str() {
+        String ret = "";
+        for (Vehicle v : this.dw_vehicles) {
             int id = v.getCurrent_action().getId();
             String id_str = v.getCurrent_action().getName();
             ret += v.getName() + ": " + id_str;
@@ -261,12 +279,12 @@ public ArrayList<State> get_next_states2() {
     // enumerated possible actions to be applied to this state
     enumerate_actions2(0, dw_vehicles.size());
 
-    System.out.println("------------------------------------- <");
+    /*System.out.println("------------------------------------- <");
     System.out.println("Result of enumerate2:");
     for (State s : next_states) {
         System.out.print(s.current_action_str());
     }
-    System.out.println("------------------------------------- >");
+    System.out.println("------------------------------------- >");*/
 
     //TODO here: remove all states with logical conflicts:  (then we should not need isBooked any longer)
     //  * PARK / PREPARK / UNPARK with same destination and different vehicles
@@ -371,14 +389,16 @@ public ArrayList<State> get_next_states2() {
                 state_copy_1.enumerate_actions2(id_vehicle + 1, Nv);
             }
             else
-                System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot EXIT because of vehicle Up vehicle below.");
+                System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot EXIT because of vehicle Up vehicle below OR precondition false.");
 
             // enumerate PARK actions
-            State state_copy_2 = this.getCopy();
             for (int p=0; p<this.Npp; p++) {
                 boolean park_precondition = fulfills_preconditions(v, Action.PARK, p);
-                if (park_precondition)
-                    state_copy_2.enumerate_parking_places2(id_vehicle, p, Nv, Action.PARK);
+                if (park_precondition) {
+                    State state_copy_2 = this.getCopy();
+                    state_copy_2.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.PARK, v.getPreParkingPlace()));
+                    state_copy_2.enumerate_actions2(id_vehicle + 1, Nv);
+                }
             }
 
             // enumerate PREPARK actions
@@ -390,11 +410,13 @@ public ArrayList<State> get_next_states2() {
             }
 
             // enumerate UNPARK actions
-            State state_copy_4 = this.getCopy();
             for (int p=0; p<this.Npp; p++) {
                 boolean unpark_precondition = fulfills_preconditions(v, Action.UNPARK, p);
-                if (unpark_precondition)
-                    state_copy_4.enumerate_parking_places2(id_vehicle, p, Nv, Action.UNPARK);
+                if (unpark_precondition) {
+                    State state_copy_4 = this.getCopy();
+                    state_copy_4.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.UNPARK, v.getParkingPlace()));
+                    state_copy_4.enumerate_actions2(id_vehicle + 1, Nv);
+                }
             }
 
             // enumerate WAIT actions
@@ -419,7 +441,12 @@ public ArrayList<State> get_next_states2() {
             State state_copy_22 = this.getCopy();
             ParkingPlace pp = state_copy_22.parking_places.get(id_parking);
             Vehicle v = state_copy_22.dw_vehicles.get(id_vehicle);
-            if (pp.isBelow(v)) {                                                // GEOMETRIC
+
+            boolean feasible = true;
+            if (id_action == Action.PREPARK)
+                feasible = pp.isBelow(v);   // GEOMETRIC
+
+            if (feasible) {
                 v.setCurrent_action(new Action(id_action, pp));
                 state_copy_22.enumerate_actions2(id_vehicle + 1, Nv);
             }
