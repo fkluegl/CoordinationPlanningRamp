@@ -304,8 +304,11 @@ public ArrayList<State> get_next_states2() {
     public void assignActions(ArrayList<Vehicle> vehicles) {
         for (Vehicle v1 : dw_vehicles) {
             for (Vehicle v2 : vehicles) {
-                if (v1.name.equals(v2.name))
+                if (v1.name.equals(v2.name)) {
                     v1.setCurrent_action(v2.getCurrent_action());
+                    //v1.setParking_progress(v2.getParking_progress());
+                    v1.getCurrent_action().setFinished(false);
+                }
             }
         }
     }

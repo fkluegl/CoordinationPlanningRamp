@@ -169,7 +169,6 @@ public class Vehicle extends SceneElement {
             }
         }
         else if (current_action.getId() == Action.GO_UP) {
-
             if (x_position > 0) {
                 double Dpp1 = getDeltaXToClosestParkingPlace();
                 x_position -= time_step * speed;

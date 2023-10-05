@@ -111,12 +111,12 @@ public class MiniSimulator {
             simulation_time += DT;
 
             display.repaint();
-            try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            //try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
             for (Vehicle v : s.getDw_vehicles())
             {
-                if (v.getCurrent_action().isFinished() && v.getCurrent_action().getId() != Action.WAIT)      //TODO: remove?
-                    continue;                                                                                //TODO: remove?
+                //if (v.getCurrent_action().isFinished() && v.getCurrent_action().getId() != Action.WAIT)      //TODO: remove?
+                //    continue;                                                                                //TODO: remove?
 
                 int event = v.step2(DT);
                 if (event == Vehicle.ACTION_COMPLETED) {
@@ -162,6 +162,29 @@ public class MiniSimulator {
             }
         }
         return ret;
+    }
+
+    public void replay(State s, double DT) {
+        //double DT = 0.025;
+        display.set_state(s);
+
+        while (!one_action_is_finished(s)) {
+            display.repaint();
+            try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
+
+            for (Vehicle v : s.getDw_vehicles())
+            {
+                int event = v.step2(DT);
+                if (event != Vehicle.EVENT_OK)
+                    return;
+            }
+            for (Vehicle v : s.getUp_vehicles())
+            {
+                int event = v.step2(DT);
+                if (event != Vehicle.EVENT_OK)
+                    return;
+            }
+        }
     }
 
     boolean simulation_not_finished(State s, boolean stop_when_dw_finished) {

@@ -31,6 +31,7 @@ public class Display extends JPanel {
         for (Vehicle v : display_state.getDw_vehicles()) {
             g.setColor(Color.GREEN);
             int X = 600 - (int)(v.getParking_progress() * 80);
+            System.out.printf("parking_progress = %.2f    X = %d\n", v.getParking_progress(), X);
             int Y = (int)v.getX_position() * 10;
             g.fillOval(X, Y, 20, 40);
             g.setColor(Color.BLACK);
