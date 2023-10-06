@@ -23,12 +23,12 @@ public class Search {
 
         while (openSet.size() > 0) {
             State current = openSet.poll();
-            //System.out.print("[ASTAR] polled state = " + current.current_action_str());
             nb_explored_states ++;
             if (current.equals(final_state)) {
                 return reconstruct_path(current);
             }
 
+            System.out.println("     [ASTAR] get_next_states2()");
             ArrayList<State> successors = current.get_next_states2();
             for (State succ : successors) {
                 //double tentative_gScore = current.g_score + 1;

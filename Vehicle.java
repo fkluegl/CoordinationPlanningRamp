@@ -126,8 +126,8 @@ public class Vehicle extends SceneElement {
         }
     }
 
-    public int step2(double time_step) {
-        if (current_action.getId() == Action.EXIT) {
+    public int step2(double time_step) {          // because we don't want to keep updating while park/unpark actions are completing
+        if (current_action.getId() == Action.EXIT && !current_action.isFinished()) {
             if (x_position < State.x_max) {
                 x_position += time_step * speed;
             }
@@ -137,7 +137,7 @@ public class Vehicle extends SceneElement {
                 return ACTION_COMPLETED;
             }
         }
-        else if (current_action.getId() == Action.PREPARK) {
+        else if (current_action.getId() == Action.PREPARK && !current_action.isFinished()) {
             ParkingPlace pp = (ParkingPlace) current_action.getParameter();
             if (x_position < pp.x_position) {
                 x_position += time_step * speed;
@@ -148,7 +148,7 @@ public class Vehicle extends SceneElement {
                 return ACTION_COMPLETED;
             }
         }
-        else if (current_action.getId() == Action.PARK) {
+        else if (current_action.getId() == Action.PARK && !current_action.isFinished()) {
             if (parking_progress < 1) {
                 parking_progress += time_step / State.parking_time;
             }
@@ -158,7 +158,7 @@ public class Vehicle extends SceneElement {
                 return ACTION_COMPLETED;
             }
         }
-        else if (current_action.getId() == Action.UNPARK) {
+        else if (current_action.getId() == Action.UNPARK && !current_action.isFinished()) {
             if (parking_progress > 0) {
                 parking_progress -= time_step / State.parking_time;
             }
@@ -168,7 +168,7 @@ public class Vehicle extends SceneElement {
                 return ACTION_COMPLETED;
             }
         }
-        else if (current_action.getId() == Action.GO_UP) {
+        else if (current_action.getId() == Action.GO_UP && !current_action.isFinished()) {
             if (x_position > 0) {
                 double Dpp1 = getDeltaXToClosestParkingPlace();
                 x_position -= time_step * speed;

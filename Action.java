@@ -29,7 +29,7 @@ public class Action {
         }
         else if (id_action == WAIT) {
             this.name = "Wait";
-            this.finished = true;  // waiting gets finished immediately!
+            //this.finished = true;  // waiting gets finished immediately! Really?
         }
         else if (id_action == ENTER) {
             this.name = "Enter";
