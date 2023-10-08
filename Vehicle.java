@@ -38,94 +38,6 @@ public class Vehicle extends SceneElement {
         }
     }
 
-    public int step(double time_step) {
-        double Dpp1 = getDeltaXToClosestParkingPlace();
-        if (current_action.getId() == Action.EXIT) {
-            if (parking_progress > 0) { // then must leave the parking place first
-                parking_progress -= time_step / State.parking_time;
-                if (debug_step) System.out.println(name + " leaving parking");
-                return EVENT_OK; // not finished
-            }
-            else {
-                if (x_position < State.x_max) {
-                    x_position += time_step * speed;
-                    if (debug_step) System.out.println(name + " heading to exit");
-                    // check if parking place was passed
-                    double Dpp2 = getDeltaXToClosestParkingPlace();
-                    if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
-                        System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
-                        return EVENT_PASSED_PARKING;
-                    }
-                    else
-                        return EVENT_OK;
-                }
-                else {
-                    current_action.setFinished(true);
-                    System.out.println("[EVENT_EXIT_BOTTOM] " + name + " has exited bottom.");
-                    return EVENT_EXIT_BOTTOM;
-                }
-            }
-        }
-        else if (this.current_action.getId() == Action.PARK) {
-            // first we need to possibly unpark...!
-            ParkingPlace pp = (ParkingPlace) current_action.getParameter();
-            if (parking_progress > 0  &&  Math.abs(pp.x_position - x_position) > 1.0) { // case already in a parking place other than pp
-                parking_progress -= time_step / State.parking_time;
-                if (debug_step) System.out.println(name + " leaving previous parking");
-                if (parentState.hasParkedVehicle(pp))
-                    parentState.removeParked_vehicle(this);
-                return EVENT_OK; // not finished
-            }
-            else {
-                if (x_position < pp.x_position  &&  parking_progress <= 0) {
-                    x_position += time_step * speed;
-                    if (debug_step) System.out.println(name + " heading to parking " + pp.getName());
-                    // check if parking place was passed
-                    double Dpp2 = getDeltaXToClosestParkingPlace();
-                    if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
-                        System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
-                        return EVENT_PASSED_PARKING;
-                    }
-                    else
-                        return EVENT_OK;
-                }
-                else if (parking_progress < 1) {
-                    parking_progress += time_step / State.parking_time;
-                    if (debug_step) System.out.println(name + " parking at " + pp.getName());
-                    return EVENT_OK; // not finished
-                }
-                else {
-                    current_action.setFinished(true);
-                    System.out.println("[EVENT_VEHICLE_PARKED] " + name + " has parked.");
-                    parentState.setParked_vehicle(this, pp);
-                    return EVENT_VEHICLE_PARKED;
-                }
-            }
-        }
-        else if (!downward) {
-            x_position -= time_step * speed;
-            if (x_position < 0) {
-                current_action.setFinished(true);
-                System.out.println("[EVENT_EXIT_TOP] " + name + " has exited top.");
-                return EVENT_EXIT_TOP;
-            }
-            else {
-                // check if parking place was passed
-                double Dpp2 = getDeltaXToClosestParkingPlace();
-                if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
-                    System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
-                    return EVENT_PASSED_PARKING;
-                }
-                else
-                    return EVENT_OK;
-            }
-        }
-        else {
-            // case action = WAIT
-            return EVENT_OK; // not finished
-        }
-    }
-
     public int step2(double time_step) {          // because we don't want to keep updating while park/unpark actions are completing
         if (current_action.getId() == Action.EXIT && !current_action.isFinished()) {
             if (x_position < State.x_max) {
@@ -139,8 +51,8 @@ public class Vehicle extends SceneElement {
         }
         else if (current_action.getId() == Action.PREPARK && !current_action.isFinished()) {
             ParkingPlace pp = (ParkingPlace) current_action.getParameter();
-            if (x_position < pp.x_position) {
-                x_position += time_step * speed;
+            if (x_position < pp.x_position - time_step * speed) {   // to make sure that the pp is always "below" v, otherwise
+                x_position += time_step * speed;                    // the geometric test in enumerate_parking_places() fails
             }
             else {
                 System.out.println("[PREPARK] " + name + " has reached pre-parking place.");
@@ -264,6 +176,7 @@ public class Vehicle extends SceneElement {
         else if (current_action.getId() == Action.PARK) {
             parentState.setParked_vehicle(this, getPreParkingPlace());
             parentState.removePreparked_vehicle(this);
+            parking_progress = 1;
         }
         else if (current_action.getId() == Action.PREPARK) {
             parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
@@ -271,6 +184,7 @@ public class Vehicle extends SceneElement {
         else if (current_action.getId() == Action.UNPARK) {
             parentState.setPreparked_vehicle(this, getParkingPlace());
             parentState.removeParked_vehicle(this);
+            parking_progress = 0;
         }
         else if (current_action.getId() == Action.GO_UP) {
             System.out.println("//TODO: apply_current_action_effects for GO_UP");

@@ -7,105 +7,14 @@ public class MiniSimulator {
         display = disp;
     }
 
-    public ArrayList<State> simulate(State s, boolean introspection, boolean stop_when_dw_finished) {
-        // check if a vehicle intends to park at a parking place with a waiting vehicle
-        for (Vehicle v : s.getDw_vehicles())
-            if (v.getCurrent_action().getId() == Action.PARK) {
-                ParkingPlace pp = (ParkingPlace)v.getCurrent_action().getParameter();
-                Vehicle pv = s.getParked_vehicle(pp);
-                if (pv != null)
-                    if (pv.getCurrent_action().getId() == Action.WAIT) {
-                        System.out.println("[PRE-SIM] Bound to failure: " + v.getName() + " cannot park at " + pp.getName() + " because " + pv.getName() + " waits there!");
-                        return null;
-                    }
-            }
-
-        // (todo: also check if a vehicle wants to exit while another Dw vehicle waits unparked)
-
-        // initialize finished flags for vehicles committed to PARK and EXIT
-        for (Vehicle v : s.getDw_vehicles())
-            if (v.getCurrent_action().getId() != Action.WAIT)
-                v.getCurrent_action().setFinished(false);
-        // initialize finished flags for vehicles committed to GO_UP
-        for (Vehicle v : s.getUp_vehicles())
-            v.getCurrent_action().setFinished(false);
+    public State simulate2(State s) {
         // initialize state duration
         s.setDuration(0);
-
-        ArrayList<State> ret = new ArrayList<>();
         double simulation_time = 0.0;
         double DT = 0.025;
-        int feedback = -1;
-        display.set_state(s);
-        System.out.println("Simulate actions: " + s.current_action_str());
-        System.out.println();
-
-        while (simulation_not_finished(s, stop_when_dw_finished)) {
-            if (introspection) {
-                display.repaint();
-                try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
-            }
-            simulation_time += DT;
-            for (Vehicle v : s.getDw_vehicles())
-            {
-                if (v.getCurrent_action().isFinished())
-                    continue;
-
-                if (v.isOut()) feedback = Vehicle.EVENT_OK;
-                else           feedback = v.step(DT);
-                if (feedback == Vehicle.EVENT_VEHICLE_PARKED  ||  feedback == Vehicle.EVENT_EXIT_BOTTOM  ||  feedback == Vehicle.EVENT_PASSED_PARKING) {
-                    if (feedback == Vehicle.EVENT_EXIT_BOTTOM)
-                        v.setIs_out(true);
-                    State s_copy = s.getCopy();
-                    s_copy.setDuration(simulation_time);
-                    s_copy.increaseStart_time(simulation_time);
-                    if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!");
-                    ret.add(s_copy);
-                }
-                // check for collision --> end of the simulation
-                if (something_collides(s)) {
-                    return null;
-                }
-            }
-            for (Vehicle v : s.getUp_vehicles())
-            {
-                if (v.getCurrent_action().isFinished())
-                    continue;
-
-                if (v.isOut()) feedback = Vehicle.EVENT_OK;
-                else           feedback = v.step(DT);
-                if (feedback == Vehicle.EVENT_EXIT_TOP  ||  feedback == Vehicle.EVENT_PASSED_PARKING) {
-                    if (feedback == Vehicle.EVENT_EXIT_TOP)
-                        v.setIs_out(true);
-                    State s_copy = s.getCopy();
-                    s_copy.setDuration(simulation_time);
-                    s_copy.increaseStart_time(simulation_time);
-                    if (s_copy.allVehiclesOut()) System.out.println("ALL VEHICLES OUT!!!!!!!!!!!!1");
-                    ret.add(s_copy);
-                }
-                // check for collision --> end of the simulation
-                if (something_collides(s)) {
-                    return null;
-                }
-            }
-        }
-        return ret;
-    }
-
-    public ArrayList<State> simulate2(State s) {
-        ArrayList<State> ret = new ArrayList<>();
-
-        // initialize state duration
-        s.setDuration(0);
-
-        double simulation_time = 0.0;
-        double DT = 0.025;
-        int feedback = -1;
         display.set_state(s);
         System.out.println("[MINISIMULATOR] Simulate actions: " + s.current_action_str());
-        System.out.println();
 
-        main_loop:
         while (!at_least_one_action_is_finished(s) || parking_operation_ongoing(s)) {
             simulation_time += DT;
 
@@ -117,16 +26,16 @@ public class MiniSimulator {
                 int event = v.step2(DT);
                 if (event == Vehicle.ACTION_COMPLETED && !parking_operation_ongoing(s)) {
                     s.finish_wait_actions();
-                    v.apply_current_action_effects();  // applies effects to v.parentState
+                    s.apply_finished_actions_effects();  // applies effects to v.parentState
                     if (v.getCurrent_action().getId() == Action.EXIT)
                         s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
-                    ret.add(s.getCopy());
-                    break main_loop;
+                    s.setDuration(simulation_time);
+                    return s.getCopy();
                 }
                 else if (event == Vehicle.EVENT_PASSED_PARKING && !parking_operation_ongoing(s)) {
                     s.finish_wait_actions();
-                    ret.add(s.getCopy());
-                    break main_loop;
+                    s.setDuration(simulation_time);
+                    return s.getCopy();
                 }
                 /*else {
                     System.out.println("What is this case?");
@@ -134,7 +43,7 @@ public class MiniSimulator {
 
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
-                    break main_loop;
+                    return null;
                 }
             }
             for (Vehicle v : s.getUp_vehicles())
@@ -143,16 +52,16 @@ public class MiniSimulator {
 
                 if (event == Vehicle.ACTION_COMPLETED && !parking_operation_ongoing(s)) {
                     s.finish_wait_actions();
-                    v.apply_current_action_effects();  // applies effects to v.parentState
+                    s.apply_finished_actions_effects();  // applies effects to v.parentState
                     if (v.getCurrent_action().getId() == Action.GO_UP)
                         s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
-                    ret.add(s.getCopy());
-                    break main_loop;
+                    s.setDuration(simulation_time);
+                    return s.getCopy();
                 }
                 else if (event == Vehicle.EVENT_PASSED_PARKING && !parking_operation_ongoing(s)) {
                     s.finish_wait_actions();
-                    ret.add(s.getCopy());
-                    break main_loop;
+                    s.setDuration(simulation_time);
+                    return s.getCopy();
                 }
                 /*else {
                     System.out.println("What is this case?");
@@ -160,16 +69,17 @@ public class MiniSimulator {
 
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
-                    break main_loop;
+                    return null;
                 }
             }
         }
-        return ret;
+        return null;
     }
 
     public void replay(State s, double DT) {
         //double DT = 0.025;
         display.set_state(s);
+        display.repaint();
 
         while (!at_least_one_action_is_finished(s)) {
             display.repaint();

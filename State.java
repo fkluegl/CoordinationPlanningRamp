@@ -234,7 +234,7 @@ public class State {
         return ret;
     }
 
-    public String vehicle_action_str() {
+    public String vehicles_action_str() {
         String ret = "";
         for (Vehicle v : this.dw_vehicles) {
             int id = v.getCurrent_action().getId();
@@ -247,65 +247,40 @@ public class State {
         return ret;
     }
 
-    public ArrayList<State> get_next_states() {
+    public ArrayList<State> get_next_states2() {
         ArrayList<State> ret = new ArrayList<State>();
         next_states = new ArrayList<State>();
 
         // enumerated possible actions to be applied to this state
-        enumerate_actions(0, dw_vehicles.size());
-        System.out.println("CURRENT ACTIONS: " + current_action_str());
+        enumerate_actions2(0, dw_vehicles.size());
+        System.out.println("     [STATE] Enumeration led to " + next_states.size() + " candidate states.");
 
-        // get states resulting from events occurring during simulation
+        System.out.println("------------------------------------- <");
+        System.out.println("Result of enumerate2:");
         for (State s : next_states) {
-            ArrayList<State> event_based_states = mini_simulator.simulate(s.getCopy(), false, false); // because simulate(x) modifies x
-            if (event_based_states != null) {
-                for (State ebs : event_based_states) {
-                    ebs.initial_dw_vehicles.clear();
-                    for (Vehicle v : s.getDw_vehicles())  // to remember what actions have been applied on s to produce ebs
-                        ebs.initial_dw_vehicles.add(v.getCopy(ebs));
-                    ret.add(ebs);
-                }
+            System.out.print(s.current_action_str());
+        }
+        System.out.println("------------------------------------- >");
+
+        //TODO here: remove all states with logical conflicts:  (then we should not need isBooked any longer)
+        //  * PARK / PREPARK / UNPARK with same destination and different vehicles
+        //  * ...
+
+        for (State s : next_states) {
+            if (s.only_wait_actions()) {
+                s.finish_wait_actions();
+                ret.add(s.getCopy());
+            }
+            else {
+                State state_resulting_from_simulation = mini_simulator.simulate2(s);  // simulate(x) modifies x, so s is the geometrical result of applying current_actions on s' parent
+                if (state_resulting_from_simulation != null)
+                    ret.add(state_resulting_from_simulation);
             }
         }
 
-        System.out.println("Simulation has generated " + ret.size() + " states.");
+        System.out.println("     [STATE] Simulation has kept " + ret.size() + " states.");
         return ret;
     }
-//---------------------------------------------------------------------------------------------------------------------
-public ArrayList<State> get_next_states2() {
-    ArrayList<State> ret = new ArrayList<State>();
-    next_states = new ArrayList<State>();
-
-    // enumerated possible actions to be applied to this state
-    enumerate_actions2(0, dw_vehicles.size());
-    System.out.println("     [STATE] Enumeration led to " + next_states.size() + " candidate states.");
-
-    System.out.println("------------------------------------- <");
-    System.out.println("Result of enumerate2:");
-    for (State s : next_states) {
-        System.out.print(s.current_action_str());
-    }
-    System.out.println("------------------------------------- >");
-
-    //TODO here: remove all states with logical conflicts:  (then we should not need isBooked any longer)
-    //  * PARK / PREPARK / UNPARK with same destination and different vehicles
-    //  * ...
-
-    ArrayList<State> states_from_simulation = new ArrayList<>();
-    for (State s : next_states) {
-        if (s.only_wait_actions()) {
-            s.finish_wait_actions();
-            ret.add(s.getCopy());
-        }
-        else {
-            states_from_simulation = mini_simulator.simulate2(s);  // simulate(x) modifies x, so s is the geometrical result of applying current_actions on s' parent
-            ret.addAll(states_from_simulation);
-        }
-    }
-
-    System.out.println("     [STATE] Simulation has kept " + ret.size() + " states.");
-    return ret;
-}
 
 
     public void assignActions(ArrayList<Vehicle> vehicles) {
@@ -313,8 +288,9 @@ public ArrayList<State> get_next_states2() {
             for (Vehicle v2 : vehicles) {
                 if (v1.name.equals(v2.name)) {
                     v1.setCurrent_action(v2.getCurrent_action());
-                    //v1.setParking_progress(v2.getParking_progress());
                     v1.getCurrent_action().setFinished(false);
+                    if (v1.getCurrent_action().getId() == Action.PARK) v1.setParking_progress(0);
+                    if (v1.getCurrent_action().getId() == Action.UNPARK) v1.setParking_progress(1);
                 }
             }
         }
@@ -325,6 +301,16 @@ public ArrayList<State> get_next_states2() {
             if (v.getCurrent_action().getId() == Action.WAIT)
                 v.getCurrent_action().setFinished(true);
         }
+    }
+
+    public void apply_finished_actions_effects() {
+        for (Vehicle v : dw_vehicles)
+            if (v.getCurrent_action().isFinished())
+                v.apply_current_action_effects();
+
+        for (Vehicle v : up_vehicles)
+            if (v.getCurrent_action().isFinished())
+                v.apply_current_action_effects();
     }
 
     public boolean only_wait_actions() {
@@ -346,61 +332,6 @@ public ArrayList<State> get_next_states2() {
         }
     }
 
-    public void enumerate_actions(int id_vehicle, int Nv) {
-        if (id_vehicle == Nv) {
-            next_states.add(this);
-        }
-        else {
-            Vehicle v = dw_vehicles.get(id_vehicle);
-
-            // enumerate EXIT actions
-            boolean exit_feasible = !this.is_upward_vehicle_below(v);       // GEOMETRIC
-            if (exit_feasible) {
-                State state_copy_1 = this.getCopy();
-                state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
-                state_copy_1.enumerate_actions(id_vehicle + 1, Nv);
-            }
-            else
-                System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot EXIT because of vehicle Up vehicle below.");
-
-            // enumerate PARK actions
-            State state_copy_2 = this.getCopy();
-            for (int p=0; p<this.Npp; p++)
-                state_copy_2.enumerate_parking_places(id_vehicle, p, Nv);
-
-            // enumerate WAIT actions
-            State state_copy_3 = this.getCopy();
-            state_copy_3.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.WAIT));
-            state_copy_3.enumerate_actions(id_vehicle + 1, Nv);
-        }
-    }
-
-    public void enumerate_parking_places(int id_vehicle, int id_parking, int Nv) {
-        if (id_vehicle == Nv) {
-            this.next_states.add(this);
-        }
-        else {
-            // Assigns parking places, prunes out parking places which are:
-            //  - above
-            //  - booked
-            //  - with an upward vehicle in-between
-            State state_copy_22 = this.getCopy();
-            ParkingPlace pp = state_copy_22.parking_places.get(id_parking);
-            Vehicle v = state_copy_22.dw_vehicles.get(id_vehicle);
-            if (!pp.isBooked()) {                                                   // LOGIC
-                if (pp.isBelow(v)) {                                                // GEOMETRIC
-                    if (!state_copy_22.exist_upward_vehicle_between(v, pp)) {       // GEOMETRIC
-                        v.setCurrent_action(new Action(Action.PARK, pp));
-                        pp.setBooked(true);
-                        state_copy_22.enumerate_actions(id_vehicle + 1, Nv);
-                    }
-                    else
-                        System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot PARK because of Up vehicle in-between.");
-                }
-            }
-        }
-    }
-//-----------------------------------------------------------------------------------------------------------------------
     public void enumerate_actions2(int id_vehicle, int Nv) {
         if (id_vehicle == Nv) {
             next_states.add(this);
@@ -435,7 +366,7 @@ public ArrayList<State> get_next_states2() {
             }
 
             // enumerate PREPARK actions
-            State state_copy_3 = this.getCopy();
+            State state_copy_3 = this.getCopy();  //TODO: put in the loop?
             for (int p=0; p<this.Npp; p++) {
                 boolean prepark_precondition = fulfills_preconditions(v, Action.PREPARK, p);
                 if (prepark_precondition)
