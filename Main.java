@@ -40,9 +40,23 @@ public class Main {
         s_init.setParked_vehicle(v2, p2);*/
 
         Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(30);
+        ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(45);
+        Vehicle v4 = new Vehicle("V4", false); v4.setX_position(70);
+        Vehicle v6 = new Vehicle("V6", false); v6.setX_position(80);
+        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(90);
+        s_init.addVehicle(v1);
+        s_init.addVehicle(v4);
+        s_init.addVehicle(v6);
+        s_init.addVehicle(v7);
+        s_init.addParkingPlace(p1);
+        s_init.addParkingPlace(p2);
+        s_init.addParkingPlace(p3);
+
+        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
         Vehicle v6 = new Vehicle("V6", false); v6.setX_position(40);
-        //ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50);
         Vehicle v2 = new Vehicle("V2", true); v2.setX_position(60);
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(70);
         Vehicle v7 = new Vehicle("V7", false); v7.setX_position(95);
@@ -51,8 +65,7 @@ public class Main {
         s_init.addVehicle(v6);
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
-        //s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);
+        s_init.addParkingPlace(p3);*/
 
         /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);

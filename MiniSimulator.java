@@ -13,9 +13,14 @@ public class MiniSimulator {
         double simulation_time = 0.0;
         double DT = 0.025;
         display.set_state(s);
-        System.out.println("[MINISIMULATOR] Simulate actions: " + s.current_action_str());
+        System.out.print("[MINISIMULATOR] Simulate actions: " + s.current_action_str());
 
-        while (!at_least_one_action_is_finished(s) || parking_operation_ongoing(s)) {
+        //display.repaint();
+        //try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
+        //System.out.println();
+
+        //while (!at_least_one_action_is_finished(s) || parking_operation_ongoing(s)) {
+        while (true) {
             simulation_time += DT;
 
             //display.repaint();
@@ -37,9 +42,6 @@ public class MiniSimulator {
                     s.setDuration(simulation_time);
                     return s.getCopy();
                 }
-                /*else {
-                    System.out.println("What is this case?");
-                }*/
 
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
@@ -63,9 +65,6 @@ public class MiniSimulator {
                     s.setDuration(simulation_time);
                     return s.getCopy();
                 }
-                /*else {
-                    System.out.println("What is this case?");
-                }*/
 
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
@@ -73,7 +72,7 @@ public class MiniSimulator {
                 }
             }
         }
-        return null;
+        //return null;
     }
 
     public void replay(State s, double DT) {
