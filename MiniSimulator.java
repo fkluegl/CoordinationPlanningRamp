@@ -29,16 +29,11 @@ public class MiniSimulator {
             for (Vehicle v : s.getDw_vehicles())
             {
                 int event = v.step2(DT);
-                if (event == Vehicle.ACTION_COMPLETED && !parking_operation_ongoing(s)) {
+                if ((event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) && !parking_operation_ongoing(s)) {
                     s.finish_wait_actions();
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
-                    if (v.getCurrent_action().getId() == Action.EXIT)
+                    if (v.getCurrent_action().getId() == Action.EXIT && v.getCurrent_action().isFinished())
                         s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
-                    s.setDuration(simulation_time);
-                    return s.getCopy();
-                }
-                else if (event == Vehicle.EVENT_PASSED_PARKING && !parking_operation_ongoing(s)) {
-                    s.finish_wait_actions();
                     s.setDuration(simulation_time);
                     return s.getCopy();
                 }
@@ -52,16 +47,11 @@ public class MiniSimulator {
             {
                 int event = v.step2(DT);
 
-                if (event == Vehicle.ACTION_COMPLETED && !parking_operation_ongoing(s)) {
+                if ((event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) && !parking_operation_ongoing(s)) {
                     s.finish_wait_actions();
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
-                    if (v.getCurrent_action().getId() == Action.GO_UP)
+                    if (v.getCurrent_action().getId() == Action.GO_UP && v.getCurrent_action().isFinished())
                         s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
-                    s.setDuration(simulation_time);
-                    return s.getCopy();
-                }
-                else if (event == Vehicle.EVENT_PASSED_PARKING && !parking_operation_ongoing(s)) {
-                    s.finish_wait_actions();
                     s.setDuration(simulation_time);
                     return s.getCopy();
                 }
@@ -82,21 +72,26 @@ public class MiniSimulator {
 
         while (!at_least_one_action_is_finished(s)) {
             display.repaint();
-            try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
             for (Vehicle v : s.getDw_vehicles())
             {
                 int event = v.step2(DT);
-                if (event != Vehicle.EVENT_OK)
+                if (event != Vehicle.EVENT_OK) {
+                    System.out.println("[REPLAY EVENT] = " + event);
                     return;
+                }
             }
             for (Vehicle v : s.getUp_vehicles())
             {
                 int event = v.step2(DT);
-                if (event != Vehicle.EVENT_OK)
+                if (event != Vehicle.EVENT_OK) {
+                    System.out.println("[REPLAY EVENT] = " + event);
                     return;
+                }
             }
         }
+        System.out.println("[REPLAY EVENT] end loop");
     }
 
     boolean simulation_not_finished(State s, boolean stop_when_dw_finished) {
