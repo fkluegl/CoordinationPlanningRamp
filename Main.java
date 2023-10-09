@@ -120,7 +120,7 @@ public class Main {
                 State s = solution.get(i);
                 s.assignActions(solution.get(i + 1).getDw_vehicles());
                 System.out.println("- step" + i + ": " + solution.get(i + 1).vehicles_action_str());
-                State.mini_simulator.replay(s, 0.025);
+                State.mini_simulator.replay(s);
             }
 
             /*for (int i = 0; i < solution.size() - 1; i++) {

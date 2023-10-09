@@ -153,6 +153,7 @@ public class State {
         ret.Nup = ret.up_vehicles.size();
         ret.Npp = this.Npp;
         ret.start_time = this.start_time;
+        ret.duration = this.duration;
         return ret;
     }
 

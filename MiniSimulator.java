@@ -8,8 +8,6 @@ public class MiniSimulator {
     }
 
     public State simulate2(State s) {
-        // initialize state duration
-        s.setDuration(0);
         double simulation_time = 0.0;
         double DT = 0.025;
         display.set_state(s);
@@ -65,33 +63,37 @@ public class MiniSimulator {
         //return null;
     }
 
-    public void replay(State s, double DT) {
-        //double DT = 0.025;
+    public void replay(State s) {
+        double simulation_time = 0.0;
+        double DT = 0.025;
+
         display.set_state(s);
         display.repaint();
 
-        while (!at_least_one_action_is_finished(s)) {
+        while (true) {
+            simulation_time += DT;
+
             display.repaint();
-            try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
             for (Vehicle v : s.getDw_vehicles())
             {
                 int event = v.step2(DT);
-                if (event != Vehicle.EVENT_OK) {
-                    System.out.println("[REPLAY EVENT] = " + event);
+                if (simulation_time >= s.getDuration()) {
+                //if (event != Vehicle.EVENT_OK) {
                     return;
                 }
             }
             for (Vehicle v : s.getUp_vehicles())
             {
                 int event = v.step2(DT);
-                if (event != Vehicle.EVENT_OK) {
-                    System.out.println("[REPLAY EVENT] = " + event);
+                if (simulation_time >= s.getDuration()) {
+                    //if (event != Vehicle.EVENT_OK) {
                     return;
                 }
             }
         }
-        System.out.println("[REPLAY EVENT] end loop");
+        //System.out.println("[REPLAY EVENT] end loop");
     }
 
     boolean simulation_not_finished(State s, boolean stop_when_dw_finished) {
