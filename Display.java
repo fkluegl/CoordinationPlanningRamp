@@ -46,9 +46,8 @@ public class Display extends JPanel {
             g.drawString(v.getName(), 600, Y  + 20);
         }
 
+        g.drawLine(500, 1, 700, 1);
         g.drawLine(500, 1000, 700, 1000);
-
-
     }
 
 

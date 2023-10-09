@@ -16,7 +16,6 @@ public class State {
     private int Nup = 0;
     private int Npp = 0;
     private double duration;
-    private ArrayList<Vehicle> initial_dw_vehicles;
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> next_states;
     public static MiniSimulator mini_simulator;
@@ -29,7 +28,6 @@ public class State {
         this.dw_vehicles = new ArrayList<Vehicle>();
         this.up_vehicles = new ArrayList<Vehicle>();
         this.parking_places = new ArrayList<ParkingPlace>();
-        this.initial_dw_vehicles = new ArrayList<Vehicle>();
         this.duration = 0;
     }
 
@@ -143,9 +141,7 @@ public class State {
         for (ParkingPlace p : this.parking_places) {
             ret.parking_places.add(p.getCopy());
         }
-        for (Vehicle v : this.initial_dw_vehicles) {
-            ret.initial_dw_vehicles.add(v.getCopy(ret));
-        }
+
         ret.parked_at = parked_at.clone();
         ret.preparked_at = preparked_at.clone();
 
@@ -192,10 +188,16 @@ public class State {
         for (SceneElement se : elts) {
             ret += se.getName();
             ret += " ";
-            ret += se.getX_position();
+            ret += String.format("%.2f", se.getX_position());
             ret += se.getTypeString();
+            if (!se.getTypeString().equals(" [parking]")) {
+                double pp = ((Vehicle)se).getParking_progress();
+                //if (pp != 0 && pp != 1)
+                ret += "   parking progress = " + String.format("%.1f", 100 * pp);
+            }
             ret += "\n";
         }
+        ret += "--> duration = " + String.format("%.2fs\n", duration);
         ret += "-------------\n";
         return ret;
     }
@@ -222,19 +224,6 @@ public class State {
         return ret;
     }
 
-    public String initial_vehicle_action_str() {
-        String ret = "";
-        for (Vehicle v : this.initial_dw_vehicles) {
-            int id = v.getCurrent_action().getId();
-            String id_str = v.getCurrent_action().getName();
-            ret += v.getName() + ": " + id_str;
-            if (id == Action.PARK) ret += "(" + v.getCurrent_action().getParameter().name + ") ";
-            else                   ret += "     ";
-            ret += " ";
-        }
-        return ret;
-    }
-
     public String vehicles_action_str() {
         String ret = "";
         for (Vehicle v : this.dw_vehicles) {
@@ -248,7 +237,7 @@ public class State {
         return ret;
     }
 
-    public ArrayList<State> get_next_states2() {
+    public ArrayList<State> get_next_states() {
         ArrayList<State> ret = new ArrayList<State>();
         next_states = new ArrayList<State>();
 
@@ -273,7 +262,7 @@ public class State {
                 ret.add(s.getCopy());
             }
             else {
-                State state_resulting_from_simulation = mini_simulator.simulate2(s);  // simulate(x) modifies x, so s is the geometrical result of applying current_actions on s' parent
+                State state_resulting_from_simulation = mini_simulator.simulate(s);  // simulate(x) modifies x, so s is the geometrical result of applying current_actions on s' parent
                 if (state_resulting_from_simulation != null)
                     ret.add(state_resulting_from_simulation);
             }
@@ -342,7 +331,7 @@ public class State {
 
             // enumerate EXIT actions
             boolean exit_precondition = fulfills_preconditions(v, Action.EXIT);
-            boolean exit_feasible = !this.is_upward_vehicle_below(v);       // GEOMETRIC
+            boolean exit_feasible = !this.is_upward_vehicle_below(v);       // GEOMETRIC  TODO: but should we keep it here?
 
             if (exit_precondition && exit_feasible) {
                 State state_copy_1 = this.getCopy();
@@ -494,10 +483,6 @@ public class State {
 
     public ArrayList<ParkingPlace> getParking_places() {
         return parking_places;
-    }
-
-    public ArrayList<Vehicle> getInitial_dw_vehicles() {
-        return initial_dw_vehicles;
     }
 
     public void increaseStart_time(double start_time) {

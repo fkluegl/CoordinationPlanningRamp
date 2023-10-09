@@ -198,9 +198,9 @@ public class Vehicle extends SceneElement {
 
     public String getTypeString() {
         if (this.downward)
-            return " [↓] " + this.current_action.getName();
+            return "       [↓] " + this.current_action.getName();
         else
-            return " [↑] " + this.current_action.getName();
+            return "       [↑] " + this.current_action.getName();
     }
 
     public boolean isParked() {

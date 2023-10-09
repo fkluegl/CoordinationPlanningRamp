@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
-import java.lang.Math;
 
 public class Search {
     State init_state;
@@ -29,7 +28,7 @@ public class Search {
             }
 
             System.out.println("     [ASTAR] get_next_states2()");
-            ArrayList<State> successors = current.get_next_states2();
+            ArrayList<State> successors = current.get_next_states();
             for (State succ : successors) {
                 //double tentative_gScore = current.g_score + 1;
                 double tentative_gScore = current.g_score + G(succ);
@@ -49,12 +48,12 @@ public class Search {
     }
 
     private double G(State s) {
-        //return 1;
-        return s.getDuration();
+        return 1;
+        //return s.getDuration();
     }
     private double H(State s) {
-        //return 0;
-        return time_to_goal(s);
+        return 0;
+        //return time_to_goal(s);
     }
 
     private double time_to_goal(State s) {

@@ -7,22 +7,26 @@ public class MiniSimulator {
         display = disp;
     }
 
-    public State simulate2(State s) {
+    public State simulate(State s) {
+        boolean debug = false;
         double simulation_time = 0.0;
         double DT = 0.025;
         display.set_state(s);
         System.out.print("[MINISIMULATOR] Simulate actions: " + s.current_action_str());
 
-        //display.repaint();
-        //try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
-        //System.out.println();
+        if (debug) {
+            display.repaint();
+            try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
+        }
 
         //while (!at_least_one_action_is_finished(s) || parking_operation_ongoing(s)) {
         while (true) {
             simulation_time += DT;
 
-            //display.repaint();
-            //try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            if (debug) {
+                display.repaint();
+                try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            }
 
             for (Vehicle v : s.getDw_vehicles())
             {
@@ -69,6 +73,7 @@ public class MiniSimulator {
 
         display.set_state(s);
         display.repaint();
+        try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
         while (true) {
             simulation_time += DT;

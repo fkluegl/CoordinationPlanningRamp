@@ -39,7 +39,7 @@ public class Main {
         s_init.addParkingPlace(p3);
         s_init.setParked_vehicle(v2, p2);*/
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(30);
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(45);
@@ -52,7 +52,7 @@ public class Main {
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);
+        s_init.addParkingPlace(p3);*/
 
         /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
@@ -82,13 +82,13 @@ public class Main {
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);*/
 
-        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(30);
         Vehicle v7 = new Vehicle("V7", false); v7.setX_position(40);
         s_init.addVehicle(v1);
         s_init.addVehicle(v7);
-        s_init.addParkingPlace(p1);*/
+        s_init.addParkingPlace(p1);
 
         System.out.println(s_init);
         State s_final = new State(); // implicitly: contains no vehicles
@@ -107,7 +107,7 @@ public class Main {
             System.out.printf("solution length = %d\n", solution.size());
 
             State s0 = s_init.getCopy();
-            s0.assignActions(solution.get(1).getInitial_dw_vehicles());
+            s0.assignActions(solution.get(1).getDw_vehicles());
             solution.add(s0);
             Collections.reverse(solution);
 
@@ -119,21 +119,11 @@ public class Main {
             for (int i = 0; i < solution.size() - 1; i++) {
                 State s = solution.get(i);
                 s.assignActions(solution.get(i + 1).getDw_vehicles());
-                System.out.println("- step" + i + ": " + solution.get(i + 1).vehicles_action_str());
+                System.out.println("- step" + i + ", state:");
+                System.out.println("Actions: " + solution.get(i + 1).vehicles_action_str());
+                System.out.print(s);
                 State.mini_simulator.replay(s);
             }
-
-            /*for (int i = 0; i < solution.size() - 1; i++) {
-                State s = solution.get(i);
-                s.assignActions(solution.get(i + 1).getInitial_dw_vehicles());
-                System.out.println("- step" + i + ": " + solution.get(i + 1).initial_vehicle_action_str());
-            }
-
-            for (int i = 0; i < solution.size() - 1; i++) {
-                State s = solution.get(i).getCopy();
-                State.mini_simulator.simulate(s, true, true);
-            }*/
-
         }
 
     }
