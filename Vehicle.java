@@ -18,6 +18,7 @@ public class Vehicle extends SceneElement {
     // ---------------------------------------------------------------------------
     private boolean in_ramp;
     private boolean first = false;
+    private boolean ongoing_parking_operation = false;
 
 
     public Vehicle(String nam, boolean dwd) {
@@ -125,6 +126,7 @@ public class Vehicle extends SceneElement {
         ret.in_ramp = this.in_ramp;
         ret.first = this.first;
         ret.id = this.id;
+        ret.ongoing_parking_operation = this.ongoing_parking_operation;
         return ret;
     }
 
@@ -140,6 +142,12 @@ public class Vehicle extends SceneElement {
         parking_progress = pprog;
     }
 
+    public boolean isOngoing_parking_operation() {
+        return ongoing_parking_operation;
+    }
+    public void setOngoing_parking_operation(boolean ongoing_parking_operation) {
+        this.ongoing_parking_operation = ongoing_parking_operation;
+    }
     public boolean isDownward() {
         return downward;
     }
@@ -177,6 +185,7 @@ public class Vehicle extends SceneElement {
             parentState.setParked_vehicle(this, getPreParkingPlace());
             parentState.removePreparked_vehicle(this);
             parking_progress = 1;
+            ongoing_parking_operation = false;
         }
         else if (current_action.getId() == Action.PREPARK) {
             parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
@@ -185,6 +194,7 @@ public class Vehicle extends SceneElement {
             parentState.setPreparked_vehicle(this, getParkingPlace());
             parentState.removeParked_vehicle(this);
             parking_progress = 0;
+            ongoing_parking_operation = false;
         }
         else if (current_action.getId() == Action.GO_UP) {
             in_ramp = false;
