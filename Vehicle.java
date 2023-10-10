@@ -187,7 +187,8 @@ public class Vehicle extends SceneElement {
             parking_progress = 0;
         }
         else if (current_action.getId() == Action.GO_UP) {
-            System.out.println("//TODO: apply_current_action_effects for GO_UP");
+            in_ramp = false;
+            is_out = true;
         }
         //TODO: ENTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }

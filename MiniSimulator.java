@@ -35,7 +35,7 @@ public class MiniSimulator {
                     s.finish_wait_actions();
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
                     if (v.getCurrent_action().getId() == Action.EXIT && v.getCurrent_action().isFinished())
-                        s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
+                        s.removeVehicle(v.getName());
                     s.setDuration(simulation_time);
                     return s.getCopy();
                 }
@@ -48,12 +48,11 @@ public class MiniSimulator {
             for (Vehicle v : s.getUp_vehicles())
             {
                 int event = v.step2(DT);
-
                 if ((event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) && !parking_operation_ongoing(s)) {
                     s.finish_wait_actions();
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
                     if (v.getCurrent_action().getId() == Action.GO_UP && v.getCurrent_action().isFinished())
-                        s.removeVehicle(v.getName()); //TODO: or maybe remove vehicle from the copy...?
+                        s.removeVehicle(v.getName());
                     s.setDuration(simulation_time);
                     return s.getCopy();
                 }
