@@ -52,9 +52,9 @@ public class Main {
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);/*
+        s_init.addParkingPlace(p3);*/
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
         Vehicle v6 = new Vehicle("V6", false); v6.setX_position(40);
         Vehicle v2 = new Vehicle("V2", true); v2.setX_position(60);
@@ -65,7 +65,7 @@ public class Main {
         s_init.addVehicle(v6);
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
-        s_init.addParkingPlace(p3);
+        s_init.addParkingPlace(p3);*/
 
         /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
@@ -89,6 +89,7 @@ public class Main {
         s_init.addVehicle(v1);
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
+
 
         System.out.println(s_init);
         State s_final = new State(); // implicitly: contains no vehicles

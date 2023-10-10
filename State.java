@@ -159,9 +159,14 @@ public class State {
         if (this.Nup != s.Nup)
             return false;
         for (Vehicle v1 : dw_vehicles)
-            for (Vehicle v2 : s.getDw_vehicles())
-                if (v1.name == v2.name  &&  v1.x_position != v2.x_position)
+            for (Vehicle v2 : s.getDw_vehicles()) {
+                if (v1.name == v2.name && v1.x_position != v2.x_position)
                     return false;
+                if (v1.name == v2.name && v1.getCurrent_action() != v2.getCurrent_action())
+                    return false;
+                if (v1.name == v2.name && v1.getParking_progress() != v2.getParking_progress())
+                    return false;
+            }
         return true;
     }
 
@@ -256,7 +261,10 @@ public class State {
         //  * PARK / PREPARK / UNPARK with same destination and different vehicles
         //  * ...
 
+        int ins = 0;
         for (State s : next_states) {
+            ins ++;
+            System.out.printf("[get_next_states] next_state %d / %d\n", ins, next_states.size());
             if (s.only_wait_actions()) {
                 s.finish_wait_actions();
                 ret.add(s.getCopy());
@@ -306,8 +314,10 @@ public class State {
     public void update_ongoing_parking_operation_flags() {
         for (Vehicle v : dw_vehicles)
             if (v.getCurrent_action().getId() == Action.PARK || v.getCurrent_action().getId() == Action.UNPARK)
-                if (v.getParking_progress() > 0 && v.getParking_progress() < 1)
+                if (v.getParking_progress() > 0 && v.getParking_progress() < 1) {
                     v.setOngoing_parking_operation(true);
+                    System.out.printf(v.getName() + " is currently PARKING/UNPARKING (pprog = %.2f)\n", v.getParking_progress());
+                }
     }
 
     public boolean only_wait_actions() {

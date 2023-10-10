@@ -48,12 +48,12 @@ public class Search {
     }
 
     private double G(State s) {
-        return 1;
-        //return s.getDuration();
+        //return 1;
+        return s.getDuration();
     }
     private double H(State s) {
-        return 0;
-        //return time_to_goal(s);
+        //return 0;
+        return time_to_goal(s);
     }
 
     private double time_to_goal(State s) {

@@ -52,6 +52,7 @@ public class MiniSimulator {
                 if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) {
                     s.finish_wait_actions();
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
+                    s.update_ongoing_parking_operation_flags();
                     if (v.getCurrent_action().getId() == Action.GO_UP && v.getCurrent_action().isFinished())
                         s.removeVehicle(v.getName());
                     s.setDuration(simulation_time);
