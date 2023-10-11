@@ -41,8 +41,14 @@ public class Action {
             System.out.println("Continue what?");
             System.exit(0);
         }
-        if (params.length > 0)
+        if (params.length > 0) {
             this.parameter = params[0];
+
+            if (params[0] == null) {
+                System.out.println("params[0] is null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111");
+                System.exit(0);
+            }
+        }
     }
 
 

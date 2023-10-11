@@ -196,9 +196,10 @@ public class State {
             ret += String.format("%.2f", se.getX_position());
             ret += se.getTypeString();
             if (!se.getTypeString().equals(" [parking]")) {
-                boolean opo = ((Vehicle)se).isOngoing_parking_operation();
-                if (opo)
+                if (((Vehicle)se).is_parking())
                     ret += "   parking operation in progress!";
+                if (((Vehicle)se).is_unparking())
+                    ret += "   UNparking operation in progress!";
             }
             ret += "\n";
         }
@@ -311,15 +312,6 @@ public class State {
                 v.apply_current_action_effects();
     }
 
-    public void update_ongoing_parking_operation_flags() {
-        for (Vehicle v : dw_vehicles)
-            if (v.getCurrent_action().getId() == Action.PARK || v.getCurrent_action().getId() == Action.UNPARK)
-                if (v.getParking_progress() > 0 && v.getParking_progress() < 1) {
-                    v.setOngoing_parking_operation(true);
-                    System.out.printf(v.getName() + " is currently PARKING/UNPARKING (pprog = %.2f)\n", v.getParking_progress());
-                }
-    }
-
     public boolean only_wait_actions() {
         for (Vehicle v : dw_vehicles) {
             if (v.getCurrent_action().getId() != Action.WAIT)
@@ -345,6 +337,24 @@ public class State {
         }
         else {
             Vehicle v = dw_vehicles.get(id_vehicle);
+
+            // ------------------  special case for ongoing PARK and UNPARK actions  ------------------//
+            if (v.is_parking()) {
+                // we assume that preconditions are still fulfilled
+                State state_copy_2 = this.getCopy();
+                state_copy_2.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.PARK, v.getPreParkingPlace()));
+                state_copy_2.enumerate_actions(id_vehicle + 1, Nv);
+                return;
+            }
+
+            if (v.is_unparking()) {
+                // we assume that preconditions are still fulfilled
+                State state_copy_4 = this.getCopy();
+                state_copy_4.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.UNPARK, v.getParkingPlace()));
+                state_copy_4.enumerate_actions(id_vehicle + 1, Nv);
+                return;
+            }
+            // ------------------------------------------------------------------------------------------- //
 
             // enumerate EXIT actions
             boolean exit_precondition = fulfills_preconditions(v, Action.EXIT);
@@ -427,33 +437,33 @@ public class State {
 
     public boolean fulfills_preconditions(Vehicle v, int action, int... param) {
         if (action == Action.EXIT) {
-            if (!v.isParked() && v.isIn_ramp() && !v.isOngoing_parking_operation())
+            if (!v.isParked() && v.isIn_ramp())
                 return true;
             else
                 return false;
         }
         else if (action == Action.PREPARK) {
-            if (!v.isParked() && !v.isPreparked() && v.isIn_ramp() && !v.isOngoing_parking_operation())
+            if (!v.isParked() && !v.isPreparked() && v.isIn_ramp())
                 return true;
             else
                 return false;
         }
         else if (action == Action.PARK) {
             int pp_id = param[0];
-            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparked() && v.isIn_ramp() && !v.isOngoing_parking_operation())
+            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparked() && v.isIn_ramp())
                 return true;
             else
                 return false;
         }
         else if (action == Action.UNPARK) {
             int pp_id = param[0];
-            if (v.isParked() && is_prepark_clear(pp_id) && !v.isOngoing_parking_operation())
+            if (v.isParked() && is_prepark_clear(pp_id))
                 return true;
             else
                 return false;
         }
         else if (action == Action.WAIT) {
-            if ((v.isParked() || v.isPreparked() || v.isFirst()) && !v.isOngoing_parking_operation())
+            if (v.isParked() || v.isPreparked() || v.isFirst())
                 return true;
             else
                 return false;

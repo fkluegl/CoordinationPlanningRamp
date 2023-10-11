@@ -18,7 +18,8 @@ public class Vehicle extends SceneElement {
     // ---------------------------------------------------------------------------
     private boolean in_ramp;
     private boolean first = false;
-    private boolean ongoing_parking_operation = false;
+    private boolean is_parking = false;
+    private boolean is_unparking = false;
 
 
     public Vehicle(String nam, boolean dwd) {
@@ -39,7 +40,7 @@ public class Vehicle extends SceneElement {
         }
     }
 
-    public int step2(double time_step) {          // because we don't want to keep updating while park/unpark actions are completing
+    public int step(double time_step) {          // because we don't want to keep updating while park/unpark actions are completing
         if (current_action.getId() == Action.EXIT && !current_action.isFinished()) {
             if (x_position < State.x_max) {
                 x_position += time_step * speed;
@@ -64,20 +65,24 @@ public class Vehicle extends SceneElement {
         else if (current_action.getId() == Action.PARK && !current_action.isFinished()) {
             if (parking_progress < 1) {
                 parking_progress += time_step / State.parking_time;
+                is_parking = true;
             }
             else {
                 System.out.println("[PARK] " + name + " has parked.");
                 current_action.setFinished(true);
+                is_parking = false;
                 return ACTION_COMPLETED;
             }
         }
         else if (current_action.getId() == Action.UNPARK && !current_action.isFinished()) {
             if (parking_progress > 0) {
                 parking_progress -= time_step / State.parking_time;
+                is_unparking = true;
             }
             else {
                 System.out.println("[UNPARK] " + name + " has unparked.");
                 current_action.setFinished(true);
+                is_unparking = false;
                 return ACTION_COMPLETED;
             }
         }
@@ -126,7 +131,8 @@ public class Vehicle extends SceneElement {
         ret.in_ramp = this.in_ramp;
         ret.first = this.first;
         ret.id = this.id;
-        ret.ongoing_parking_operation = this.ongoing_parking_operation;
+        ret.is_parking = this.is_parking;
+        ret.is_unparking = this.is_unparking;
         return ret;
     }
 
@@ -142,12 +148,6 @@ public class Vehicle extends SceneElement {
         parking_progress = pprog;
     }
 
-    public boolean isOngoing_parking_operation() {
-        return ongoing_parking_operation;
-    }
-    public void setOngoing_parking_operation(boolean ongoing_parking_operation) {
-        this.ongoing_parking_operation = ongoing_parking_operation;
-    }
     public boolean isDownward() {
         return downward;
     }
@@ -163,6 +163,22 @@ public class Vehicle extends SceneElement {
     public void setIs_out(boolean io) {
         is_out = io;
         in_ramp = !is_out;
+    }
+
+    public boolean is_parking() {
+        return is_parking;
+    }
+
+    public void setIs_parking(boolean is_parking) {
+        this.is_parking = is_parking;
+    }
+
+    public boolean is_unparking() {
+        return is_unparking;
+    }
+
+    public void setIs_unparking(boolean is_unparking) {
+        this.is_unparking = is_unparking;
     }
 
     public void setCurrent_action(Action current_action) {
@@ -185,7 +201,7 @@ public class Vehicle extends SceneElement {
             parentState.setParked_vehicle(this, getPreParkingPlace());
             parentState.removePreparked_vehicle(this);
             parking_progress = 1;
-            ongoing_parking_operation = false;
+            is_parking = false;
         }
         else if (current_action.getId() == Action.PREPARK) {
             parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
@@ -194,7 +210,7 @@ public class Vehicle extends SceneElement {
             parentState.setPreparked_vehicle(this, getParkingPlace());
             parentState.removeParked_vehicle(this);
             parking_progress = 0;
-            ongoing_parking_operation = false;
+            is_unparking = false;
         }
         else if (current_action.getId() == Action.GO_UP) {
             in_ramp = false;

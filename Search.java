@@ -107,6 +107,8 @@ public class Search {
             ret.add(x);
             x = x.cameFrom;
         }
+        //TODO: add s0 ?
+        ret.add(x);
         return ret;
     }
 
