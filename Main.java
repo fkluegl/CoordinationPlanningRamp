@@ -17,7 +17,7 @@ public class Main {
 
         State s_init = new State();
 
-        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);
         Vehicle v4 = new Vehicle("V4", false); v4.setX_position(30);
         Vehicle v5 = new Vehicle("V5", false); v5.setX_position(40);
@@ -37,7 +37,7 @@ public class Main {
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);
-        s_init.setParked_vehicle(v2, p2);*/
+        s_init.setParked_vehicle(v2, p2);
 
         /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
@@ -52,7 +52,7 @@ public class Main {
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p3);*/
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50);
         Vehicle v5 = new Vehicle("V5", false); v5.setX_position(55);
@@ -65,7 +65,7 @@ public class Main {
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);
+        s_init.addParkingPlace(p3);*/
 
         /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);

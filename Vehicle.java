@@ -41,17 +41,7 @@ public class Vehicle extends SceneElement {
     }
 
     public int step(double time_step) {          // because we don't want to keep updating while park/unpark actions are completing
-        if (current_action.getId() == Action.EXIT && !current_action.isFinished()) {
-            if (x_position < State.x_max) {
-                x_position += time_step * speed;
-            }
-            else {
-                System.out.println("[EXIT] " + name + " has exited bottom.");
-                current_action.setFinished(true);
-                return ACTION_COMPLETED;
-            }
-        }
-        else if (current_action.getId() == Action.PREPARK && !current_action.isFinished()) {
+        if (current_action.getId() == Action.PREPARK && !current_action.isFinished()) {
             ParkingPlace pp = (ParkingPlace) current_action.getParameter();
             if (x_position < pp.x_position - time_step * speed) {   // to make sure that the pp is always "below" v, otherwise
                 x_position += time_step * speed;                    // the geometric test in enumerate_parking_places() fails
@@ -83,6 +73,16 @@ public class Vehicle extends SceneElement {
                 System.out.println("[UNPARK] " + name + " has unparked.");
                 current_action.setFinished(true);
                 is_unparking = false;
+                return ACTION_COMPLETED;
+            }
+        }
+        else if (current_action.getId() == Action.EXIT && !current_action.isFinished()) {
+            if (x_position < State.x_max) {
+                x_position += time_step * speed;
+            }
+            else {
+                System.out.println("[EXIT] " + name + " has exited bottom.");
+                current_action.setFinished(true);
                 return ACTION_COMPLETED;
             }
         }

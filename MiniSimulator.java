@@ -16,16 +16,15 @@ public class MiniSimulator {
 
         if (debug) {
             display.repaint();
-            try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            try { Thread.sleep(200); } catch (InterruptedException e) { throw new RuntimeException(e); }
         }
 
-        //while (!at_least_one_action_is_finished(s) || parking_operation_ongoing(s)) {
         while (true) {
             simulation_time += DT;
 
             if (debug) {
                 display.repaint();
-                try { Thread.sleep(20); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
             }
 
             for (Vehicle v : s.getDw_vehicles())

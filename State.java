@@ -167,6 +167,15 @@ public class State {
                 if (v1.name == v2.name && v1.getParking_progress() != v2.getParking_progress())
                     return false;
             }
+        for (Vehicle v1 : up_vehicles)
+            for (Vehicle v2 : s.getUp_vehicles()) {
+                if (v1.name == v2.name && v1.x_position != v2.x_position)
+                    return false;
+                //if (v1.name == v2.name && v1.getCurrent_action() != v2.getCurrent_action())
+                //    return false;
+                //if (v1.name == v2.name && v1.getParking_progress() != v2.getParking_progress())
+                //    return false;
+            }
         return true;
     }
 
@@ -252,13 +261,13 @@ public class State {
         System.out.println("     [STATE] Enumeration led to " + next_states.size() + " candidate states.");
 
         System.out.println("------------------------------------- <");
-        System.out.println("Result of enumerate2:");
+        System.out.println("Result of enumerate:");
         for (State s : next_states) {
             System.out.print(s.current_action_str());
         }
         System.out.println("------------------------------------- >");
 
-        //TODO here: remove all states with logical conflicts:  (then we should not need isBooked any longer)
+        //TODO here: remove all states with logical conflicts:
         //  * PARK / PREPARK / UNPARK with same destination and different vehicles
         //  * ...
 

@@ -27,7 +27,7 @@ public class Search {
                 return reconstruct_path(current);
             }
 
-            System.out.println("     [ASTAR] get_next_states2()");
+            System.out.println("     [ASTAR] get_next_states()");
             ArrayList<State> successors = current.get_next_states();
             for (State succ : successors) {
                 //double tentative_gScore = current.g_score + 1;
@@ -53,7 +53,7 @@ public class Search {
     }
     private double H(State s) {
         //return 0;
-        return time_to_goal(s);
+        return time_to_goal2(s);
     }
 
     private double time_to_goal(State s) {
@@ -78,6 +78,23 @@ public class Search {
         return maxt;
         //return s.getDw_vehicles().size() + s.getUp_vehicles().size();
     }
+
+    private double time_to_goal2(State s) {
+        double maxt = 0;
+        double t = 0;
+        for (Vehicle v : s.getDw_vehicles())
+            if (!v.isOut()) {
+                t += (State.x_max - v.getX_position()) / v.getSpeed();
+            }
+
+        for (Vehicle v : s.getUp_vehicles())
+            if (!v.isOut()) {
+                t += v.getX_position() / v.getSpeed();
+            }
+
+        return t;
+    }
+
 
     private double distance_to_goal(State s) {
         double D = 0;
