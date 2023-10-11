@@ -53,10 +53,11 @@ public class Search {
     }
     private double H(State s) {
         //return 0;
-        return time_to_goal2(s);
+        return time_to_goal(s);
     }
 
     private double time_to_goal(State s) {
+        // under-estimate time_to_goal
         double maxt = 0;
         double t;
         for (Vehicle v : s.getDw_vehicles())
@@ -76,11 +77,10 @@ public class Search {
             }
 
         return maxt;
-        //return s.getDw_vehicles().size() + s.getUp_vehicles().size();
     }
 
     private double time_to_goal2(State s) {
-        double maxt = 0;
+        // over-estimates time_to_goal
         double t = 0;
         for (Vehicle v : s.getDw_vehicles())
             if (!v.isOut()) {

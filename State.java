@@ -212,8 +212,6 @@ public class State {
             }
             ret += "\n";
         }
-        ret += "--> duration = " + String.format("%.2fs\n", duration);
-        ret += "-------------\n";
         return ret;
     }
 
@@ -452,7 +450,7 @@ public class State {
                 return false;
         }
         else if (action == Action.PREPARK) {
-            if (!v.isParked() && !v.isPreparked() && v.isIn_ramp())
+            if (!v.isParked() /*&& !v.isPreparked()*/ && v.isIn_ramp())
                 return true;
             else
                 return false;

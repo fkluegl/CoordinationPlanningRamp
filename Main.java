@@ -17,7 +17,7 @@ public class Main {
 
         State s_init = new State();
 
-        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);
         Vehicle v4 = new Vehicle("V4", false); v4.setX_position(30);
         Vehicle v5 = new Vehicle("V5", false); v5.setX_position(40);
@@ -37,35 +37,20 @@ public class Main {
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);
-        s_init.setParked_vehicle(v2, p2);
+        s_init.setParked_vehicle(v2, p2);*/
 
-        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
+        Vehicle v1 = new Vehicle("V1", true); v1.setX_position(5);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(10);
         Vehicle v6 = new Vehicle("V6", false); v6.setX_position(40);
-        Vehicle v2 = new Vehicle("V2", true); v2.setX_position(50);
-        ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(60);
-        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(80);
-        s_init.addVehicle(v1);
-        s_init.addVehicle(v2);
-        s_init.addVehicle(v6);
-        s_init.addVehicle(v7);
-        s_init.addParkingPlace(p1);
-        s_init.addParkingPlace(p3);*/
-
-        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(20);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50);
-        Vehicle v5 = new Vehicle("V5", false); v5.setX_position(55);
-        Vehicle v6 = new Vehicle("V6", false); v6.setX_position(65);
-        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(75);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50); // 50 / 40
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(80);
+        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(100);
         s_init.addVehicle(v1);
-        s_init.addVehicle(v5);
         s_init.addVehicle(v6);
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);*/
+        s_init.addParkingPlace(p3);
 
         /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(15);
@@ -75,13 +60,6 @@ public class Main {
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);*/
 
-        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(10);
-        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(40);
-        s_init.addVehicle(v1);
-        s_init.addVehicle(v7);
-        s_init.addParkingPlace(p1);
-        s_init.setParked_vehicle(v1, p1);*/
 
 
         System.out.println(s_init);
@@ -114,9 +92,12 @@ public class Main {
                 State s = solution.get(i);
                 s.assignActions(solution.get(i + 1).getDw_vehicles());
                 double duration = solution.get(i + 1).getDuration();
+                System.out.println("-------------------");
                 System.out.println("- step" + i + ", state:");
                 System.out.println("Actions: " + solution.get(i + 1).vehicles_action_str());
                 System.out.print(s);
+                System.out.printf("--> duration = %.2fs\n", duration);
+                System.out.println("-------------------");
                 State.mini_simulator.replay(s, duration);
             }
         }

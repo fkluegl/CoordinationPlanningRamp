@@ -197,7 +197,7 @@ public class Vehicle extends SceneElement {
         else if (current_action.getId() == Action.WAIT) {
             return;  // WAIT changes nothing
         }
-        else if (current_action.getId() == Action.PARK) {
+        else if (current_action.getId() == Action.PARK && !is_parking) {
             parentState.setParked_vehicle(this, getPreParkingPlace());
             parentState.removePreparked_vehicle(this);
             parking_progress = 1;
@@ -206,7 +206,7 @@ public class Vehicle extends SceneElement {
         else if (current_action.getId() == Action.PREPARK) {
             parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
         }
-        else if (current_action.getId() == Action.UNPARK) {
+        else if (current_action.getId() == Action.UNPARK && !is_unparking) {
             parentState.setPreparked_vehicle(this, getParkingPlace());
             parentState.removeParked_vehicle(this);
             parking_progress = 0;

@@ -69,7 +69,7 @@ public class MiniSimulator {
 
         display.set_state(s);
         display.repaint();
-        try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
+        try { Thread.sleep(2); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
         while (true) {
             simulation_time += DT;
