@@ -63,7 +63,7 @@ public class MiniSimulator {
         //return null;
     }
 
-    public void replay(State s) {
+    public void replay(State s, double duration) {
         double simulation_time = 0.0;
         double DT = 0.025;
 
@@ -80,7 +80,7 @@ public class MiniSimulator {
             for (Vehicle v : s.getDw_vehicles())
             {
                 int event = v.step(DT);
-                if (simulation_time >= s.getDuration()) {
+                if (simulation_time >= duration) {
                 //if (event != Vehicle.EVENT_OK) {
                     return;
                 }
@@ -88,13 +88,12 @@ public class MiniSimulator {
             for (Vehicle v : s.getUp_vehicles())
             {
                 int event = v.step(DT);
-                if (simulation_time >= s.getDuration()) {
+                if (simulation_time >= duration) {
                     //if (event != Vehicle.EVENT_OK) {
                     return;
                 }
             }
         }
-        //System.out.println("[REPLAY EVENT] end loop");
     }
 
     boolean all_actions_finished(State s) {

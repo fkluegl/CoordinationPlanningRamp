@@ -107,7 +107,6 @@ public class Search {
                 D += v.getX_position();
 
         return D;
-        //return s.getDw_vehicles().size() + s.getUp_vehicles().size();
     }
 
     private boolean is_in_openSet(State x) {

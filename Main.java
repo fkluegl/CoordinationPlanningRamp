@@ -75,6 +75,14 @@ public class Main {
         s_init.addVehicle(v7);
         s_init.addParkingPlace(p1);*/
 
+        /*Vehicle v1 = new Vehicle("V1", true); v1.setX_position(10);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(10);
+        Vehicle v7 = new Vehicle("V7", false); v7.setX_position(40);
+        s_init.addVehicle(v1);
+        s_init.addVehicle(v7);
+        s_init.addParkingPlace(p1);
+        s_init.setParked_vehicle(v1, p1);*/
+
 
         System.out.println(s_init);
         State s_final = new State(); // implicitly: contains no vehicles
@@ -105,10 +113,11 @@ public class Main {
             for (int i = 0; i < solution.size() - 1; i++) {
                 State s = solution.get(i);
                 s.assignActions(solution.get(i + 1).getDw_vehicles());
+                double duration = solution.get(i + 1).getDuration();
                 System.out.println("- step" + i + ", state:");
                 System.out.println("Actions: " + solution.get(i + 1).vehicles_action_str());
                 System.out.print(s);
-                State.mini_simulator.replay(s);
+                State.mini_simulator.replay(s, duration);
             }
         }
 
