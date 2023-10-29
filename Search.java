@@ -53,7 +53,7 @@ public class Search {
     }
     private double H(State s) {
         //return 0;
-        return time_to_goal(s);
+        return time_to_goal2(s);
     }
 
     private double time_to_goal(State s) {

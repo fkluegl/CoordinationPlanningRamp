@@ -42,7 +42,7 @@ public class Main {
         Vehicle v1 = new Vehicle("V1", true); v1.setX_position(5);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setX_position(10);
         Vehicle v6 = new Vehicle("V6", false); v6.setX_position(40);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(50); // 50 / 40
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setX_position(40); // 50 / 40
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setX_position(80);
         Vehicle v7 = new Vehicle("V7", false); v7.setX_position(100);
         s_init.addVehicle(v1);
@@ -69,6 +69,7 @@ public class Main {
         double start = System.currentTimeMillis();
         ArrayList<State> solution = search.AStar();
         double end = System.currentTimeMillis();
+        System.out.println("---------------------------------------------------------------------------------");
         System.out.printf("search time = %.2f\n", (end - start) / 1000);
         System.out.printf("nb explored states = %d\n", search.nb_explored_states);
         if (solution == null) {
@@ -76,28 +77,23 @@ public class Main {
         }
         else
         {
+            System.out.println("---------------------------------------------------------------------------------");
             System.out.printf("solution length = %d\n", solution.size());
-
-            //State s0 = s_init.getCopy();
-            //s0.assignActions(solution.get(1).getDw_vehicles());
-            //solution.add(s0);
             Collections.reverse(solution);
 
-            for (int i = 0; i < solution.size() - 1; i++) {
-                State s = solution.get(i);
+            for (int i = 0; i < solution.size() - 1; i++)
                 System.out.println("- step" + i + ": " + solution.get(i + 1).vehicles_action_str());
-            }
 
             for (int i = 0; i < solution.size() - 1; i++) {
                 State s = solution.get(i);
                 s.assignActions(solution.get(i + 1).getDw_vehicles());
                 double duration = solution.get(i + 1).getDuration();
-                System.out.println("-------------------");
+                /*System.out.println("-------------------");
                 System.out.println("- step" + i + ", state:");
                 System.out.println("Actions: " + solution.get(i + 1).vehicles_action_str());
                 System.out.print(s);
                 System.out.printf("--> duration = %.2fs\n", duration);
-                System.out.println("-------------------");
+                System.out.println("-------------------");*/
                 State.mini_simulator.replay(s, duration);
             }
         }

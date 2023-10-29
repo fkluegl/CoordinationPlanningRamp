@@ -267,7 +267,7 @@ public class State {
 
         //TODO here: remove all states with logical conflicts:
         //  * PARK / PREPARK / UNPARK with same destination and different vehicles
-        //  * ...
+        //  * ...or is everything handled by the preconditions? --> depends on the order?
 
         int ins = 0;
         for (State s : next_states) {
@@ -363,6 +363,10 @@ public class State {
             }
             // ------------------------------------------------------------------------------------------- //
 
+            // enumerate ENTER actions
+            boolean enter_precondition = fulfills_preconditions(v, Action.ENTER);
+
+
             // enumerate EXIT actions
             boolean exit_precondition = fulfills_preconditions(v, Action.EXIT);
             boolean exit_feasible = !this.is_upward_vehicle_below(v);       // GEOMETRIC  TODO: but should we keep it here?
@@ -406,7 +410,6 @@ public class State {
                     state_copy_4.enumerate_actions(id_vehicle + 1, Nv);
                 }
             }
-
 
             // enumerate WAIT actions
             boolean wait_precondition = fulfills_preconditions(v, Action.WAIT);

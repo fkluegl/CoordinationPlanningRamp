@@ -123,6 +123,7 @@ public class Vehicle extends SceneElement {
     public Vehicle getCopy(State dady) {
         Vehicle ret = new Vehicle(this.name, this.downward);
         ret.x_position = this.x_position;
+        ret.yyy_position = this.yyy_position;
         ret.speed = this.speed;
         ret.current_action = this.current_action.getCopy();
         ret.parking_progress = this.parking_progress;

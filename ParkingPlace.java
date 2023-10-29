@@ -8,6 +8,7 @@ public class ParkingPlace extends SceneElement {
     public ParkingPlace getCopy() {
         ParkingPlace ret = new ParkingPlace(this.name);
         ret.x_position = this.x_position;
+        ret.yyy_position = this.yyy_position;
         ret.parentState = this.parentState;
         ret.id = this.id;
         return ret;

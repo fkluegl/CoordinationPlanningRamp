@@ -2,6 +2,7 @@ import java.util.Comparator;
 
 public class SceneElement {
     protected double x_position;
+    protected double yyy_position;
     protected String name;
     protected State parentState;
     public int id;
@@ -11,6 +12,13 @@ public class SceneElement {
     }
     public void setX_position(double x_position) {
         this.x_position = x_position;
+    }
+
+    public double getYyy_position() {
+        return yyy_position;
+    }
+    public void setYyy_position(double yyy_position) {
+        this.yyy_position = yyy_position;
     }
 
     public String getName() {
