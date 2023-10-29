@@ -29,6 +29,7 @@ public class Search {
 
             System.out.println("     [ASTAR] get_next_states()");
             ArrayList<State> successors = current.get_next_states();
+
             for (State succ : successors) {
                 //double tentative_gScore = current.g_score + 1;
                 double tentative_gScore = current.g_score + G(succ);

@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 public class State {
     public final static double parking_speed = 3.34; // m/s
@@ -12,8 +11,10 @@ public class State {
     public State cameFrom = null;
     private ArrayList<Vehicle> dw_vehicles;
     private ArrayList<Vehicle> up_vehicles;
+    private LinkedList<Vehicle> q_vehicles;
     private int Ndw = 0;
     private int Nup = 0;
+    private int Nq = 0;
     private int Npp = 0;
     private double duration;
     private ArrayList<ParkingPlace> parking_places;
@@ -27,6 +28,7 @@ public class State {
     public State() {
         this.dw_vehicles = new ArrayList<Vehicle>();
         this.up_vehicles = new ArrayList<Vehicle>();
+        this.q_vehicles = new LinkedList<Vehicle>();
         this.parking_places = new ArrayList<ParkingPlace>();
         this.duration = 0;
     }
@@ -53,6 +55,19 @@ public class State {
         pp.id = Npp;
         Npp ++;
         pp.setParentState(this);
+    }
+
+    public void addQueuedVehicle(Vehicle v) {
+        if (q_vehicles.size() > 0)
+            q_vehicles.peek().setFirst(false); // not first anymore!
+        q_vehicles.add(v);
+        v.id = Nq;     // id from their respective list!!
+        v.setIn_ramp(false);
+        v.setFirst(true);
+        v.setX_position(15);
+        v.setY_position(0);
+        Nq ++;
+        v.setParentState(this);
     }
 
     public void setParked_vehicle(Vehicle v, ParkingPlace pp) {
@@ -135,6 +150,10 @@ public class State {
         for (Vehicle v : this.up_vehicles) {
             if (!v.isOut())
                 ret.up_vehicles.add(v.getCopy(ret));
+        }
+        for (Vehicle v : this.q_vehicles) {
+            if (!v.isOut())
+                ret.q_vehicles.add(v.getCopy(ret));  //TODO: check behavior
         }
         // copy parking places list
         for (ParkingPlace p : this.parking_places) {
@@ -511,6 +530,9 @@ public class State {
     }
     public ArrayList<Vehicle> getUp_vehicles() {
         return up_vehicles;
+    }
+    public LinkedList<Vehicle> getQ_vehicles() {
+        return q_vehicles;
     }
 
     public ArrayList<ParkingPlace> getParking_places() {

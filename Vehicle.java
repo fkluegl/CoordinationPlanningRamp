@@ -11,11 +11,11 @@ public class Vehicle extends SceneElement {
     private double min_speed;
     private double max_speed;
     private double speed;
-    private boolean is_out;
+    private boolean is_out; // result of EXIT or GO_UP, not the same as !in_ramp --> queued vehicles
     private Action current_action;
     private boolean debug_step = false;
     // ---------------------------------------------------------------------------
-    private boolean in_ramp;
+    private boolean in_ramp = true;
     private boolean first = false;
     private boolean is_parking = false;
     private boolean is_unparking = false;
@@ -257,10 +257,17 @@ public class Vehicle extends SceneElement {
         return in_ramp;
     }
 
+    public void setIn_ramp(boolean in_ramp) {
+        this.in_ramp = in_ramp;
+    }
+
     public boolean isFirst() {
         return first;
     }
 
+    public void setFirst(boolean first) {
+        this.first = first;
+    }
 }
 
 class VehicleXPositionComparatorReverse implements Comparator<Vehicle> {

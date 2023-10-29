@@ -45,6 +45,15 @@ public class Display extends JPanel {
             g.drawString(v.getName(), X, Y  + 20);
         }
 
+        for (Vehicle v : display_state.getQ_vehicles()) {
+            g.setColor(Color.GREEN);
+            int X = 500 + (int)v.getX_position() * 10 + display_state.getQ_vehicles().indexOf(v) * 30; // 500 pixels <--> Vehicle.x = 0 meters + 30 pixels between each vehicle
+            int Y = (int)v.getY_position() * 10;
+            g.fillOval(X, Y, 20, 40);
+            g.setColor(Color.BLACK);
+            g.drawString(v.getName(), X, Y + 20);
+        }
+
         g.drawLine(500, 1, 700, 1);
         g.drawLine(500, 1000, 700, 1000);
     }
