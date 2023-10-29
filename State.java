@@ -2,9 +2,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class State {
-    public final static double parking_time = 3; // s
-    public final static double x_min = 0.0;   // m
-    public final static double x_max = 100.0; // m
+    public final static double parking_speed = 3.34; // m/s
+    public final static double y_min = 0.0;   // m
+    public final static double y_max = 100.0; // m
     public final static double safety_distance = 5.0; // m (center-to-center)
     private double start_time = 0;
     public double g_score = 1000;
@@ -57,8 +57,8 @@ public class State {
 
     public void setParked_vehicle(Vehicle v, ParkingPlace pp) {
         parked_at[v.id] = pp.id;
-        v.setParking_progress(1);       //TODO: adjust
-        v.x_position = pp.x_position;   //TODO: adjust
+        v.x_position = pp.x_position;
+        v.y_position = pp.y_position; // TODO: needed?
     }
 
     public Vehicle getParked_vehicle(ParkingPlace pp) {
@@ -83,8 +83,7 @@ public class State {
 
     public void setPreparked_vehicle(Vehicle v, ParkingPlace pp) {
         preparked_at[v.id] = pp.id;
-        //v.setParking_progress(1);       //TODO: adjust
-        v.x_position = pp.x_position;   //TODO: adjust
+        v.y_position = pp.y_position;   //TODO: needed?
     }
 
     public Vehicle getPreparked_vehicle(ParkingPlace pp) {
@@ -160,21 +159,17 @@ public class State {
             return false;
         for (Vehicle v1 : dw_vehicles)
             for (Vehicle v2 : s.getDw_vehicles()) {
+                if (v1.name == v2.name && v1.y_position != v2.y_position)
+                    return false;
                 if (v1.name == v2.name && v1.x_position != v2.x_position)
                     return false;
                 if (v1.name == v2.name && v1.getCurrent_action() != v2.getCurrent_action())
                     return false;
-                if (v1.name == v2.name && v1.getParking_progress() != v2.getParking_progress())
-                    return false;
             }
         for (Vehicle v1 : up_vehicles)
             for (Vehicle v2 : s.getUp_vehicles()) {
-                if (v1.name == v2.name && v1.x_position != v2.x_position)
+                if (v1.name == v2.name && v1.y_position != v2.y_position)
                     return false;
-                //if (v1.name == v2.name && v1.getCurrent_action() != v2.getCurrent_action())
-                //    return false;
-                //if (v1.name == v2.name && v1.getParking_progress() != v2.getParking_progress())
-                //    return false;
             }
         return true;
     }
@@ -202,7 +197,7 @@ public class State {
         for (SceneElement se : elts) {
             ret += se.getName();
             ret += " ";
-            ret += String.format("%.2f", se.getX_position());
+            ret += String.format("%.2f", se.getY_position());
             ret += se.getTypeString();
             if (!se.getTypeString().equals(" [parking]")) {
                 if (((Vehicle)se).is_parking())
@@ -295,8 +290,8 @@ public class State {
                 if (v1.name.equals(v2.name)) {
                     v1.setCurrent_action(v2.getCurrent_action());
                     v1.getCurrent_action().setFinished(false);
-                    if (v1.getCurrent_action().getId() == Action.PARK) v1.setParking_progress(0);
-                    if (v1.getCurrent_action().getId() == Action.UNPARK) v1.setParking_progress(1);
+                    if (v1.getCurrent_action().getId() == Action.PARK) v1.setX_position(0);         // initial position for park action
+                    if (v1.getCurrent_action().getId() == Action.UNPARK) v1.setX_position(-10);     // initial position for unpark action
                 }
             }
         }
@@ -538,8 +533,8 @@ public class State {
         Vehicle closest = null;
         double min_dist = 1000;
         for (Vehicle upv : this.up_vehicles)
-            if (upv.x_position > v.x_position) {
-                double d = upv.x_position - v.x_position;
+            if (upv.y_position > v.y_position) {
+                double d = upv.y_position - v.y_position;
                 if (d < min_dist) {
                     min_dist = d;
                     closest = upv;
@@ -550,7 +545,7 @@ public class State {
 
     boolean is_upward_vehicle_below(Vehicle v) {
         for (Vehicle upv : this.up_vehicles)
-            if (upv.x_position > v.x_position)
+            if (upv.y_position > v.y_position)
                 return true;
         return false;
     }
@@ -558,7 +553,7 @@ public class State {
     ArrayList<ParkingPlace> get_parking_places_below(Vehicle v) {
         ArrayList<ParkingPlace> ret = new ArrayList<>();
         for (ParkingPlace pp : this.parking_places)
-            if (pp.x_position > v.x_position)
+            if (pp.y_position > v.y_position)
                 ret.add(pp);
 
         return ret;
@@ -567,7 +562,7 @@ public class State {
     ArrayList<Vehicle> get_dw_vehicles_below(Vehicle v) {
         ArrayList<Vehicle> ret = new ArrayList<>();
         for (Vehicle dwv : this.dw_vehicles)
-            if (dwv.x_position > v.x_position)
+            if (dwv.y_position > v.y_position)
                 ret.add(dwv);
 
         return ret;
@@ -575,7 +570,7 @@ public class State {
 
     boolean exist_upward_vehicle_between(Vehicle v, ParkingPlace pp) {
         for (Vehicle upv : this.up_vehicles)
-            if (upv.x_position > (v.x_position + 0.1)  &&  upv.x_position < (pp.x_position - 0.1))
+            if (upv.y_position > (v.y_position + 0.1)  &&  upv.y_position < (pp.y_position - 0.1))
                 return true;
 
         return false;
@@ -586,11 +581,11 @@ public class State {
         int Npp = 0;
 
         for (Vehicle v : this.dw_vehicles)
-            if (v.x_position > (dwv.x_position + 0.1) && v.x_position < (upv.x_position - 0.1))
+            if (v.y_position > (dwv.y_position + 0.1) && v.y_position < (upv.y_position - 0.1))
                 Ndw ++;
 
         for (ParkingPlace pp : this.parking_places)
-            if (pp.x_position > (dwv.x_position + 0.1) && pp.x_position < (upv.x_position - 0.1))
+            if (pp.y_position > (dwv.y_position + 0.1) && pp.y_position < (upv.y_position - 0.1))
                 Npp ++;
 
         if (Ndw > Npp)

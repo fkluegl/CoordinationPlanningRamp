@@ -8,7 +8,6 @@ public class Vehicle extends SceneElement {
     public static int EVENT_PASSED_PARKING = 4;
     public static int ACTION_COMPLETED = 5;
     private boolean downward;
-    private double parking_progress = 0;
     private double min_speed;
     private double max_speed;
     private double speed;
@@ -28,6 +27,7 @@ public class Vehicle extends SceneElement {
         this.is_out = false;
         this.in_ramp = true;
         this.x_position = 0;
+        this.y_position = 0;
         if (this.downward) {
             this.min_speed = 4.0;
             this.max_speed = 8.0;
@@ -43,8 +43,8 @@ public class Vehicle extends SceneElement {
     public int step(double time_step) {          // because we don't want to keep updating while park/unpark actions are completing
         if (current_action.getId() == Action.PREPARK && !current_action.isFinished()) {
             ParkingPlace pp = (ParkingPlace) current_action.getParameter();
-            if (x_position < pp.x_position - time_step * speed) {   // to make sure that the pp is always "below" v, otherwise
-                x_position += time_step * speed;                    // the geometric test in enumerate_parking_places() fails
+            if (y_position < pp.y_position - time_step * speed) {   // to make sure that the pp is always "below" v, otherwise
+                y_position += time_step * speed;                    // the geometric test in enumerate_parking_places() fails
             }
             else {
                 System.out.println("[PREPARK] " + name + " has reached pre-parking place.");
@@ -53,8 +53,8 @@ public class Vehicle extends SceneElement {
             }
         }
         else if (current_action.getId() == Action.PARK && !current_action.isFinished()) {
-            if (parking_progress < 1) {
-                parking_progress += time_step / State.parking_time;
+            if (x_position > -10 + time_step * State.parking_speed) {
+                x_position -= time_step * State.parking_speed;
                 is_parking = true;
             }
             else {
@@ -65,8 +65,8 @@ public class Vehicle extends SceneElement {
             }
         }
         else if (current_action.getId() == Action.UNPARK && !current_action.isFinished()) {
-            if (parking_progress > 0) {
-                parking_progress -= time_step / State.parking_time;
+            if (x_position < 0) {
+                x_position += time_step * State.parking_speed;
                 is_unparking = true;
             }
             else {
@@ -77,8 +77,8 @@ public class Vehicle extends SceneElement {
             }
         }
         else if (current_action.getId() == Action.EXIT && !current_action.isFinished()) {
-            if (x_position < State.x_max) {
-                x_position += time_step * speed;
+            if (y_position < State.y_max) {
+                y_position += time_step * speed;
             }
             else {
                 System.out.println("[EXIT] " + name + " has exited bottom.");
@@ -87,10 +87,10 @@ public class Vehicle extends SceneElement {
             }
         }
         else if (current_action.getId() == Action.GO_UP && !current_action.isFinished()) {
-            if (x_position > 0) {
-                double Dpp1 = getDeltaXToClosestParkingPlace();
-                x_position -= time_step * speed;
-                double Dpp2 = getDeltaXToClosestParkingPlace();
+            if (y_position > 0) {
+                double Dpp1 = getDeltaYToClosestParkingPlace();
+                y_position -= time_step * speed;
+                double Dpp2 = getDeltaYToClosestParkingPlace();
                 if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
                     System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed a parking place.");
                     return EVENT_PASSED_PARKING;
@@ -105,28 +105,27 @@ public class Vehicle extends SceneElement {
         return EVENT_OK;
     }
 
-    private double getDeltaXToClosestParkingPlace() {
+    private double getDeltaYToClosestParkingPlace() {
         double shift;
         if (downward) shift = -5.0;
         else          shift =  5.0;
-        double DeltaX = 1000;
+        double DeltaY = 1000;
         for (ParkingPlace pp : parentState.getParking_places()) {
-            double delta = x_position + shift - pp.x_position;
+            double delta = y_position + shift - pp.y_position;
             if (Math.abs(delta) < 2) { // to make sure we make 2 consecutive measurements to the same parking place
-                if (Math.abs(delta) < Math.abs(DeltaX))
-                    DeltaX = delta;
+                if (Math.abs(delta) < Math.abs(DeltaY))
+                    DeltaY = delta;
             }
         }
-        return DeltaX;
+        return DeltaY;
     }
 
     public Vehicle getCopy(State dady) {
         Vehicle ret = new Vehicle(this.name, this.downward);
         ret.x_position = this.x_position;
-        ret.yyy_position = this.yyy_position;
+        ret.y_position = this.y_position;
         ret.speed = this.speed;
         ret.current_action = this.current_action.getCopy();
-        ret.parking_progress = this.parking_progress;
         ret.is_out = this.is_out;
         ret.parentState = dady;
         ret.in_ramp = this.in_ramp;
@@ -140,15 +139,6 @@ public class Vehicle extends SceneElement {
     public String getName() {
         return name;
     }
-
-    public double getParking_progress() {
-        return parking_progress;
-    }
-
-    public void setParking_progress(double pprog) {
-        parking_progress = pprog;
-    }
-
     public boolean isDownward() {
         return downward;
     }
@@ -201,7 +191,8 @@ public class Vehicle extends SceneElement {
         else if (current_action.getId() == Action.PARK && !is_parking) {
             parentState.setParked_vehicle(this, getPreParkingPlace());
             parentState.removePreparked_vehicle(this);
-            parking_progress = 1;
+            x_position = -10;
+            y_position = getParkingPlace().y_position;
             is_parking = false;
         }
         else if (current_action.getId() == Action.PREPARK) {
@@ -210,7 +201,8 @@ public class Vehicle extends SceneElement {
         else if (current_action.getId() == Action.UNPARK && !is_unparking) {
             parentState.setPreparked_vehicle(this, getParkingPlace());
             parentState.removeParked_vehicle(this);
-            parking_progress = 0;
+            x_position = 0;
+            y_position = getPreParkingPlace().y_position;
             is_unparking = false;
         }
         else if (current_action.getId() == Action.GO_UP) {
@@ -274,9 +266,9 @@ public class Vehicle extends SceneElement {
 class VehicleXPositionComparatorReverse implements Comparator<Vehicle> {
     @Override
     public int compare(Vehicle v1, Vehicle v2) {
-        if (v1.getX_position() > v2.getX_position())
+        if (v1.getY_position() > v2.getY_position())
             return -1;
-        else if (v1.getX_position() < v2.getX_position())
+        else if (v1.getY_position() < v2.getY_position())
             return 1;
         return 0;
     }

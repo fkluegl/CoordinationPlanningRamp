@@ -2,23 +2,23 @@ import java.util.Comparator;
 
 public class SceneElement {
     protected double x_position;
-    protected double yyy_position;
+    protected double y_position;
     protected String name;
     protected State parentState;
     public int id;
+
+    public double getY_position() {
+        return y_position;
+    }
+    public void setY_position(double y_position) {
+        this.y_position = y_position;
+    }
 
     public double getX_position() {
         return x_position;
     }
     public void setX_position(double x_position) {
         this.x_position = x_position;
-    }
-
-    public double getYyy_position() {
-        return yyy_position;
-    }
-    public void setYyy_position(double yyy_position) {
-        this.yyy_position = yyy_position;
     }
 
     public String getName() {
@@ -49,9 +49,9 @@ public class SceneElement {
 class SceneElementXPositionComparator implements Comparator<SceneElement> {
     @Override
     public int compare(SceneElement v1, SceneElement v2) {
-        if (v1.getX_position() < v2.getX_position())
+        if (v1.getY_position() < v2.getY_position())
             return -1;
-        else if (v1.getX_position() > v2.getX_position())
+        else if (v1.getY_position() > v2.getY_position())
             return 1;
         return 0;
     }

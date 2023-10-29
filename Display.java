@@ -1,4 +1,3 @@
-import javax.swing.Timer;
 import javax.swing.JPanel;
 import java.awt.*;
 
@@ -23,16 +22,15 @@ public class Display extends JPanel {
 
         for (ParkingPlace pp : display_state.getParking_places()) {
             g.setColor(Color.BLACK);
-            int Y = (int)pp.getX_position() * 10;
-            g.drawRect(500, Y, 50, 50);
-            g.drawString(pp.getName(), 460, Y  + 25);
+            int Y = (int)pp.getY_position() * 10;
+            g.drawRect(400, Y, 50, 50);
+            g.drawString(pp.getName(), 360, Y  + 25);
         }
 
         for (Vehicle v : display_state.getDw_vehicles()) {
             g.setColor(Color.GREEN);
-            int X = 600 - (int)(v.getParking_progress() * 80);
-            //System.out.printf("parking_progress = %.2f    X = %d\n", v.getParking_progress(), X);
-            int Y = (int)v.getX_position() * 10;
+            int X = 500 + (int)v.getX_position() * 10; // 500 pixels <--> Vehicle.x = 0 meters
+            int Y = (int)v.getY_position() * 10;
             g.fillOval(X, Y, 20, 40);
             g.setColor(Color.BLACK);
             g.drawString(v.getName(), X, Y + 20);
@@ -40,10 +38,11 @@ public class Display extends JPanel {
 
         for (Vehicle v : display_state.getUp_vehicles()) {
             g.setColor(Color.RED);
-            int Y = (int)v.getX_position() * 10;
-            g.fillOval(600, Y, 20, 40);
+            int X = 500 + (int)v.getX_position() * 10; // 500 pixels <--> Vehicle.x = 0 meters
+            int Y = (int)v.getY_position() * 10;
+            g.fillOval(X, Y, 20, 40);
             g.setColor(Color.BLACK);
-            g.drawString(v.getName(), 600, Y  + 20);
+            g.drawString(v.getName(), X, Y  + 20);
         }
 
         g.drawLine(500, 1, 700, 1);

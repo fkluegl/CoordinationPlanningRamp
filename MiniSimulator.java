@@ -116,8 +116,8 @@ public class MiniSimulator {
         for (Vehicle v1 : elts)
             for (Vehicle v2 : elts)
                 if (v1 != v2  &&  !v1.isOut()  &&  !v2.isOut()) {
-                    if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
-                        if (v1.getParking_progress() <= 0  && v2.getParking_progress() <= 0) {
+                    if (Math.abs(v1.getY_position() - v2.getY_position()) < State.safety_distance) {
+                        if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
                             System.out.println("((( COLLISION ))) between " + v1.getName() + " and " + v2.getName() + " !!!");
                             return true;
                         }

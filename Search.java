@@ -62,7 +62,7 @@ public class Search {
         double t;
         for (Vehicle v : s.getDw_vehicles())
             if (!v.isOut()) {
-                t = (State.x_max - v.getX_position()) / v.getSpeed();
+                t = (State.y_max - v.getY_position()) / v.getSpeed();
                 if (t > maxt) {
                     maxt = t;
                 }
@@ -70,7 +70,7 @@ public class Search {
 
         for (Vehicle v : s.getUp_vehicles())
             if (!v.isOut()) {
-                t = v.getX_position() / v.getSpeed();
+                t = v.getY_position() / v.getSpeed();
                 if (t > maxt) {
                     maxt = t;
                 }
@@ -84,12 +84,12 @@ public class Search {
         double t = 0;
         for (Vehicle v : s.getDw_vehicles())
             if (!v.isOut()) {
-                t += (State.x_max - v.getX_position()) / v.getSpeed();
+                t += (State.y_max - v.getY_position()) / v.getSpeed();
             }
 
         for (Vehicle v : s.getUp_vehicles())
             if (!v.isOut()) {
-                t += v.getX_position() / v.getSpeed();
+                t += v.getY_position() / v.getSpeed();
             }
 
         return t;
@@ -100,11 +100,11 @@ public class Search {
         double D = 0;
         for (Vehicle v : s.getDw_vehicles())
             if (!v.isOut())
-                D += (State.x_max - v.getX_position());
+                D += (State.y_max - v.getY_position());
 
         for (Vehicle v : s.getUp_vehicles())
             if (!v.isOut())
-                D += v.getX_position();
+                D += v.getY_position();
 
         return D;
     }
