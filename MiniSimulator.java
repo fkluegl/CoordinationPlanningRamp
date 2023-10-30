@@ -59,22 +59,6 @@ public class MiniSimulator {
                     return null;
                 }
             }
-            for (Vehicle v : s.getQ_vehicles())
-            {
-                int event = v.step(DT);
-                if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) {
-                    s.apply_finished_actions_effects();  // applies effects to v.parentState
-                    if (v.getCurrent_action().getId() == Action.ENTER && v.getCurrent_action().isFinished())
-                        s.removeVehicle(v.getName()); //TODO --> dw_vehicles
-                    s.setDuration(simulation_time);
-                    return s.getCopy();
-                }
-
-                // check for collision --> end of the simulation
-                if (something_collides(s)) {
-                    return null;
-                }
-            }
         }
         //return null;
     }
@@ -130,8 +114,8 @@ public class MiniSimulator {
         elts.addAll(s.getUp_vehicles());
 
         for (Vehicle v1 : elts)
-            for (Vehicle v2 : elts)
-                if (v1 != v2  &&  !v1.isOut()  &&  !v2.isOut()) {
+            for (Vehicle v2 : elts)                               // TODO: can an ENTERing vehicle collide with a GO_UPing vehicle?
+                if (v1 != v2  &&  !v1.isOut()  &&  !v2.isOut() && v1.isIn_ramp() && v2.isIn_ramp()) {
                     if (Math.abs(v1.getY_position() - v2.getY_position()) < State.safety_distance) {
                         if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
                             System.out.println("((( COLLISION ))) between " + v1.getName() + " and " + v2.getName() + " !!!");

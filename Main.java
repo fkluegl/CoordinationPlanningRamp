@@ -27,27 +27,32 @@ public class Main {
         Vehicle v3 = new Vehicle("V3", true); v3.setY_position(70);
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(80);
         Vehicle v7 = new Vehicle("V7", false); v7.setY_position(90);
-        s_init.addVehicle(v1);
-        s_init.addVehicle(v2);
-        s_init.addVehicle(v3);
-        s_init.addVehicle(v4);
-        s_init.addVehicle(v5);
-        s_init.addVehicle(v6);
-        s_init.addVehicle(v7);
+        s_init.addVehicle(v1, false);
+        s_init.addVehicle(v2, false);
+        s_init.addVehicle(v3, false);
+        s_init.addVehicle(v4, false);
+        s_init.addVehicle(v5, false);
+        s_init.addVehicle(v6, false);
+        s_init.addVehicle(v7, false);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);
         s_init.setParked_vehicle(v2, p2);*/
 
-        /*Vehicle v1 = new Vehicle("V1", true); v1.setY_position(5);
+
+        /*Vehicle va = new Vehicle("Va", true);
+        //Vehicle vb = new Vehicle("Vb", true);
+        s_init.addVehicle(va, true);
+        //s_init.addVehicle(vb, true);
+        Vehicle v1 = new Vehicle("V1", true); v1.setY_position(5);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(10);
         Vehicle v6 = new Vehicle("V6", false); v6.setY_position(40);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(35);
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(80);
         Vehicle v7 = new Vehicle("V7", false); v7.setY_position(100);
-        s_init.addVehicle(v1);
-        s_init.addVehicle(v6);
-        s_init.addVehicle(v7);
+        s_init.addVehicle(v1, false);
+        s_init.addVehicle(v6, false);
+        s_init.addVehicle(v7, false);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);*/
@@ -55,15 +60,15 @@ public class Main {
         Vehicle va = new Vehicle("Va", true);
         Vehicle vb = new Vehicle("Vb", true);
         Vehicle vc = new Vehicle("Vc", true);
-        s_init.addQueuedVehicle(va);
-        s_init.addQueuedVehicle(vb);
-        s_init.addQueuedVehicle(vc);
+        s_init.addVehicle(va, true);
+        s_init.addVehicle(vb, true);
+        s_init.addVehicle(vc, true);
         Vehicle v1 = new Vehicle("V1", true); v1.setY_position(10);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(15);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(30);
         Vehicle v7 = new Vehicle("V7", false); v7.setY_position(40);
-        s_init.addVehicle(v1);
-        s_init.addVehicle(v7);
+        s_init.addVehicle(v1, false);
+        s_init.addVehicle(v7, false);
         s_init.addParkingPlace(p1);
 
 

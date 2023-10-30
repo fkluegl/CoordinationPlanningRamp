@@ -220,10 +220,10 @@ public class Vehicle extends SceneElement {
             is_out = true;
         }
         else if (current_action.getId() == Action.ENTER) {
-            parentState.addVehicle(parentState.getQ_vehicles().poll());
-            parentState.getQ_vehicles().peek().first = true;
+            x_position = 0;
             in_ramp = true;
             first = false;
+            parentState.update_first_in_queue();
          }
     }
 
