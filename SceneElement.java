@@ -46,7 +46,7 @@ public class SceneElement {
 }
 
 
-class SceneElementXPositionComparator implements Comparator<SceneElement> {
+class SceneElementYPositionComparator implements Comparator<SceneElement> {
     @Override
     public int compare(SceneElement v1, SceneElement v2) {
         if (v1.getY_position() < v2.getY_position())

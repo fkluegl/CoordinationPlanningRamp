@@ -59,6 +59,22 @@ public class MiniSimulator {
                     return null;
                 }
             }
+            for (Vehicle v : s.getQ_vehicles())
+            {
+                int event = v.step(DT);
+                if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) {
+                    s.apply_finished_actions_effects();  // applies effects to v.parentState
+                    if (v.getCurrent_action().getId() == Action.ENTER && v.getCurrent_action().isFinished())
+                        s.removeVehicle(v.getName()); //TODO --> dw_vehicles
+                    s.setDuration(simulation_time);
+                    return s.getCopy();
+                }
+
+                // check for collision --> end of the simulation
+                if (something_collides(s)) {
+                    return null;
+                }
+            }
         }
         //return null;
     }

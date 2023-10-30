@@ -102,6 +102,16 @@ public class Vehicle extends SceneElement {
                 return ACTION_COMPLETED;
             }
         }
+        else if (current_action.getId() == Action.ENTER && !current_action.isFinished()) {
+            if (x_position > 0 + time_step * speed) {
+                x_position -= time_step * State.parking_speed;
+            }
+            else {
+                System.out.println("[ENTER] " + name + " has entered the ramp.");
+                current_action.setFinished(true);
+                return ACTION_COMPLETED;
+            }
+        }
         return EVENT_OK;
     }
 
@@ -209,7 +219,12 @@ public class Vehicle extends SceneElement {
             in_ramp = false;
             is_out = true;
         }
-        //TODO: ENTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        else if (current_action.getId() == Action.ENTER) {
+            parentState.addVehicle(parentState.getQ_vehicles().poll());
+            parentState.getQ_vehicles().peek().first = true;
+            in_ramp = true;
+            first = false;
+         }
     }
 
     public void setSpeed(double speed) {
