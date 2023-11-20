@@ -31,12 +31,12 @@ public class Search {
             ArrayList<State> successors = current.get_next_states();
 
             for (State succ : successors) {
-                //double tentative_gScore = current.g_score + 1;
                 double tentative_gScore = current.g_score + G(succ);
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
                     succ.f_score = tentative_gScore + H(succ);
+                    succ.depth = current.depth + 1;
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);
                         //if (openSet.size() % 1000 == 0)
@@ -111,9 +111,12 @@ public class Search {
     }
 
     private boolean is_in_openSet(State x) {
-        for (State s : openSet)
+        for (State s : openSet) {
+            //if (!x.equals(s) && x.toString().equals(s.toString()))
+            //    System.out.println("hihihi");
             if (x.equals(s))
                 return true;
+        }
         return false;
     }
 

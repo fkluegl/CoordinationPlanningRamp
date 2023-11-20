@@ -10,7 +10,7 @@ public class MiniSimulator {
     public State simulate(State s) {
         boolean debug = false;
         double simulation_time = 0.0;
-        double DT = 0.025;
+        double DT = 0.1;
         display.set_state(s);
         System.out.print("[MINISIMULATOR] Simulate actions: " + s.current_action_str());
 
@@ -65,11 +65,11 @@ public class MiniSimulator {
 
     public void replay(State s, double duration) {
         double simulation_time = 0.0;
-        double DT = 0.025;
+        double DT = 0.035;
 
         display.set_state(s);
         display.repaint();
-        try { Thread.sleep(2); } catch (InterruptedException e) { throw new RuntimeException(e); }
+        try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
         while (true) {
             simulation_time += DT;

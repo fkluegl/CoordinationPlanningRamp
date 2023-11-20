@@ -207,6 +207,8 @@ public class Vehicle extends SceneElement {
         }
         else if (current_action.getId() == Action.PREPARK) {
             parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
+            x_position = 0;
+            y_position = getPreParkingPlace().y_position;
         }
         else if (current_action.getId() == Action.UNPARK && !is_unparking) {
             parentState.setPreparked_vehicle(this, getParkingPlace());

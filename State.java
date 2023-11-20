@@ -22,6 +22,7 @@ public class State {
     // ----------------------------------------------------------------------
     public int[] parked_at = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     public int[] preparked_at = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    public int depth = 0;
 
 
     public State() {
@@ -183,17 +184,23 @@ public class State {
             return false;        
         for (Vehicle v1 : dw_vehicles)
             for (Vehicle v2 : s.getDw_vehicles()) {
-                if (v1.name == v2.name && v1.y_position != v2.y_position)
-                    return false;
-                if (v1.name == v2.name && v1.x_position != v2.x_position)
-                    return false;
-                if (v1.name == v2.name && v1.getCurrent_action() != v2.getCurrent_action())
-                    return false;
+                if (v1.name == v2.name) {
+                    if (Math.abs(v1.y_position - v2.y_position) > 1.0)
+                        return false;
+                    if (Math.abs(v1.x_position - v2.x_position) > 1.0)
+                        return false;
+                    //if (v1.getCurrent_action().getId() == Action.PARK && v2.getCurrent_action().getId() == Action.UNPARK)
+                    //    return false;
+                    //if (v1.getCurrent_action().getId() == Action.UNPARK && v2.getCurrent_action().getId() == Action.PARK)
+                    //    return false;
+                }
             }
         for (Vehicle v1 : up_vehicles)
             for (Vehicle v2 : s.getUp_vehicles()) {
-                if (v1.name == v2.name && v1.y_position != v2.y_position)
-                    return false;
+                if (v1.name == v2.name) {
+                     if (Math.abs(v1.y_position - v2.y_position) > 1.0)
+                         return false;
+                }
             }
         return true;
     }
@@ -221,7 +228,7 @@ public class State {
         for (SceneElement se : elts) {
             ret += se.getName();
             ret += " ";
-            ret += String.format("%.2f", se.getY_position());
+            ret += String.format("(%.1f, %.1f)", se.getX_position(), se.getY_position());
             ret += se.getTypeString();
             if (!se.getTypeString().equals(" [parking]")) {
                 if (((Vehicle)se).is_parking())
@@ -278,7 +285,9 @@ public class State {
         System.out.println("     [STATE] Enumeration led to " + next_states.size() + " candidate states.");
 
         System.out.println("------------------------------------- <");
-        System.out.println("Result of enumerate:");
+        System.out.println(this);
+        System.out.println("--------------------");
+        System.out.printf("Result of enumerate: (depth=%d)\n", depth);
         for (State s : next_states) {
             System.out.print(s.current_action_str());
         }
@@ -314,8 +323,14 @@ public class State {
                 if (v1.name.equals(v2.name)) {
                     v1.setCurrent_action(v2.getCurrent_action());
                     v1.getCurrent_action().setFinished(false);
-                    if (v1.getCurrent_action().getId() == Action.PARK) v1.setX_position(0);         // initial position for park action
-                    if (v1.getCurrent_action().getId() == Action.UNPARK) v1.setX_position(-10);     // initial position for unpark action
+                    if (v1.getCurrent_action().getId() == Action.PARK) {
+                        v1.setX_position(0);         // initial position for park action
+                        v1.setY_position(v1.getCurrent_action().getParameter().getY_position());
+                    }
+                    if (v1.getCurrent_action().getId() == Action.UNPARK) {
+                        v1.setX_position(-10);     // initial position for unpark action
+                        v1.setY_position(v1.getCurrent_action().getParameter().getY_position());
+                    }
                 }
             }
         }
