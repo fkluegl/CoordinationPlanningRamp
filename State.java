@@ -20,8 +20,6 @@ public class State {
     private static ArrayList<State> next_states;
     public static MiniSimulator mini_simulator;
     // ----------------------------------------------------------------------
-    public int[] parked_at = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-    public int[] preparked_at = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     public int depth = 0;
 
 
@@ -44,15 +42,20 @@ public class State {
         }
         else {
             up_vehicles.add(v);
-            v.id = Ndw;     // id from their respective list!!
+            v.id = Nup;     // id from their respective list!!
             Nup ++;
         }
         
         if (inQueue) {
             v.setIn_ramp(false);
             v.setX_position(15);
-            v.setY_position(0);
-            update_first_in_queue();
+            if (v.isDownward()) {
+                v.setY_position(0);
+                update_first_in_top_queue();
+            } else {
+                v.setY_position(1000);
+                update_first_in_bottom_queue();
+            }
         } else {
             v.setIn_ramp(true);
         }
@@ -60,7 +63,7 @@ public class State {
         v.setParentState(this);
     }
 
-    public void update_first_in_queue() {
+    public void update_first_in_top_queue() {
         boolean found_first = false;
         for (Vehicle v : dw_vehicles) {
             if (!v.isIn_ramp()) {
@@ -73,6 +76,21 @@ public class State {
             }
         }
     }
+
+    public void update_first_in_bottom_queue() {
+        boolean found_first = false;
+        for (Vehicle v : up_vehicles) {
+            if (!v.isIn_ramp()) {
+                if (!found_first) {
+                    v.setFirst(true);
+                    found_first = true;
+                } else {
+                    v.setFirst(false);
+                }
+            }
+        }
+    }
+
     public void addParkingPlace(ParkingPlace pp) {
         parking_places.add(pp);
         pp.id = Npp;
@@ -81,46 +99,27 @@ public class State {
     }
     
     public void setParked_vehicle(Vehicle v, ParkingPlace pp) {
-        parked_at[v.id] = pp.id;
+        //parked_at[v.id] = pp.id;
+        pp.setParked_vehicle(v.name);
         v.x_position = pp.x_position;
         v.y_position = pp.y_position; // TODO: needed?
     }
 
-    public Vehicle getParked_vehicle(ParkingPlace pp) {
-        for (int i=0; i<Ndw; i++) {
-            if (parked_at[i] == pp.id)
-                return dw_vehicles.get(i);
-        }
-        return null;
-    }
-
-    public boolean hasParkedVehicle(ParkingPlace pp) {
-        Vehicle pv = getParked_vehicle(pp);
-        if (pv != null)
-            return true;
-        else
-            return false;
-    }
-
-    public void removeParked_vehicle(Vehicle v) {
-        parked_at[v.id] = -1;
+    public void removeParked_vehicle(Vehicle v, ParkingPlace pp) {
+        //parked_at[v.id] = -1;
+        pp.setParked_vehicle(null);
     }
 
     public void setPreparked_vehicle(Vehicle v, ParkingPlace pp) {
-        preparked_at[v.id] = pp.id;
+        //preparked_at[v.id] = pp.id;
+        pp.setPre_parked_vehicle(v.name);
+        v.x_position = 0;
         v.y_position = pp.y_position;   //TODO: needed?
     }
 
-    public Vehicle getPreparked_vehicle(ParkingPlace pp) {
-        for (int i=0; i<Ndw; i++) {
-            if (parked_at[i] == pp.id)
-                return dw_vehicles.get(i);
-        }
-        return null;
-    }
-
-    public void removePreparked_vehicle(Vehicle v) {
-        preparked_at[v.id] = -1;
+    public void removePreparked_vehicle(Vehicle v, ParkingPlace pp) {
+        //preparked_at[v.id] = -1;
+        pp.setPre_parked_vehicle(null);
     }
 
     public boolean allVehiclesOut() {
@@ -133,7 +132,7 @@ public class State {
         return true;
     }
 
-    public void removeVehicle(String vname) {
+    /*public void removeVehicle(String vname) {
         for (Vehicle x : this.dw_vehicles) {
             if (x.getName().equals(vname)) {
                 this.dw_vehicles.remove(x);
@@ -145,6 +144,23 @@ public class State {
             if (x.getName().equals(vname)) {
                 this.up_vehicles.remove(x);
                 this.Nup --;
+                return;
+            }
+        }
+    }*/
+
+    public void removeVehicle(String vname) {
+        for (int i = 0; i < dw_vehicles.size(); i++) {
+            Vehicle x = dw_vehicles.get(i);
+            if (x.getName().equals(vname)) {
+                dw_vehicles.set(i, null);
+                return;
+            }
+        }
+        for (int i = 0; i < up_vehicles.size(); i++) {
+            Vehicle x = up_vehicles.get(i);
+            if (x.getName().equals(vname)) {
+                up_vehicles.set(i, null);
                 return;
             }
         }
@@ -165,9 +181,6 @@ public class State {
         for (ParkingPlace p : this.parking_places) {
             ret.parking_places.add(p.getCopy());
         }
-
-        ret.parked_at = parked_at.clone();
-        ret.preparked_at = preparked_at.clone();
 
         ret.Ndw = ret.dw_vehicles.size();
         ret.Nup = ret.up_vehicles.size();
@@ -252,8 +265,13 @@ public class State {
             ret += id_str;
             if (id == Action.PREPARK)
                 ret += "(" + se.getCurrent_action().getParameter().name + ") ";
-            else if (id == Action.PARK)
-                ret += "(" + se.getPreParkingPlace().getName() + ") ";
+            else if (id == Action.PARK) {
+                ParkingPlace ppp = se.getPreParkingPlace();
+                if (ppp == null)
+                    ret += "(NULL) ";
+                else
+                    ret += "(" + se.getPreParkingPlace().getName() + ") ";
+            }
             else if (id == Action.UNPARK)
                 ret += "(" + se.getParkingPlace().getName() + ") ";
             else                   ret += "     ";
@@ -280,7 +298,7 @@ public class State {
         ArrayList<State> ret = new ArrayList<State>();
         next_states = new ArrayList<State>();
 
-        // enumerated possible actions to be applied to this state
+        // enumerated possible actions to be applied to this state, and store resulting states in this.next_states
         enumerate_actions(0, dw_vehicles.size());
         System.out.println("     [STATE] Enumeration led to " + next_states.size() + " candidate states.");
 
@@ -289,7 +307,11 @@ public class State {
         System.out.println("--------------------");
         System.out.printf("Result of enumerate: (depth=%d)\n", depth);
         for (State s : next_states) {
-            System.out.print(s.current_action_str());
+            try {
+                System.out.print(s.current_action_str());
+            } catch (Exception e) {
+                System.out.print(e);
+            }
         }
         System.out.println("------------------------------------- >");
 
@@ -372,6 +394,10 @@ public class State {
         }
     }
 
+    //TODO: use another system for enumerating vehicles:
+    //      * mix Up.name and Dw.name into a list of names
+    //      * pop the list at each recursion
+    //      * maybe we should even have only ONE list for ALL vehicles!
     public void enumerate_actions(int id_vehicle, int Nv) {
         if (id_vehicle == Nv) {
             next_states.add(this);
@@ -397,21 +423,21 @@ public class State {
                 return; // because this vehicle in this state cannot do any other action
             }
 
-            // enumerate EXIT actions
-            boolean exit_precondition = fulfills_preconditions(v, Action.EXIT);
+            // enumerate GO_DOWN actions
+            boolean exit_precondition = fulfills_preconditions(v, Action.GO_DOWN);
             if (exit_precondition) {
                 boolean exit_feasible = !this.is_upward_vehicle_below(v);       // GEOMETRIC  TODO: but should we keep it here?
 
                 if (exit_precondition && exit_feasible) {
                     State state_copy_1 = this.getCopy();
-                    state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.EXIT));
+                    state_copy_1.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.GO_DOWN));
                     state_copy_1.enumerate_actions(id_vehicle + 1, Nv);
                 } else {
                     if (!exit_feasible)
-                        System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot EXIT because of vehicle Up vehicle below.");
+                        System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot GO_DOWN because of vehicle Up vehicle below.");
                 }
             } else {
-                System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot EXIT because of precondition false.");
+                System.out.println("[ENUM FILTER!!!] " + v.getName() + " cannot GO_DOWN because of precondition false.");
             }
 
             // enumerate PARK actions
@@ -425,11 +451,11 @@ public class State {
             }
 
             // enumerate PREPARK actions
-            for (int p = 0; p < this.Npp; p++) {
-                boolean prepark_precondition = fulfills_preconditions(v, Action.PREPARK, p);
+            for (int pp_id = 0; pp_id < this.Npp; pp_id++) {
+                boolean prepark_precondition = fulfills_preconditions(v, Action.PREPARK, pp_id);
                 if (prepark_precondition) {
                     State state_copy_3 = this.getCopy();
-                    state_copy_3.enumerate_parking_places(id_vehicle, p, Nv, Action.PREPARK);
+                    state_copy_3.enumerate_parking_places(id_vehicle, pp_id, Nv, Action.PREPARK);
                 }
             }
 
@@ -444,12 +470,12 @@ public class State {
             }
 
             // enumerate WAIT actions
-            boolean wait_precondition = fulfills_preconditions(v, Action.WAIT);
+            /*boolean wait_precondition = fulfills_preconditions(v, Action.WAIT);
             if (wait_precondition) {
                 State state_copy_5 = this.getCopy();
                 state_copy_5.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.WAIT));
                 state_copy_5.enumerate_actions(id_vehicle + 1, Nv);
-            }
+            }*/
 
             // enumerate ENTER actions
             boolean enter_precondition = fulfills_preconditions(v, Action.ENTER);
@@ -458,6 +484,10 @@ public class State {
                 state_copy_6.dw_vehicles.get(id_vehicle).setCurrent_action(new Action(Action.ENTER));
                 state_copy_6.enumerate_actions(id_vehicle + 1, Nv);
             }
+
+            // if no action applies to this vehicle, we assign the WAIT action and continue with the next vehicle
+            State state_copy_7 = this.getCopy();
+            state_copy_7.enumerate_actions(id_vehicle + 1, Nv);
         }
     }
 
@@ -486,34 +516,34 @@ public class State {
     }
 
     public boolean fulfills_preconditions(Vehicle v, int action, int... param) {
-        if (action == Action.EXIT) {
-            if (!v.isParked() && v.isIn_ramp())
+        if (action == Action.GO_DOWN) {
+            if (!v.isParked() && v.isIn_ramp() && v.isDownward())
                 return true;
             else
                 return false;
         }
         else if (action == Action.PREPARK) {
-            if (!v.isParked() /*&& !v.isPreparked()*/ && v.isIn_ramp())
+            if (!v.isParked() && v.isIn_ramp() && !v.isLoaded())
                 return true;
             else
                 return false;
         }
         else if (action == Action.PARK) {
             int pp_id = param[0];
-            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparked() && v.isIn_ramp())
+            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparkedAt(pp_id) && v.isIn_ramp())
                 return true;
             else
                 return false;
         }
         else if (action == Action.UNPARK) {
             int pp_id = param[0];
-            if (v.isParked() && is_prepark_clear(pp_id))
+            if (v.isParkedAt(pp_id) && is_prepark_clear(pp_id))
                 return true;
             else
                 return false;
         }
         else if (action == Action.WAIT) {
-            if (v.isParked() || v.isPreparked() || !v.isIn_ramp())
+            if (v.isParked() || (!v.isIn_ramp() && v.isFirst()))
                 return true;
             else
                 return false;
@@ -532,19 +562,17 @@ public class State {
     }
 
     public boolean is_park_clear(int pp_id) {
-        for (int i=0; i<Ndw; i++) {
-            if (parked_at[i] == pp_id)
-                return false;
-        }
-        return true;
+        if (parking_places.get(pp_id).getParked_vehicle() == null)
+            return true;
+        else
+            return false;
     }
 
     public boolean is_prepark_clear(int pp_id) {
-        for (int i=0; i<Ndw; i++) {
-            if (preparked_at[i] == pp_id)
-                return false;
-        }
-        return true;
+        if (parking_places.get(pp_id).getPre_parked_vehicle() == null)
+            return true;
+        else
+            return false;
     }
 
     public double getStart_time() {
@@ -618,24 +646,6 @@ public class State {
                 return true;
 
         return false;
-    }
-
-    boolean exist_enough_parking_place_between(Vehicle dwv, Vehicle upv) {
-        int Ndw = 1;
-        int Npp = 0;
-
-        for (Vehicle v : this.dw_vehicles)
-            if (v.y_position > (dwv.y_position + 0.1) && v.y_position < (upv.y_position - 0.1))
-                Ndw ++;
-
-        for (ParkingPlace pp : this.parking_places)
-            if (pp.y_position > (dwv.y_position + 0.1) && pp.y_position < (upv.y_position - 0.1))
-                Npp ++;
-
-        if (Ndw > Npp)
-            return false;
-        else
-            return true;
     }
 
 }

@@ -42,8 +42,14 @@ public class Display extends JPanel {
         }
 
         for (Vehicle v : display_state.getUp_vehicles()) {
-            g.setColor(Color.RED);
-            int X = 500 + (int)v.getX_position() * 10; // 500 pixels <--> Vehicle.x = 0 meters
+            if (v.isLoaded())   g.setColor(Color.RED);
+            else                g.setColor(Color.CYAN);
+            int X;
+            if (v.isIn_ramp()) X = 500 + (int)v.getX_position() * 10; // 500 pixels <--> Vehicle.x = 0 meters
+            else {
+                if (v.isFirst())  X = 500 + (int)v.getX_position() * 10;
+                else              X = 500 + (int)v.getX_position() * 10 + display_state.getDw_vehicles().indexOf(v) * 30; // 500 pixels <--> Vehicle.x = 0 meters + 30 pixels between each vehicle
+            }
             int Y = (int)v.getY_position() * 10;
             g.fillOval(X, Y, 20, 40);
             g.setColor(Color.BLACK);

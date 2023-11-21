@@ -1,5 +1,5 @@
 public class Action {
-    public final static int EXIT = 0;
+    public final static int GO_DOWN = 0;
     public final static int PARK = 1;
     public final static int PREPARK = 11;
     public final static int UNPARK = 12;
@@ -15,8 +15,8 @@ public class Action {
     public Action(int id_action, SceneElement... params) {
         this.id = id_action;
         this.finished = false;
-        if (id_action == EXIT) {
-            this.name = "Exit";
+        if (id_action == GO_DOWN) {
+            this.name = "Go down";
         }
         else if (id_action == PARK) {
             this.name = "Park";

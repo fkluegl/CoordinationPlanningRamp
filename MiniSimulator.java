@@ -32,7 +32,7 @@ public class MiniSimulator {
                 int event = v.step(DT);
                 if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) {
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
-                    if (v.getCurrent_action().getId() == Action.EXIT && v.getCurrent_action().isFinished())
+                    if (v.getCurrent_action().getId() == Action.GO_DOWN && v.getCurrent_action().isFinished())
                         s.removeVehicle(v.getName());
                     s.setDuration(simulation_time);
                     return s.getCopy();
@@ -94,18 +94,6 @@ public class MiniSimulator {
                 }
             }
         }
-    }
-
-    boolean all_actions_finished(State s) {
-        for (Vehicle v : s.getDw_vehicles())
-            if (!v.getCurrent_action().isFinished())
-                return false;
-
-        for (Vehicle v : s.getUp_vehicles())
-            if (!v.getCurrent_action().isFinished())
-                return false;
-
-        return true;
     }
 
     boolean something_collides(State s) {

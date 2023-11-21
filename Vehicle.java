@@ -8,6 +8,7 @@ public class Vehicle extends SceneElement {
     public static int EVENT_PASSED_PARKING = 4;
     public static int ACTION_COMPLETED = 5;
     private boolean downward;
+    private boolean loaded;
     private double min_speed;
     private double max_speed;
     private double speed;
@@ -23,6 +24,7 @@ public class Vehicle extends SceneElement {
 
     public Vehicle(String nam, boolean dwd) {
         this.downward = dwd;
+        this.loaded = false;
         this.name = nam;
         this.is_out = false;
         this.in_ramp = true;
@@ -76,12 +78,12 @@ public class Vehicle extends SceneElement {
                 return ACTION_COMPLETED;
             }
         }
-        else if (current_action.getId() == Action.EXIT && !current_action.isFinished()) {
+        else if (current_action.getId() == Action.GO_DOWN && !current_action.isFinished()) {
             if (y_position < State.y_max) {
                 y_position += time_step * speed;
             }
             else {
-                System.out.println("[EXIT] " + name + " has exited bottom.");
+                System.out.println("[GO_DOWN] " + name + " has exited bottom.");
                 current_action.setFinished(true);
                 return ACTION_COMPLETED;
             }
@@ -132,6 +134,7 @@ public class Vehicle extends SceneElement {
 
     public Vehicle getCopy(State dady) {
         Vehicle ret = new Vehicle(this.name, this.downward);
+        ret.loaded = this.loaded;
         ret.x_position = this.x_position;
         ret.y_position = this.y_position;
         ret.speed = this.speed;
@@ -149,10 +152,9 @@ public class Vehicle extends SceneElement {
     public String getName() {
         return name;
     }
-    public boolean isDownward() {
-        return downward;
-    }
-
+    public boolean isDownward() { return downward; }
+    public boolean isLoaded() { return loaded; }
+    public void setLoaded(boolean loaded) { this.loaded = loaded; }
     public double getSpeed() {
         return speed;
     }
@@ -191,7 +193,7 @@ public class Vehicle extends SceneElement {
     }
 
     public void apply_current_action_effects() {
-        if (current_action.getId() == Action.EXIT) {
+        if (current_action.getId() == Action.GO_DOWN) {
             in_ramp = false;
             is_out = true;
         }
@@ -200,7 +202,7 @@ public class Vehicle extends SceneElement {
         }
         else if (current_action.getId() == Action.PARK && !is_parking) {
             parentState.setParked_vehicle(this, getPreParkingPlace());
-            parentState.removePreparked_vehicle(this);
+            parentState.removePreparked_vehicle(this, getPreParkingPlace());
             x_position = -10;
             y_position = getParkingPlace().y_position;
             is_parking = false;
@@ -212,7 +214,7 @@ public class Vehicle extends SceneElement {
         }
         else if (current_action.getId() == Action.UNPARK && !is_unparking) {
             parentState.setPreparked_vehicle(this, getParkingPlace());
-            parentState.removeParked_vehicle(this);
+            parentState.removeParked_vehicle(this, getParkingPlace());
             x_position = 0;
             y_position = getPreParkingPlace().y_position;
             is_unparking = false;
@@ -225,7 +227,8 @@ public class Vehicle extends SceneElement {
             x_position = 0;
             in_ramp = true;
             first = false;
-            parentState.update_first_in_queue();
+            if (downward)   parentState.update_first_in_top_queue();
+            else            parentState.update_first_in_bottom_queue();
          }
     }
 
@@ -241,33 +244,49 @@ public class Vehicle extends SceneElement {
     }
 
     public boolean isParked() {
-        if (parentState.parked_at[id] != -1)
+        for (ParkingPlace pp : parentState.getParking_places()) {
+            String pvname = pp.getParked_vehicle();
+            if (pvname != null)
+                if (pvname.equals(this.name))
+                    return true;
+        }
+        return false;
+    }
+
+    public boolean isParkedAt(int pp_id) {
+        if (parentState.getParking_places().get(pp_id).getParked_vehicle().equals(this.name))
             return true;
         else
             return false;
     }
 
-    public boolean isPreparked() {
-        if (parentState.preparked_at[id] != -1)
+    public boolean isPreparkedAt(int pp_id) {
+        if (parentState.getParking_places().get(pp_id).getPre_parked_vehicle().equals(this.name))
             return true;
         else
             return false;
     }
 
     public ParkingPlace getPreParkingPlace() {
-        int pppid = parentState.preparked_at[id];
-        if (pppid != -1)
-            return parentState.getParking_places().get(pppid);
-        else
-            return null;
+        for (ParkingPlace pp : parentState.getParking_places()) {
+            String pvname = pp.getPre_parked_vehicle();
+            if (pvname != null)
+                if (pvname.equals(this.name))
+                    return pp;
+        }
+
+        return null;
     }
 
     public ParkingPlace getParkingPlace() {
-        int pppid = parentState.parked_at[id];
-        if (pppid != -1)
-            return parentState.getParking_places().get(pppid);
-        else
-            return null;
+        for (ParkingPlace pp : parentState.getParking_places()) {
+            String pvname = pp.getParked_vehicle();
+            if (pvname != null)
+                if (pvname.equals(this.name))
+                    return pp;
+        }
+
+        return null;
     }
 
     public boolean isIn_ramp() {

@@ -51,6 +51,7 @@ public class Main {
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(35); //35
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(80);
         Vehicle v7 = new Vehicle("V7", false); v7.setY_position(100);
+        v6.setLoaded(true);
         s_init.addVehicle(v1, false);
         s_init.addVehicle(v6, false);
         s_init.addVehicle(v7, false);
