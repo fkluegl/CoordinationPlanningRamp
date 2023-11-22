@@ -1,5 +1,5 @@
 public class ParkingPlace extends SceneElement {
-
+    public int id;
     private String parked_vehicle;
     private String pre_parked_vehicle;
 

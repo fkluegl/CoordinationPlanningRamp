@@ -30,15 +30,16 @@ public class Vehicle extends SceneElement {
         this.in_ramp = true;
         this.x_position = 0;
         this.y_position = 0;
+        this.current_action = new Action(Action.WAIT);
         if (this.downward) {
             this.min_speed = 4.0;
             this.max_speed = 8.0;
             this.speed = 5.7;
-            this.current_action = new Action(Action.WAIT);
         }
         else {
             this.speed = 1.6;
-            this.current_action = new Action(Action.GO_UP);
+            if (this.loaded)
+                this.current_action = new Action(Action.GO_UP);
         }
     }
 
@@ -143,7 +144,6 @@ public class Vehicle extends SceneElement {
         ret.parentState = dady;
         ret.in_ramp = this.in_ramp;
         ret.first = this.first;
-        ret.id = this.id;
         ret.is_parking = this.is_parking;
         ret.is_unparking = this.is_unparking;
         return ret;
@@ -153,6 +153,7 @@ public class Vehicle extends SceneElement {
         return name;
     }
     public boolean isDownward() { return downward; }
+    public boolean isUpward() { return !downward; }
     public boolean isLoaded() { return loaded; }
     public void setLoaded(boolean loaded) { this.loaded = loaded; }
     public double getSpeed() {
@@ -197,31 +198,34 @@ public class Vehicle extends SceneElement {
             in_ramp = false;
             is_out = true;
         }
+        else if (current_action.getId() == Action.GO_UP) {
+            in_ramp = false;
+            is_out = true;
+        }
         else if (current_action.getId() == Action.WAIT) {
             return;  // WAIT changes nothing
         }
         else if (current_action.getId() == Action.PARK && !is_parking) {
-            parentState.setParked_vehicle(this, getPreParkingPlace());
-            parentState.removePreparked_vehicle(this, getPreParkingPlace());
+            ParkingPlace pp = (ParkingPlace)this.current_action.getParameter();
+            parentState.setParked_vehicle(this, pp);
+            parentState.removePreparked_vehicle(this, pp);
             x_position = -10;
-            y_position = getParkingPlace().y_position;
+            y_position = pp.y_position;
             is_parking = false;
         }
         else if (current_action.getId() == Action.PREPARK) {
-            parentState.setPreparked_vehicle(this, (ParkingPlace)this.current_action.getParameter());
+            ParkingPlace pp = (ParkingPlace)this.current_action.getParameter();
+            parentState.setPreparked_vehicle(this, pp);
             x_position = 0;
-            y_position = getPreParkingPlace().y_position;
+            y_position = pp.y_position;
         }
         else if (current_action.getId() == Action.UNPARK && !is_unparking) {
-            parentState.setPreparked_vehicle(this, getParkingPlace());
-            parentState.removeParked_vehicle(this, getParkingPlace());
+            ParkingPlace pp = (ParkingPlace)this.current_action.getParameter();
+            parentState.setPreparked_vehicle(this, pp);
+            parentState.removeParked_vehicle(this, pp);
             x_position = 0;
-            y_position = getPreParkingPlace().y_position;
+            y_position = pp.y_position;
             is_unparking = false;
-        }
-        else if (current_action.getId() == Action.GO_UP) {
-            in_ramp = false;
-            is_out = true;
         }
         else if (current_action.getId() == Action.ENTER) {
             x_position = 0;

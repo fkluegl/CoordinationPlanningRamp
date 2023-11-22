@@ -61,59 +61,49 @@ public class Search {
         // under-estimate time_to_goal
         double maxt = 0;
         double t;
-        for (Vehicle v : s.getDw_vehicles())
+        for (Vehicle v : s.getVehicles())
             if (!v.isOut()) {
-                t = (State.y_max - v.getY_position()) / v.getSpeed();
+                if (v.isDownward()) t = (State.y_max - v.getY_position()) / v.getSpeed();
+                else                t = v.getY_position() / v.getSpeed();
                 if (t > maxt) {
                     maxt = t;
                 }
             }
-
-        for (Vehicle v : s.getUp_vehicles())
-            if (!v.isOut()) {
-                t = v.getY_position() / v.getSpeed();
-                if (t > maxt) {
-                    maxt = t;
-                }
-            }
-
         return maxt;
     }
 
     private double time_to_goal2(State s) {
         // over-estimates time_to_goal
         double t = 0;
-        for (Vehicle v : s.getDw_vehicles())
-            if (!v.isOut()) {
-                t += (State.y_max - v.getY_position()) / v.getSpeed();
+        for (Vehicle v : s.getVehicles())
+            if (v != null) {
+                if (!v.isOut()) {
+                    if (v.isDownward()) t += (State.y_max - v.getY_position()) / v.getSpeed();
+                    else t += v.getY_position() / v.getSpeed();
+                }
             }
-
-        for (Vehicle v : s.getUp_vehicles())
-            if (!v.isOut()) {
-                t += v.getY_position() / v.getSpeed();
-            }
-
         return t;
     }
 
 
     private double distance_to_goal(State s) {
         double D = 0;
-        for (Vehicle v : s.getDw_vehicles())
-            if (!v.isOut())
-                D += (State.y_max - v.getY_position());
-
-        for (Vehicle v : s.getUp_vehicles())
-            if (!v.isOut())
-                D += v.getY_position();
-
+        for (Vehicle v : s.getVehicles())
+            if (!v.isOut()) {
+                if (v.isDownward()) D += (State.y_max - v.getY_position());
+                else                D += v.getY_position();
+            }
         return D;
     }
 
     private boolean is_in_openSet(State x) {
         for (State s : openSet) {
-            //if (!x.equals(s) && x.toString().equals(s.toString()))
-            //    System.out.println("hihihi");
+            if (!x.equals(s) && x.toString().equals(s.toString())) {
+                System.out.println("hihihi");
+                System.out.println("x\n---------------------\n" + x);
+                System.out.println("s\n---------------------\n" + s);
+                x.equals(s);
+            }
             if (x.equals(s))
                 return true;
         }

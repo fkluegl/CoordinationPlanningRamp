@@ -103,7 +103,7 @@ public class Main {
 
             for (int i = 0; i < solution.size() - 1; i++) {
                 State s = solution.get(i);
-                s.assignActions(solution.get(i + 1).getDw_vehicles());
+                s.assignActions(solution.get(i + 1).getVehicles());
                 double duration = solution.get(i + 1).getDuration();
                 /*System.out.println("-------------------");
                 System.out.println("- step" + i + ", state:");

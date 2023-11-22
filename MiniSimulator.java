@@ -27,28 +27,12 @@ public class MiniSimulator {
                 try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
             }
 
-            for (Vehicle v : s.getDw_vehicles())
+            for (Vehicle v : s.getVehicles())
             {
                 int event = v.step(DT);
                 if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) {
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
-                    if (v.getCurrent_action().getId() == Action.GO_DOWN && v.getCurrent_action().isFinished())
-                        s.removeVehicle(v.getName());
-                    s.setDuration(simulation_time);
-                    return s.getCopy();
-                }
-
-                // check for collision --> end of the simulation
-                if (something_collides(s)) {
-                    return null;
-                }
-            }
-            for (Vehicle v : s.getUp_vehicles())
-            {
-                int event = v.step(DT);
-                if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) {
-                    s.apply_finished_actions_effects();  // applies effects to v.parentState
-                    if (v.getCurrent_action().getId() == Action.GO_UP && v.getCurrent_action().isFinished())
+                    if ((v.getCurrent_action().getId() == Action.GO_DOWN || v.getCurrent_action().getId() == Action.GO_UP) && v.getCurrent_action().isFinished())
                         s.removeVehicle(v.getName());
                     s.setDuration(simulation_time);
                     return s.getCopy();
@@ -77,37 +61,28 @@ public class MiniSimulator {
             display.repaint();
             try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
-            for (Vehicle v : s.getDw_vehicles())
+            for (Vehicle v : s.getVehicles())
             {
-                int event = v.step(DT);
-                if (simulation_time >= duration) {
-                //if (event != Vehicle.EVENT_OK) {
+                v.step(DT);
+                if (simulation_time >= duration)
                     return;
-                }
-            }
-            for (Vehicle v : s.getUp_vehicles())
-            {
-                int event = v.step(DT);
-                if (simulation_time >= duration) {
-                    //if (event != Vehicle.EVENT_OK) {
-                    return;
-                }
             }
         }
     }
 
     boolean something_collides(State s) {
-        ArrayList<Vehicle> elts = new ArrayList<>();
-        elts.addAll(s.getDw_vehicles());
-        elts.addAll(s.getUp_vehicles());
+        //ArrayList<Vehicle> elts = new ArrayList<>();
+        //elts.addAll(s.getVehicles());
 
-        for (Vehicle v1 : elts)
-            for (Vehicle v2 : elts)                               // TODO: can an ENTERing vehicle collide with a GO_UPing vehicle?
-                if (v1 != v2  &&  !v1.isOut()  &&  !v2.isOut() && v1.isIn_ramp() && v2.isIn_ramp()) {
-                    if (Math.abs(v1.getY_position() - v2.getY_position()) < State.safety_distance) {
-                        if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
-                            System.out.println("((( COLLISION ))) between " + v1.getName() + " and " + v2.getName() + " !!!");
-                            return true;
+        for (Vehicle v1 : s.getVehicles())
+            for (Vehicle v2 : s.getVehicles())                    // TODO: can an ENTERing vehicle collide with a GO_UPing vehicle?
+                if (v1 != null && v2 != null) {
+                    if (v1 != v2 && !v1.isOut() && !v2.isOut() && v1.isIn_ramp() && v2.isIn_ramp()) {
+                        if (Math.abs(v1.getY_position() - v2.getY_position()) < State.safety_distance) {
+                            if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
+                                System.out.println("((( COLLISION ))) between " + v1.getName() + " and " + v2.getName() + " !!!");
+                                return true;
+                            }
                         }
                     }
                 }

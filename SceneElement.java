@@ -5,7 +5,6 @@ public class SceneElement {
     protected double y_position;
     protected String name;
     protected State parentState;
-    public int id;
 
     public double getY_position() {
         return y_position;
