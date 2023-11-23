@@ -33,7 +33,7 @@ public class MiniSimulator {
                 if (event == Vehicle.ACTION_COMPLETED || event == Vehicle.EVENT_PASSED_PARKING) {
                     s.apply_finished_actions_effects();  // applies effects to v.parentState
                     if ((v.getCurrent_action().getId() == Action.GO_DOWN || v.getCurrent_action().getId() == Action.GO_UP) && v.getCurrent_action().isFinished())
-                        s.removeVehicle(v.getName());
+                        s.removeVehicle(v.name);
                     s.setDuration(simulation_time);
                     return s.getCopy();
                 }

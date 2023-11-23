@@ -23,7 +23,8 @@ public class Search {
         while (openSet.size() > 0) {
             State current = openSet.poll();
             nb_explored_states ++;
-            if (current.equals(final_state)) {
+            //if (current.equals(final_state)) {
+            if (current.getNv() == 0) {
                 return reconstruct_path(current);
             }
 
@@ -54,7 +55,10 @@ public class Search {
     }
     private double H(State s) {
         //return 0;
-        return time_to_goal2(s);
+        if (s.only_wait_actions())
+            return time_to_goal2(s) + s.getNv() * 1000;
+        else
+            return time_to_goal2(s);
     }
 
     private double time_to_goal(State s) {

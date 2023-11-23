@@ -26,6 +26,10 @@ public class ParkingPlace extends SceneElement {
         return (this.y_position > v.y_position);
     }
 
+    public boolean isAbove(Vehicle v) {
+        return (this.y_position < v.y_position);
+    }
+
     public String getTypeString() {
         return " [parking]";
     }
@@ -35,7 +39,7 @@ public class ParkingPlace extends SceneElement {
     }
 
     public String getParked_vehicle() { return parked_vehicle; }
-    public void setParked_vehicle(String parked_vehicle) { this.parked_vehicle = parked_vehicle; }
+    public void setParked_vehicle(String vname) { this.parked_vehicle = vname; }
     public String getPre_parked_vehicle() { return pre_parked_vehicle; }
-    public void setPre_parked_vehicle(String pre_parked_vehicle) { this.pre_parked_vehicle = pre_parked_vehicle; }
+    public void setPre_parked_vehicle(String vname) { this.pre_parked_vehicle = vname; }
 }
