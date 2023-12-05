@@ -231,6 +231,7 @@ public class Vehicle extends SceneElement {
             ParkingPlace pp = (ParkingPlace)this.current_action.getParameter();
             parentState.setParked_vehicle(this.name, pp.name);
             parentState.removePreparked_vehicle(pp.name);
+            pp.set_has_already_parked(this.name);
             x_position = -10;
             y_position = pp.y_position;
             is_parking = false;

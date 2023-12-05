@@ -45,7 +45,7 @@ public class Action {
             this.parameter = params[0];
 
             if (params[0] == null) {
-                System.out.println("params[0] is null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111");
+                System.out.println("params[0] is null!!!!!!!!!!!!!!!!!!!!!!!!!!!!! and id_action = " + id_action);
                 System.exit(0);
             }
         }

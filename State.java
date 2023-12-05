@@ -163,22 +163,15 @@ public class State {
             Vehicle v1 = vehicles.get(i);
             Vehicle v2 = s.getVehicles().get(i);
 
-            /*if (v1.is_exiting() != v2.is_exiting())
+            if (Math.abs(v1.y_position - v2.y_position) > 1.0)  // makes a difference!
                 return false;
-            if (v1.is_parking() != v2.is_parking())
-                return false;
-            if (v1.is_unparking() != v2.is_unparking())
-                return false;*/
-
-            if (Math.abs(v1.y_position - v2.y_position) > 1.0)
-                return false;
-            if (Math.abs(v1.x_position - v2.x_position) > 1.0)
+            if (Math.abs(v1.x_position - v2.x_position) > 1.0)  // makes a difference!
                 return false;
 
-            //if (v1.getCurrent_action().getId() == Action.PARK && v2.getCurrent_action().getId() == Action.UNPARK)
-            //    return false;
-            //if (v1.getCurrent_action().getId() == Action.UNPARK && v2.getCurrent_action().getId() == Action.PARK)
-            //    return false;
+            if (v1.getCurrent_action().getId() == Action.PARK && v2.getCurrent_action().getId() == Action.UNPARK)
+                return false;
+            if (v1.getCurrent_action().getId() == Action.UNPARK && v2.getCurrent_action().getId() == Action.PARK)
+                return false;
         }
         return true;
     }
@@ -386,7 +379,7 @@ public class State {
             // enumerate GO_DOWN actions
             boolean exit_bottom_precondition = fulfills_preconditions(v, Action.GO_DOWN);
             if (exit_bottom_precondition) {
-                boolean exit_bottom_feasible = !this.is_loaded_upward_vehicle_below(v);       // GEOMETRIC  TODO: but should we keep it here?
+                boolean exit_bottom_feasible = !this.is_upward_vehicle_below_going_up(v);       // GEOMETRIC  TODO: but should we keep it here?
 
                 if (exit_bottom_feasible) {
                     State state_copy_1 = this.getCopy();
@@ -402,8 +395,7 @@ public class State {
             // enumerate GO_UP actions
             boolean exit_top_precondition = fulfills_preconditions(v, Action.GO_UP);
             if (exit_top_precondition) {
-                //boolean exit_top_feasible = !this.is_downward_vehicle_above(v);       // GEOMETRIC  TODO: but should we keep it here?
-                boolean exit_top_feasible = true;   // always feasible because Dw vehicles can always park
+                boolean exit_top_feasible = !this.is_downward_vehicle_above_going_down(v);       // GEOMETRIC  TODO: but should we keep it here?
 
                 if (exit_top_feasible) {
                     State state_copy_1 = this.getCopy();
@@ -435,8 +427,13 @@ public class State {
             for (int pp_id = 0; pp_id < this.Npp; pp_id++) {
                 boolean prepark_precondition = fulfills_preconditions(v, Action.PREPARK, pp_id);
                 if (prepark_precondition) {
-                    State state_copy_3 = this.getCopy();
-                    state_copy_3.enumerate_parking_places(vehicle_index, v.name, pp_id, Nv, Action.PREPARK);
+                    boolean prepark_feasible = !is_vehicle_going_opposite_in_between(v, pp_id);
+                    if (prepark_feasible) {
+                        State state_copy_3 = this.getCopy();
+                        state_copy_3.enumerate_parking_places(vehicle_index, v.name, pp_id, Nv, Action.PREPARK);
+                    } else {
+                        System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PREPARK because of vehicle between it and pp[" + pp_id + "].");
+                    }
                 } else {
                     System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PREPARK because of precondition false.");
                 }
@@ -510,14 +507,15 @@ public class State {
         }
         else if (action == Action.PREPARK) {
             int pp_id = param[0];
-            if (!v.isParked() && v.isIn_ramp() && !v.isLoaded() && !v.isPreparkedAt(pp_id))
+            //if (!v.isParked() && v.isIn_ramp() && !v.isLoaded() && !v.isPreparkedAt(pp_id))  // why would we like to have 2 vehicles park at the same pp?
+            if (!v.isParked() && v.isIn_ramp() && !v.isLoaded() && is_prepark_clear(pp_id))
                 return true;
             else
                 return false;
         }
         else if (action == Action.PARK) {
-            int pp_id = param[0];
-            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparkedAt(pp_id) && v.isIn_ramp())
+            int pp_id = param[0];                                                                   // to avoid multiple parking-unparking
+            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparkedAt(pp_id) && v.isIn_ramp() && !has_vehicle_already_parked_at(v, pp_id))
                 return true;
             else
                 return false;
@@ -562,6 +560,10 @@ public class State {
             return true;
         else
             return false;
+    }
+
+    public boolean has_vehicle_already_parked_at(Vehicle v, int pp_id) {
+        return parking_places.get(pp_id).get_has_already_parked(v.name);
     }
 
     public double getStart_time() {
@@ -624,6 +626,45 @@ public class State {
                 if (upv.y_position > v.y_position)
                     return true;
             }
+        return false;
+    }
+
+    boolean is_upward_vehicle_below_going_up(Vehicle v) {
+        for (Vehicle upv : this.vehicles)
+            if (upv.isUpward() && upv.getCurrent_action().getId() == Action.GO_UP) {
+                if (upv.y_position > v.y_position)
+                    return true;
+            }
+        return false;
+    }
+
+    boolean is_downward_vehicle_above_going_down(Vehicle v) {
+        for (Vehicle dwv : this.vehicles)
+            if (dwv.isUpward() && dwv.getCurrent_action().getId() == Action.GO_DOWN) {
+                if (dwv.y_position < v.y_position)
+                    return true;
+            }
+        return false;
+    }
+
+    boolean is_vehicle_going_opposite_in_between(Vehicle v, int pp_id) {
+        // Checks if there is a vehicle between v and the target parking place,
+        // coming in opposite direction, assigned with the action GO_UP or GO_DOWN
+        int opposite_action;
+        if (v.isDownward()) opposite_action = Action.GO_UP;
+        else                opposite_action = Action.GO_DOWN;
+        ParkingPlace pp = parking_places.get(pp_id);
+        for (Vehicle vopp : this.vehicles) {
+            if (v.isDownward() == !vopp.isDownward() && vopp.getCurrent_action().getId() == opposite_action) {
+                if (v.isDownward()) {
+                    if (v.getY_position() < vopp.getY_position() && vopp.getY_position() < pp.getY_position())
+                        return true;
+                } else {
+                    if (v.getY_position() > vopp.getY_position() && vopp.getY_position() > pp.getY_position())
+                        return true;
+                }
+            }
+        }
         return false;
     }
 
