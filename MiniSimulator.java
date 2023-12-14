@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class MiniSimulator {
     Display display;
     State init_state;
@@ -77,9 +75,9 @@ public class MiniSimulator {
         for (Vehicle v1 : s.getVehicles())
             for (Vehicle v2 : s.getVehicles())                    // TODO: can an ENTERing vehicle collide with a GO_UPing vehicle?
                 if (v1 != null && v2 != null) {
-                    if (v1 != v2 && !v1.isOut() && !v2.isOut() && v1.isIn_ramp() && v2.isIn_ramp()) {
-                        if (Math.abs(v1.getY_position() - v2.getY_position()) < State.safety_distance) {
-                            if (Math.abs(v1.getX_position() - v2.getX_position()) < State.safety_distance) {
+                    if (v1 != v2 && v1.isIn_ramp() && v2.isIn_ramp()) {
+                        if (Math.abs(v1.getY_position() - v2.getY_position()) < State.SAFETY_DISTANCE) {
+                            if (Math.abs(v1.getX_position() - v2.getX_position()) < State.SAFETY_DISTANCE) {
                                 System.out.println("((( COLLISION ))) between " + v1.getName() + " and " + v2.getName() + " !!!");
                                 return true;
                             }

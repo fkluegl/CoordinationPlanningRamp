@@ -4,7 +4,8 @@ public class State {
     public final static double parking_speed = 3.34; // m/s
     public final static double y_min = 0.0;   // m
     public final static double y_max = 100.0; // m
-    public final static double safety_distance = 5.0; // m (center-to-center)
+    public final static double SAFETY_DISTANCE = 5.0; // m (center-to-center)
+    public final static double METRIC_EQUALITY_THRESHOLD = 1.0; // m (center-to-center) larger => fewer states => faster, but less complete
     private double start_time = 0;
     public double g_score = 1000;
     public double f_score = 1000;
@@ -118,8 +119,7 @@ public class State {
 
     public boolean allVehiclesOut() {
         for (Vehicle v : vehicles)
-            if (!v.isOut())
-                return false;
+            return false;
 
         return true;
     }
@@ -138,12 +138,9 @@ public class State {
     public State getCopy() {
         State ret = new State();
         // copy vehicle lists
-        for (Vehicle v : this.vehicles) {
-            if (!v.isOut())
-                ret.vehicles.add(v.getCopy(ret));
-            else
-                System.out.println("v is out but still in the list");
-        }
+        for (Vehicle v : this.vehicles)
+            ret.vehicles.add(v.getCopy(ret));
+
         // copy parking places list
         for (ParkingPlace pp : this.parking_places) {
             ret.parking_places.add(pp.getCopy());
@@ -156,23 +153,72 @@ public class State {
         return ret;
     }
 
-    public boolean equals(State s) {
+    /*public boolean equals(State s) {
         if (this.Nv != s.Nv)
             return false;
         for (int i = 0; i < Nv; i++) {
             Vehicle v1 = vehicles.get(i);
             Vehicle v2 = s.getVehicles().get(i);
 
-            if (Math.abs(v1.y_position - v2.y_position) > 1.0)  // makes a difference!
-                return false;
-            if (Math.abs(v1.x_position - v2.x_position) > 1.0)  // makes a difference!
+            // the order of vehicles is preserved in .vehicles:
+            // - when the state is copied
+            // - when a vehicle is removed (and we never add vehicles during planning)
+            // BUT, when there is only
+            if (Nv == 1 && !v1.name.equals(v2.name))
                 return false;
 
+            if (!v1.name.equals(v2.name)) {
+                System.out.println("Hello Franziska : the order is not preserved (remember?)");
+                System.exit(0);
+            }
+
+            //if (v1.getCurrent_action().getId() != v2.getCurrent_action().getId())  // Drastically increases the number of states !
+            //    return false;
+
+            if (Math.abs(v1.y_position - v2.y_position) > METRIC_EQUALITY_THRESHOLD)
+                return false;
+            if (Math.abs(v1.x_position - v2.x_position) > METRIC_EQUALITY_THRESHOLD)
+                return false;
+
+            // The vehicles have the same position, but they perform opposite actions, hence the state is different.
             if (v1.getCurrent_action().getId() == Action.PARK && v2.getCurrent_action().getId() == Action.UNPARK)
                 return false;
             if (v1.getCurrent_action().getId() == Action.UNPARK && v2.getCurrent_action().getId() == Action.PARK)
                 return false;
         }
+        return true;
+    }*/
+
+    public boolean equals(State s) {
+        if (this.Nv != s.Nv)
+            return false;
+
+        int count_matches = 0;
+        for (Vehicle v1 : vehicles) {
+            for (Vehicle v2 : s.vehicles) {
+                if (v1.name == v2.name) {
+                    count_matches ++;
+
+                    //if (v1.getCurrent_action().getId() != v2.getCurrent_action().getId())  // Drastically increases the number of states !
+                    //    return false;
+
+                    if (Math.abs(v1.y_position - v2.y_position) > METRIC_EQUALITY_THRESHOLD)
+                        return false;
+                    if (Math.abs(v1.x_position - v2.x_position) > METRIC_EQUALITY_THRESHOLD)
+                        return false;
+
+                    // The vehicles have the same position, but they perform opposite actions, hence the state is different.
+                    if (v1.getCurrent_action().getId() == Action.PARK && v2.getCurrent_action().getId() == Action.UNPARK)
+                        return false;
+                    if (v1.getCurrent_action().getId() == Action.UNPARK && v2.getCurrent_action().getId() == Action.PARK)
+                        return false;
+                }
+            }
+        }
+
+        if (count_matches < Nv)
+            return false;
+
         return true;
     }
 
@@ -500,7 +546,7 @@ public class State {
                 return false;
         }
         else if (action == Action.GO_UP) {
-            if (!v.isParked() && v.isIn_ramp() && !v.isDownward())
+            if (!v.isParked() && v.isIn_ramp() && v.isUpward())
                 return true;
             else
                 return false;

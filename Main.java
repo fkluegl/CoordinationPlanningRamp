@@ -73,6 +73,13 @@ public class Main {
         s_init.addParkingPlace(p3);
         s_init.addParkingPlace(p4);
 
+        /*Vehicle va = new Vehicle("Va", true, false);
+        s_init.addVehicle(va, true);
+        Vehicle v1 = new Vehicle("V1", false, false);
+        s_init.addVehicle(v1, true);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(50);
+        s_init.addParkingPlace(p1);*/
+
 
         System.out.println(s_init);
         State s_final = new State(); // implicitly: contains no vehicles

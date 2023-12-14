@@ -12,7 +12,6 @@ public class Vehicle extends SceneElement {
     private double min_speed;
     private double max_speed;
     private double speed;
-    private boolean is_out; // result of EXIT or GO_UP, not the same as !in_ramp --> queued vehicles
     private Action current_action;
     private boolean debug_step = false;
     // ---------------------------------------------------------------------------
@@ -27,7 +26,6 @@ public class Vehicle extends SceneElement {
         this.downward = dwd;
         this.loaded = lowdid;
         this.name = nam;
-        this.is_out = false;
         this.in_ramp = true;
         this.x_position = 0;
         this.y_position = 0;
@@ -163,7 +161,6 @@ public class Vehicle extends SceneElement {
         ret.y_position = this.y_position;
         ret.speed = this.speed;
         ret.current_action = this.current_action.getCopy();
-        ret.is_out = this.is_out;
         ret.parentState = dady;
         ret.in_ramp = this.in_ramp;
         ret.first = this.first;
@@ -182,15 +179,6 @@ public class Vehicle extends SceneElement {
     public void setLoaded(boolean loaded) { this.loaded = loaded; }
     public double getSpeed() {
         return speed;
-    }
-
-    public boolean isOut() {
-        return is_out;
-    }
-
-    public void setIs_out(boolean io) {
-        is_out = io;
-        in_ramp = !is_out;
     }
 
     public boolean is_parking() {
@@ -216,12 +204,10 @@ public class Vehicle extends SceneElement {
     public void apply_current_action_effects() {
         if (current_action.getId() == Action.GO_DOWN && !is_exiting) {
             in_ramp = false;
-            is_out = true;
             is_exiting = false;
         }
         else if (current_action.getId() == Action.GO_UP && !is_exiting) {
             in_ramp = false;
-            is_out = true;
             is_exiting = false;
         }
         else if (current_action.getId() == Action.WAIT) {

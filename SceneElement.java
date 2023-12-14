@@ -31,9 +31,6 @@ public class SceneElement {
         SceneElement ret = this.getCopy();
         return ret;
     }
-    public boolean isOut() {
-        return this.isOut();
-    }
 
     public void setParentState(State parentState) {
         this.parentState = parentState;
