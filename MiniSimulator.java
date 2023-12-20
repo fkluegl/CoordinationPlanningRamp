@@ -68,6 +68,15 @@ public class MiniSimulator {
         }
     }
 
+    public void displayState(State s) {
+        display.set_state(s);
+        display.repaint();
+        for (int i=0; i<20; i++) {
+            display.repaint();
+            try { Thread.sleep(100); } catch (InterruptedException e) { throw new RuntimeException(e); }
+        }
+    }
+
     boolean something_collides(State s) {
         //ArrayList<Vehicle> elts = new ArrayList<>();
         //elts.addAll(s.getVehicles());

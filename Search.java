@@ -18,7 +18,7 @@ public class Search {
         openSet = new PriorityQueue<State>(16, new StateComparator());
         openSet.add(init_state);
         init_state.g_score = 0;
-        init_state.f_score = 1000; //h(init_state);
+        init_state.f_score = 1000; // h(init_state);
 
         while (openSet.size() > 0) {
             State current = openSet.poll();
@@ -78,11 +78,15 @@ public class Search {
     private double time_to_goal2(State s) {
         // over-estimates time_to_goal
         double t = 0;
-        for (Vehicle v : s.getVehicles())
-            if (v != null) {
-                if (v.isDownward()) t += (State.y_max - v.getY_position()) / v.getSpeed();
-                else t += v.getY_position() / v.getSpeed();
-            }
+        for (Vehicle v : s.getVehicles()) {
+
+            if (v.isDownward()) t += (State.y_max - v.getY_position()) / v.getSpeed();
+            else t += v.getY_position() / v.getSpeed();
+
+            // More optimal: increases search time!
+            //if (v.isParked())
+            //    t += 15 / State.parking_speed;
+        }
         return t;
     }
 
@@ -112,13 +116,17 @@ public class Search {
 
     private ArrayList<State> reconstruct_path(State s) {
         ArrayList<State> ret = new ArrayList<State>();
+        float total_duration = 0;
         State x = s;
         while (x.cameFrom != null) {
             ret.add(x);
+            total_duration += x.getDuration();
             x = x.cameFrom;
         }
         //TODO: add s0 ?
         ret.add(x);
+        total_duration += x.getDuration();
+        System.out.println("total_duration = " + total_duration);
         return ret;
     }
 

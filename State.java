@@ -5,7 +5,7 @@ public class State {
     public final static double y_min = 0.0;   // m
     public final static double y_max = 100.0; // m
     public final static double SAFETY_DISTANCE = 5.0; // m (center-to-center)
-    public final static double METRIC_EQUALITY_THRESHOLD = 1.0; // m (center-to-center) larger => fewer states => faster, but less complete
+    public final static double METRIC_EQUALITY_THRESHOLD = 3.0; // m (center-to-center) larger => fewer states => faster, but less complete
     private double start_time = 0;
     public double g_score = 1000;
     public double f_score = 1000;
@@ -53,11 +53,11 @@ public class State {
     }
 
     public void update_first_in_top_queue() {
-        // downward vehicles
+        // Sets the "first" flag to TRUE for the first downward vehicle in the list, and FALSE for other downwards vehicles
         boolean found_first = false;
         for (Vehicle v : vehicles) {
-            if (v.isDownward()) {
-                if (!v.isIn_ramp()) {
+            if (!v.isIn_ramp()) {
+                if (v.isDownward()) {
                     if (!found_first) {
                         v.setFirst(true);
                         found_first = true;
@@ -70,11 +70,11 @@ public class State {
     }
 
     public void update_first_in_bottom_queue() {
-        // upward vehicles
+        // Sets the "first" flag to TRUE for the first upward vehicle in the list, and FALSE for other upward vehicles
         boolean found_first = false;
         for (Vehicle v : vehicles) {
-            if (!v.isDownward()) {
-                if (!v.isIn_ramp()) {
+            if (!v.isIn_ramp()) {
+                if (v.isUpward()) {
                     if (!found_first) {
                         v.setFirst(true);
                         found_first = true;
@@ -172,7 +172,7 @@ public class State {
                 System.exit(0);
             }
 
-            //if (v1.getCurrent_action().getId() != v2.getCurrent_action().getId())  // Drastically increases the number of states !
+            //if (v1.getCurrent_action().getId() != v2.getCurrent_action().getId())  // Dramatically increases the number of states !
             //    return false;
 
             if (Math.abs(v1.y_position - v2.y_position) > METRIC_EQUALITY_THRESHOLD)
@@ -189,6 +189,8 @@ public class State {
         return true;
     }*/
 
+    // Alternative equals function: checking the name of the vehicle instead of relying on the order in the list.
+    // Slower, but could avoid a bug in the future!
     public boolean equals(State s) {
         if (this.Nv != s.Nv)
             return false;
@@ -199,7 +201,7 @@ public class State {
                 if (v1.name == v2.name) {
                     count_matches ++;
 
-                    //if (v1.getCurrent_action().getId() != v2.getCurrent_action().getId())  // Drastically increases the number of states !
+                    //if (v1.getCurrent_action().getId() != v2.getCurrent_action().getId())  // Dramatically increases the number of states !
                     //    return false;
 
                     if (Math.abs(v1.y_position - v2.y_position) > METRIC_EQUALITY_THRESHOLD)
@@ -501,6 +503,8 @@ public class State {
                 State state_copy_6 = this.getCopy();
                 state_copy_6.vehicles.get(vehicle_index).setCurrent_action(new Action(Action.ENTER));
                 state_copy_6.enumerate_actions(vehicle_index + 1, Nv);
+            } else {
+                System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot ENTER because of precondition false.");
             }
 
             // enumerate WAIT actions
@@ -509,6 +513,8 @@ public class State {
                 State state_copy_5 = this.getCopy();
                 state_copy_5.vehicles.get(vehicle_index).setCurrent_action(new Action(Action.WAIT));
                 state_copy_5.enumerate_actions(vehicle_index + 1, Nv);
+            } else {
+                System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot WAIT because of precondition false.");
             }
 
             // if no action applies to this vehicle, we assign the WAIT action and continue with the next vehicle
@@ -574,8 +580,8 @@ public class State {
                 return false;
         }
         else if (action == Action.WAIT) {
-            if (v.isLoaded())   // loaded vehicles cannot stop!
-                return false;
+            //if (v.isLoaded() && v.isIn_ramp())   // loaded vehicles cannot stop!
+            //    return false;
             if (v.isParked() || !v.isIn_ramp())
                 return true;
             else
@@ -686,7 +692,7 @@ public class State {
 
     boolean is_downward_vehicle_above_going_down(Vehicle v) {
         for (Vehicle dwv : this.vehicles)
-            if (dwv.isUpward() && dwv.getCurrent_action().getId() == Action.GO_DOWN) {
+            if (dwv.isDownward() && dwv.getCurrent_action().getId() == Action.GO_DOWN) {
                 if (dwv.y_position < v.y_position)
                     return true;
             }

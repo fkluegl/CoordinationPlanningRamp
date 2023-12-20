@@ -33,14 +33,15 @@ public class Vehicle extends SceneElement {
         if (this.downward) {
             this.min_speed = 4.0;
             this.max_speed = 8.0;
-            this.speed = 5.7;
+            this.speed = 5.0;
         }
         else {
             if (this.loaded) {
-                this.speed = 1.6;
+                this.speed = 3.0
+                ;
                 this.current_action = new Action(Action.GO_UP);
             } else {
-                this.speed = 5.0;
+                this.speed = 4.0;
             }
         }
     }
