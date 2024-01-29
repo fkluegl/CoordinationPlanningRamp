@@ -17,13 +17,13 @@ public class Main {
 
         State s_init = new State();
 
-        /*Vehicle va = new Vehicle("Va", true, false); //va.setY_position(5);
+        Vehicle va = new Vehicle("Va", true, false); //va.setY_position(5);
         Vehicle vb = new Vehicle("Vb", true, false); //vb.setY_position(30);
         Vehicle vc = new Vehicle("Vc", true, false); vc.setY_position(30);
         Vehicle vd = new Vehicle("Vd", true, false);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(20);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(40);
-        ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(60);
+        ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(120);
         Vehicle v1 = new Vehicle("V1", false, false); //v1.setY_position(60);
         Vehicle v2 = new Vehicle("V2", false, true); //v2.setY_position(65);
         Vehicle v3 = new Vehicle("V3", false, false); v3.setY_position(90);
@@ -38,8 +38,9 @@ public class Main {
         s_init.addVehicle(v4, true);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);*/
+        s_init.addParkingPlace(p3);
 
+        //LONG!!!
         /*Vehicle vb = new Vehicle("Vb", true, false);
         Vehicle vc = new Vehicle("Vc", true, false);
         Vehicle vd = new Vehicle("Vd", true, false);
@@ -59,7 +60,7 @@ public class Main {
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);*/
 
-        Vehicle va = new Vehicle("Va", true, false);
+        /*Vehicle va = new Vehicle("Va", true, false);
         Vehicle vb = new Vehicle("Vb", true, false);
         s_init.addVehicle(va, true);
         s_init.addVehicle(vb, true);
@@ -70,7 +71,7 @@ public class Main {
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(30);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(50);
         s_init.addParkingPlace(p1);
-        s_init.addParkingPlace(p2);
+        s_init.addParkingPlace(p2);*/
 
         /*Vehicle va = new Vehicle("Va", true, false);
         s_init.addVehicle(va, true);

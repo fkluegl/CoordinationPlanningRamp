@@ -20,6 +20,9 @@ public class MiniSimulator {
         while (true) {
             simulation_time += DT;
 
+            //if (simulation_time >= 5.0)  ==> creates too many steps!
+            //    return s.getCopy();
+
             if (debug) {
                 display.repaint();
                 try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }

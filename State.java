@@ -567,7 +567,8 @@ public class State {
         }
         else if (action == Action.PARK) {
             int pp_id = param[0];                                                                   // to avoid multiple parking-unparking
-            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparkedAt(pp_id) && v.isIn_ramp() && !has_vehicle_already_parked_at(v, pp_id))
+            String pname = parking_places.get(pp_id).name;
+            if (!v.isParked() && is_park_clear(pp_id) && v.isPreparkedAt(pp_id) && v.isIn_ramp() && !v.has_already_parked(pname))
                 return true;
             else
                 return false;
@@ -612,10 +613,6 @@ public class State {
             return true;
         else
             return false;
-    }
-
-    public boolean has_vehicle_already_parked_at(Vehicle v, int pp_id) {
-        return parking_places.get(pp_id).get_has_already_parked(v.name);
     }
 
     public double getStart_time() {

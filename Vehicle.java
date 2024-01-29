@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class Vehicle extends SceneElement {
@@ -20,6 +21,7 @@ public class Vehicle extends SceneElement {
     private boolean is_parking = false;
     private boolean is_unparking = false;
     private boolean is_exiting = false;
+    private ArrayList<String> has_already_parked;
 
 
     public Vehicle(String nam, boolean dwd, boolean lowdid) {
@@ -44,6 +46,7 @@ public class Vehicle extends SceneElement {
                 this.speed = 4.0;
             }
         }
+        this.has_already_parked = new ArrayList<>();
     }
 
     public int step(double time_step) {          // because we don't want to keep updating while park/unpark actions are completing
@@ -168,6 +171,7 @@ public class Vehicle extends SceneElement {
         ret.is_parking = this.is_parking;
         ret.is_exiting = this.is_exiting;
         ret.is_unparking = this.is_unparking;
+        ret.has_already_parked.addAll(this.has_already_parked);
         return ret;
     }
 
@@ -218,7 +222,7 @@ public class Vehicle extends SceneElement {
             ParkingPlace pp = (ParkingPlace)this.current_action.getParameter();
             parentState.setParked_vehicle(this.name, pp.name);
             parentState.removePreparked_vehicle(pp.name);
-            pp.set_has_already_parked(this.name);
+            set_has_already_parked(pp.name);
             x_position = -10;
             y_position = pp.y_position;
             is_parking = false;
@@ -311,6 +315,19 @@ public class Vehicle extends SceneElement {
         }
 
         return null;
+    }
+
+    public void set_has_already_parked(String vname) {
+        if (has_already_parked.contains(vname)) {
+            System.out.println("The key was already there : impossible!");
+            System.exit(0);
+        } else {
+            has_already_parked.add(vname);
+        }
+    }
+
+    public boolean has_already_parked(String vname) {
+        return has_already_parked.contains(vname);
     }
 
     public boolean isIn_ramp() {
