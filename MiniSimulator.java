@@ -47,7 +47,7 @@ public class MiniSimulator {
 
     public void replay(State s, double duration) {
         double simulation_time = 0.0;
-        double DT = 0.035;
+        double DT = 0.01;
 
         display.set_state(s);
         display.repaint();
@@ -57,7 +57,7 @@ public class MiniSimulator {
             simulation_time += DT;
 
             display.repaint();
-            try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
             for (Vehicle v : s.getVehicles())
             {
