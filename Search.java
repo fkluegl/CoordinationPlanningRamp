@@ -61,6 +61,16 @@ public class Search {
             return time_to_goal2(s);
     }
 
+    private double H_test(State s) {
+        int Nmax = Math.max(s.getNdownVehicles(), s.getNupVehicles());
+        double time_to_goal = Nmax * (3 + State.y_max / 5);
+
+        if (s.only_wait_actions())
+            return time_to_goal + s.getNv() * 1000;
+        else
+            return time_to_goal;
+    }
+
     private double time_to_goal(State s) {
         // under-estimate time_to_goal
         double maxt = 0;
@@ -84,8 +94,8 @@ public class Search {
             else t += v.getY_position() / v.getSpeed();
 
             // More optimal: increases search time!
-            //if (v.isParked())
-            //    t += 15 / State.parking_speed;
+            if (v.isParked())
+                t += 15 / State.parking_speed;
         }
         return t;
     }

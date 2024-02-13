@@ -117,9 +117,10 @@ public class State {
         getParkingPlaceByName(ppname).setPre_parked_vehicle(null);
     }
 
-    public boolean allVehiclesOut() {
+    public boolean allVehiclesWaiting() {
         for (Vehicle v : vehicles)
-            return false;
+            if (!(v.getCurrent_action().getId() == Action.WAIT))
+                return false;
 
         return true;
     }
@@ -327,6 +328,8 @@ public class State {
         //TODO here: remove all states with logical conflicts:
         //  * PARK / PREPARK / UNPARK with same destination and different vehicles
         //  * ...or is everything handled by the preconditions? --> depends on the order?
+
+
 
         int ins = 0;
         for (State s : next_states) {
@@ -552,7 +555,7 @@ public class State {
                 return false;
         }
         else if (action == Action.GO_UP) {
-            if (!v.isParked() && v.isIn_ramp() && v.isUpward())
+            if (!v.isParked() && v.isIn_ramp() && v.isUpward() && !v.isPreparked())
                 return true;
             else
                 return false;
@@ -621,6 +624,22 @@ public class State {
 
     public ArrayList<Vehicle> getVehicles() {
         return vehicles;
+    }
+
+    public int getNupVehicles() {
+        int ret = 0;
+        for (Vehicle v : vehicles)
+            if (v.isUpward())
+                ret ++;
+        return ret;
+    }
+
+      public int getNdownVehicles() {
+        int ret = 0;
+        for (Vehicle v : vehicles)
+            if (v.isDownward())
+                ret ++;
+        return ret;
     }
 
     public Vehicle getVehicleByName(String vname) {
@@ -699,6 +718,7 @@ public class State {
     boolean is_vehicle_going_opposite_in_between(Vehicle v, int pp_id) {
         // Checks if there is a vehicle between v and the target parking place,
         // coming in opposite direction, assigned with the action GO_UP or GO_DOWN
+        // And also checks if the parking place is ahead w.r.t the direction of the vehicle
         int opposite_action;
         if (v.isDownward()) opposite_action = Action.GO_UP;
         else                opposite_action = Action.GO_DOWN;

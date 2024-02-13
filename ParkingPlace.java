@@ -16,8 +16,13 @@ public class ParkingPlace extends SceneElement {
 
     public ParkingPlace getCopy() {
         ParkingPlace ret = new ParkingPlace(this.name);
-        ret.parked_vehicle = this.parked_vehicle;
-        ret.pre_parked_vehicle = this.pre_parked_vehicle;
+
+        if (this.parked_vehicle == null) ret.parked_vehicle = null;
+        else ret.parked_vehicle = String.valueOf(this.parked_vehicle.toCharArray(), 0, this.parked_vehicle.length()); // deep copy !
+
+        if (this.pre_parked_vehicle == null) ret.pre_parked_vehicle = null;
+        else ret.pre_parked_vehicle = String.valueOf(this.pre_parked_vehicle.toCharArray(), 0, this.pre_parked_vehicle.length()); // deep copy !
+
         ret.x_position = this.x_position;
         ret.y_position = this.y_position;
         ret.parentState = this.parentState;

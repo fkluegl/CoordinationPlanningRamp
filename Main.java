@@ -69,9 +69,54 @@ public class Main {
         s_init.addVehicle(v1, true);
         s_init.addVehicle(v2, true);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(30);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(50);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(100);
+        ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(150);
         s_init.addParkingPlace(p1);
-        s_init.addParkingPlace(p2);*/
+        s_init.addParkingPlace(p2);
+        s_init.addParkingPlace(p3);*/
+
+/*
+        Vehicle va = new Vehicle("Va", true, false);
+        //Vehicle vb = new Vehicle("Vb", true, false);
+        //Vehicle vc = new Vehicle("Vc", true, false);
+        //Vehicle vd = new Vehicle("Vd", true, false);
+        //Vehicle ve = new Vehicle("Ve", true, false);
+        //Vehicle vf = new Vehicle("Vf", true, false);
+        s_init.addVehicle(va, true);
+        //s_init.addVehicle(vb, true);
+        //s_init.addVehicle(vc, true);
+        //s_init.addVehicle(vd, true);
+        //s_init.addVehicle(ve, true);
+        //s_init.addVehicle(vf, true);
+        Vehicle v1 = new Vehicle("V1", false, true);
+        Vehicle v2 = new Vehicle("V2", false, true);
+        //Vehicle v3 = new Vehicle("V3", false, true);
+        //Vehicle v4 = new Vehicle("V4", false, true);
+        //Vehicle v5 = new Vehicle("V5", false, true);
+        v1.setSpeed(2.0);
+        v2.setSpeed(2.0);
+        //v3.setSpeed(2.0);
+        //v4.setSpeed(2.0);
+        //v5.setSpeed(1.5);
+        s_init.addVehicle(v1, true);
+        s_init.addVehicle(v2, true);
+        //s_init.addVehicle(v3, true);
+        //s_init.addVehicle(v4, true);
+        //s_init.addVehicle(v5, true);
+
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(50);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(90);
+        //ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(130);
+        //ParkingPlace p4 = new ParkingPlace("P4"); p4.setY_position(80);
+        //ParkingPlace p5 = new ParkingPlace("P5"); p5.setY_position(100);
+        s_init.addParkingPlace(p1);
+        s_init.addParkingPlace(p2);
+        //s_init.addParkingPlace(p3);
+        //s_init.addParkingPlace(p4);
+        //s_init.addParkingPlace(p5);
+*/
+
+
 
         /*Vehicle va = new Vehicle("Va", true, false);
         s_init.addVehicle(va, true);
@@ -103,8 +148,10 @@ public class Main {
             System.out.printf("solution length = %d\n", solution.size());
             Collections.reverse(solution);
 
-            for (int i = 0; i < solution.size() - 1; i++)
-                System.out.println("- step" + i + ": " + solution.get(i + 1).vehicles_action_str());
+            for (int i = 0; i < solution.size() - 1; i++) {
+                String duration = String.format("%.1f", solution.get(i + 1).getDuration());
+                System.out.println("- step" + i + ": " + solution.get(i + 1).vehicles_action_str() + "        (" + duration + "s)");
+            }
 
             for (int i = 0; i < solution.size() - 1; i++) {
                 State s = solution.get(i);

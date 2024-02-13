@@ -100,7 +100,7 @@ public class Vehicle extends SceneElement {
                 y_position += time_step * speed;
                 is_exiting = true;
                 double Dpp2 = getDeltaYToClosestParkingPlace();
-                if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
+                if (Dpp1 * Dpp2 <= 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
                     System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed ↓ a parking place.");
                     return EVENT_PASSED_PARKING;
                 }
@@ -118,7 +118,7 @@ public class Vehicle extends SceneElement {
                 y_position -= time_step * speed;
                 is_exiting = true;
                 double Dpp2 = getDeltaYToClosestParkingPlace();
-                if (Dpp1 * Dpp2 < 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
+                if (Dpp1 * Dpp2 <= 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
                     System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed ↑ a parking place.");
                     return EVENT_PASSED_PARKING;
                 }
@@ -293,6 +293,17 @@ public class Vehicle extends SceneElement {
             return true;
         else
             return false;
+    }
+
+    public boolean isPreparked() {
+        for (ParkingPlace pp : parentState.getParking_places()) {
+            String vname = pp.getPre_parked_vehicle();
+            if (vname != null) {
+                if (vname.equals(this.name))
+                    return true;
+            }
+        }
+        return false;
     }
 
     public ParkingPlace getPreParkingPlace() {

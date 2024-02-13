@@ -20,8 +20,11 @@ public class MiniSimulator {
         while (true) {
             simulation_time += DT;
 
-            //if (simulation_time >= 5.0)  ==> creates too many steps!
+            //if (simulation_time >= 15.0)  //==> creates too many steps!
             //    return s.getCopy();
+
+            if (s.allVehiclesWaiting())
+                return s.getCopy();
 
             if (debug) {
                 display.repaint();
