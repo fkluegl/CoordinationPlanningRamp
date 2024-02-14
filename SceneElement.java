@@ -32,6 +32,9 @@ public class SceneElement {
         return ret;
     }
 
+    public boolean isVehicle() {return this.isVehicle();}
+    public boolean isParkingPlace() {return this.isParkingPlace();}
+
     public void setParentState(State parentState) {
         this.parentState = parentState;
     }

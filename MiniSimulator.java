@@ -74,6 +74,69 @@ public class MiniSimulator {
         }
     }
 
+    public void reactively_simulate(State s) {
+        // make a copy of s because we'll change the actions assigned to vehicles
+        State scopy = s.getCopy();
+
+        double simulation_time = 0.0;
+        double DT = 0.01;
+
+        display.set_state(scopy);
+        display.repaint();
+        try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
+
+        while (true) {
+            simulation_time += DT;
+            display.repaint();
+            try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
+
+            for (Vehicle v : scopy.getVehicles())
+            {
+                assignHeuristicBehavior(scopy, v);
+                int event = v.step(DT);
+
+                if (event == Vehicle.ACTION_COMPLETED) {
+                    v.apply_current_action_effects();
+                    if ((v.getCurrent_action().getId() == Action.GO_DOWN || v.getCurrent_action().getId() == Action.GO_UP) && v.getCurrent_action().isFinished())
+                        scopy.removeVehicle(v.name);
+                }
+
+                if (event == Vehicle.EVENT_PASSED_PARKING) {
+                    //todo: ?
+                }
+
+                // check for collision --> park
+                if (something_collides(scopy)) {
+                    //todo: park
+                }
+            }
+        }
+    }
+
+
+    private void assignHeuristicBehavior(State s, Vehicle v) {
+        // ENTER
+        if (v.isIn_ramp() && v.isFirst()) {
+            // case last vehicle in the scene
+            if (s.getNv() == 1) {
+                v.setCurrent_action(new Action(Action.ENTER));
+                return;
+            }
+
+            SceneElement cse = s.get_closest_sceneelement_ahead(v);
+
+            // case optimistic platooning
+            if (cse.isVehicle() && ((Vehicle)cse).has_same_orientation_as(v)) {
+                v.setCurrent_action(new Action(Action.ENTER));
+                return;
+            }
+
+            // case optimistic quick parking
+
+
+        }
+    }
+
     public void displayState(State s) {
         display.set_state(s);
         display.repaint();

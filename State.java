@@ -746,6 +746,60 @@ public class State {
         return false;
     }
 
+    public Vehicle get_closest_vehicle_ahead(Vehicle v) { // (in-ramp, non-parked)
+        Vehicle closest = null;
+        double dist;
+        double min_dist = 1000;
+        for (Vehicle cv : this.vehicles) {
+            if (cv.isIn_ramp() && !cv.is_parking() && !cv.isParked()) {
+                if (v.isDownward()) dist = cv.y_position - v.y_position;
+                else dist = v.y_position - cv.y_position;
+                if (dist > 0 && dist < min_dist) {
+                    min_dist = dist;
+                    closest = cv;
+                }
+            }
+        }
+        return closest;
+    }
+
+    public ParkingPlace get_closest_parkingplace_ahead(Vehicle v) { // (in-ramp, non-parked)
+        ParkingPlace closest = null;
+        double dist;
+        double min_dist = 1000;
+        for (ParkingPlace cpp : this.parking_places) {
+            if (v.isDownward()) dist = cpp.y_position - v.y_position;
+            else                dist = v.y_position - cpp.y_position;
+            if (dist > 0 && dist < min_dist) {
+                min_dist = dist;
+                closest = cpp;
+            }
+        }
+        return closest;
+    }
+
+    public SceneElement get_closest_sceneelement_ahead(Vehicle v) { // (in-ramp, non-parked)
+        SceneElement closest = null;
+        Vehicle cv = get_closest_vehicle_ahead(v);
+        ParkingPlace cpp = get_closest_parkingplace_ahead(v);
+
+        if (cv == null && cpp == null)
+            return null;
+        else if (cv == null)
+            return cpp;
+        else if (cpp == null)
+            return cv;
+        else {
+            if (v.isDownward()) {
+                if (cv.y_position < cpp.y_position) return cv;
+                else return cpp;
+            } else {
+                if (cv.y_position > cpp.y_position) return cv;
+                else return cpp;
+            }
+        }
+    }
+
     ArrayList<ParkingPlace> get_parking_places_below(Vehicle v) {
         ArrayList<ParkingPlace> ret = new ArrayList<>();
         for (ParkingPlace pp : this.parking_places)
@@ -754,6 +808,9 @@ public class State {
 
         return ret;
     }
+
+
+    
 
     public int getNv() {
         return Nv;

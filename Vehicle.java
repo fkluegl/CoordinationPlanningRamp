@@ -206,6 +206,13 @@ public class Vehicle extends SceneElement {
         return current_action;
     }
 
+    public boolean isVehicle() {return true;}
+    public boolean isParkingPlace() {return false;}
+
+    public boolean has_same_orientation_as(Vehicle v) {
+        return (this.downward == v.downward);
+    }
+
     public void apply_current_action_effects() {
         if (current_action.getId() == Action.GO_DOWN && !is_exiting) {
             in_ramp = false;

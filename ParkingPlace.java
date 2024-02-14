@@ -42,6 +42,9 @@ public class ParkingPlace extends SceneElement {
         return " [parking]";
     }
 
+    public boolean isVehicle() {return false;}
+    public boolean isParkingPlace() {return true;}
+
     public String getParked_vehicle() { return parked_vehicle; }
     public void setParked_vehicle(String vname) { this.parked_vehicle = vname; }
     public String getPre_parked_vehicle() { return pre_parked_vehicle; }
