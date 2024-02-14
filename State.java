@@ -94,6 +94,9 @@ public class State {
     }
     
     public void setParked_vehicle(String vname, String ppname) {
+        if (ppname.equals("virtual"))
+            return;
+
         ParkingPlace pp = getParkingPlaceByName(ppname);
         pp.setParked_vehicle(vname);
         Vehicle v = getVehicleByName(vname);
@@ -102,10 +105,16 @@ public class State {
     }
 
     public void removeParked_vehicle(String ppname) {
+        if (ppname.equals("virtual"))
+            return;
+
         getParkingPlaceByName(ppname).setParked_vehicle(null);
     }
 
     public void setPreparked_vehicle(String vname, String ppname) {
+        if (ppname.equals("virtual"))
+            return;
+
         ParkingPlace pp = getParkingPlaceByName(ppname);
         pp.setPre_parked_vehicle(vname);
         Vehicle v = getVehicleByName(vname);
@@ -114,6 +123,9 @@ public class State {
     }
 
     public void removePreparked_vehicle(String ppname) {
+        if (ppname.equals("virtual"))
+            return;
+
         getParkingPlaceByName(ppname).setPre_parked_vehicle(null);
     }
 
@@ -328,8 +340,6 @@ public class State {
         //TODO here: remove all states with logical conflicts:
         //  * PARK / PREPARK / UNPARK with same destination and different vehicles
         //  * ...or is everything handled by the preconditions? --> depends on the order?
-
-
 
         int ins = 0;
         for (State s : next_states) {
@@ -798,6 +808,19 @@ public class State {
                 else return cpp;
             }
         }
+    }
+
+    public Vehicle collides_with(Vehicle v) {
+        for (Vehicle v2 : vehicles)
+            if (v != v2 && v2.isIn_ramp()) {
+                if (Math.abs(v.getY_position() - v2.getY_position()) < State.SAFETY_DISTANCE) {
+                    if (Math.abs(v.getX_position() - v2.getX_position()) < State.SAFETY_DISTANCE) {
+                        //System.out.println("((( COLLISION ))) between " + v.getName() + " and " + v2.getName() + " !!!");
+                        return v2;
+                    }
+                }
+            }
+        return null;
     }
 
     ArrayList<ParkingPlace> get_parking_places_below(Vehicle v) {

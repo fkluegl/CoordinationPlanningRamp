@@ -15,6 +15,7 @@ public class Vehicle extends SceneElement {
     private double speed;
     private Action current_action;
     private boolean debug_step = false;
+
     // ---------------------------------------------------------------------------
     private boolean in_ramp;
     private boolean first = false;
@@ -39,9 +40,7 @@ public class Vehicle extends SceneElement {
         }
         else {
             if (this.loaded) {
-                this.speed = 3.0
-                ;
-                this.current_action = new Action(Action.GO_UP);
+                this.speed = 3.0;
             } else {
                 this.speed = 4.0;
             }
@@ -76,7 +75,7 @@ public class Vehicle extends SceneElement {
                 is_parking = true;
             }
             else {
-                System.out.println("[PARK] " + name + " has parked.");
+                //System.out.println("[PARK] " + name + " has parked.");
                 current_action.setFinished(true);
                 is_parking = false;
                 return ACTION_COMPLETED;
@@ -213,6 +212,10 @@ public class Vehicle extends SceneElement {
         return (this.downward == v.downward);
     }
 
+    public boolean has_opposite_orientation_as(Vehicle v) {
+        return (this.downward != v.downward);
+    }
+
     public void apply_current_action_effects() {
         if (current_action.getId() == Action.GO_DOWN && !is_exiting) {
             in_ramp = false;
@@ -335,17 +338,20 @@ public class Vehicle extends SceneElement {
         return null;
     }
 
-    public void set_has_already_parked(String vname) {
-        if (has_already_parked.contains(vname)) {
+    public void set_has_already_parked(String ppname) {
+        if (ppname.equals("virtual"))
+            return;
+
+        if (has_already_parked.contains(ppname)) {
             System.out.println("The key was already there : impossible!");
             System.exit(0);
         } else {
-            has_already_parked.add(vname);
+            has_already_parked.add(ppname);
         }
     }
 
-    public boolean has_already_parked(String vname) {
-        return has_already_parked.contains(vname);
+    public boolean has_already_parked(String ppname) {
+        return has_already_parked.contains(ppname);
     }
 
     public boolean isIn_ramp() {

@@ -74,21 +74,21 @@ public class MiniSimulator {
         }
     }
 
-    public void reactively_simulate(State s) {
+    public double reactively_simulate(State s) {
         // make a copy of s because we'll change the actions assigned to vehicles
         State scopy = s.getCopy();
 
         double simulation_time = 0.0;
         double DT = 0.01;
 
-        display.set_state(scopy);
-        display.repaint();
-        try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
+        //display.set_state(scopy);
+        //display.repaint();
+        //try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
         while (true) {
             simulation_time += DT;
-            display.repaint();
-            try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            //display.repaint();
+            //try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
             for (Vehicle v : scopy.getVehicles())
             {
@@ -97,43 +97,77 @@ public class MiniSimulator {
 
                 if (event == Vehicle.ACTION_COMPLETED) {
                     v.apply_current_action_effects();
-                    if ((v.getCurrent_action().getId() == Action.GO_DOWN || v.getCurrent_action().getId() == Action.GO_UP) && v.getCurrent_action().isFinished())
+                    if ((v.getCurrent_action().getId() == Action.GO_DOWN || v.getCurrent_action().getId() == Action.GO_UP) && v.getCurrent_action().isFinished()) {
                         scopy.removeVehicle(v.name);
-                }
-
-                if (event == Vehicle.EVENT_PASSED_PARKING) {
-                    //todo: ?
+                        break;
+                    }
+                    continue;
                 }
 
                 // check for collision --> park
-                if (something_collides(scopy)) {
-                    //todo: park
+                Vehicle collv = scopy.collides_with(v);
+                if (collv != null && v.isDownward() && collv.isUpward()) {
+                    ParkingPlace virtualpp = new ParkingPlace("virtual");
+                    virtualpp.parentState = scopy;
+                    virtualpp.y_position = v.y_position;
+                    v.setCurrent_action(new Action(Action.PARK, virtualpp));
+                    continue;
                 }
             }
+
+            if (scopy.getNv() == 0)
+                break;
         }
+
+        System.out.printf("reactive simulation time = %.2f\n", simulation_time);
+        return simulation_time;
     }
 
 
     private void assignHeuristicBehavior(State s, Vehicle v) {
+        // optimistic unparking
+        if (v.getCurrent_action().getId() == Action.PARK && v.getCurrent_action().isFinished()) {
+            v.setCurrent_action(new Action(Action.UNPARK, v.getCurrent_action().getParameter()));
+            return;
+        }
+
+        // GO UP/DOWN
+        if (v.isIn_ramp() && (v.getCurrent_action().isFinished() || v.getCurrent_action().getId() == Action.WAIT)) {
+            if (v.isDownward()) v.setCurrent_action(new Action(Action.GO_DOWN));
+            else                v.setCurrent_action(new Action(Action.GO_UP));
+            return;
+        }
+
         // ENTER
-        if (v.isIn_ramp() && v.isFirst()) {
-            // case last vehicle in the scene
-            if (s.getNv() == 1) {
+        if (!v.isIn_ramp() && v.isFirst()) {
+            Vehicle cv = s.get_closest_vehicle_ahead(v);
+
+            if (cv == null) {
                 v.setCurrent_action(new Action(Action.ENTER));
                 return;
             }
 
-            SceneElement cse = s.get_closest_sceneelement_ahead(v);
+            //SceneElement cse = s.get_closest_sceneelement_ahead(v);
+
 
             // case optimistic platooning
-            if (cse.isVehicle() && ((Vehicle)cse).has_same_orientation_as(v)) {
-                v.setCurrent_action(new Action(Action.ENTER));
-                return;
+            if (cv != null) {
+                if (cv.has_same_orientation_as(v)) {
+                    v.setCurrent_action(new Action(Action.ENTER));
+                    return;
+                }
             }
 
             // case optimistic quick parking
-
-
+            //if (cse.isParkingPlace()) {
+            //    Vehicle cv = s.get_closest_vehicle_ahead(v);
+            //    if (cv != null) {
+            //        if (cv.has_opposite_orientation_as(v)) {
+            //            v.setCurrent_action(new Action(Action.ENTER));
+            //            return;
+            //        }
+            //    }
+            //}
         }
     }
 

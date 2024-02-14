@@ -17,7 +17,7 @@ public class Main {
 
         State s_init = new State();
 
-        Vehicle va = new Vehicle("Va", true, false); //va.setY_position(5);
+        /*Vehicle va = new Vehicle("Va", true, false); //va.setY_position(5);
         Vehicle vb = new Vehicle("Vb", true, false); //vb.setY_position(30);
         Vehicle vc = new Vehicle("Vc", true, false); vc.setY_position(30);
         Vehicle vd = new Vehicle("Vd", true, false);
@@ -38,7 +38,7 @@ public class Main {
         s_init.addVehicle(v4, true);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);
+        s_init.addParkingPlace(p3);*/
 
         //LONG!!!
         /*Vehicle vb = new Vehicle("Vb", true, false);
@@ -115,19 +115,24 @@ public class Main {
         //s_init.addParkingPlace(p4);
         //s_init.addParkingPlace(p5);
 */
-
-
-
-        /*Vehicle va = new Vehicle("Va", true, false);
+        // difference with H_react : YES !!!
+        Vehicle va = new Vehicle("Va", true, false);
+        Vehicle vb = new Vehicle("Vb", true, false);
         s_init.addVehicle(va, true);
+        s_init.addVehicle(vb, true);
         Vehicle v1 = new Vehicle("V1", false, false);
         s_init.addVehicle(v1, true);
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(30);
-        s_init.addParkingPlace(p1);*/
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(80);
+        s_init.addParkingPlace(p1);
+        s_init.addParkingPlace(p2);
 
 
         System.out.println(s_init);
         State s_final = new State(); // implicitly: contains no vehicles
+
+        //mini_simultor.reactively_simulate(s_init);
+        //System.exit(0);
 
         Search search = new Search(s_init, s_final);
 
