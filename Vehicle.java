@@ -52,18 +52,32 @@ public class Vehicle extends SceneElement {
         if (current_action.getId() == Action.PREPARK && !current_action.isFinished()) {
             ParkingPlace pp = (ParkingPlace) current_action.getParameter();
             if (downward) {
-                if (y_position < pp.y_position - time_step * speed) {   // to make sure that the pp is always "below" v, otherwise
-                    y_position += time_step * speed;                    // the geometric test in enumerate_parking_places() fails
+                if (y_position < pp.y_position - time_step * speed) {   // to make sure that the pp is always "below" v, otherwise the geometric test in enumerate_parking_places() fails
+                    double Dpp1 = getDeltaYToClosestParkingPlace();
+                    y_position += time_step * speed;                    //
+                    double Dpp2 = getDeltaYToClosestParkingPlace();
+                    if (Dpp1 * Dpp2 <= 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
+                        System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed ↓ a parking place during pre-park.");
+                        return EVENT_PASSED_PARKING;
+                    }
                 } else {
                     System.out.println("[PREPARK] " + name + " has reached pre-parking place ↓.");
+                    y_position += time_step * speed;
                     current_action.setFinished(true);
                     return ACTION_COMPLETED;
                 }
             } else { // upward
-                if (y_position > pp.y_position + time_step * speed) {   // to make sure that the pp is always "above" v, otherwise
-                    y_position -= time_step * speed;                    // the geometric test in enumerate_parking_places() fails
+                if (y_position > pp.y_position + time_step * speed) {   // to make sure that the pp is always "above" v, otherwise the geometric test in enumerate_parking_places() fails
+                    double Dpp1 = getDeltaYToClosestParkingPlace();
+                    y_position -= time_step * speed;                    //
+                    double Dpp2 = getDeltaYToClosestParkingPlace();
+                    if (Dpp1 * Dpp2 <= 0  &&  Dpp1 != 1000  &&  Dpp2 != 1000) {
+                        System.out.println("[EVENT_PASSED_PARKING] " + name + " has passed ↑ a parking place during pre-park.");
+                        return EVENT_PASSED_PARKING;
+                    }
                 } else {
                     System.out.println("[PREPARK] " + name + " has reached pre-parking place ↑.");
+                    y_position -= time_step * speed;
                     current_action.setFinished(true);
                     return ACTION_COMPLETED;
                 }
@@ -245,7 +259,6 @@ public class Vehicle extends SceneElement {
         }
         else if (current_action.getId() == Action.UNPARK && !is_unparking) {
             ParkingPlace pp = (ParkingPlace)this.current_action.getParameter();
-            parentState.setPreparked_vehicle(this.name, pp.name);
             parentState.removeParked_vehicle(pp.name);
             x_position = 0;
             y_position = pp.y_position;

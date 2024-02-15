@@ -559,20 +559,19 @@ public class State {
 
     public boolean fulfills_preconditions(Vehicle v, int action, int... param) {
         if (action == Action.GO_DOWN) {
-            if (!v.isParked() && v.isIn_ramp() && v.isDownward())
+            if (!v.isPreparked() && !v.isParked() && v.isIn_ramp() && v.isDownward())
                 return true;
             else
                 return false;
         }
         else if (action == Action.GO_UP) {
-            if (!v.isParked() && v.isIn_ramp() && v.isUpward() && !v.isPreparked())
+            if (!v.isPreparked() && !v.isParked() && v.isIn_ramp() && v.isUpward())
                 return true;
             else
                 return false;
         }
         else if (action == Action.PREPARK) {
             int pp_id = param[0];
-            //if (!v.isParked() && v.isIn_ramp() && !v.isLoaded() && !v.isPreparkedAt(pp_id))  // why would we like to have 2 vehicles park at the same pp?
             if (!v.isParked() && v.isIn_ramp() && !v.isLoaded() && is_prepark_clear(pp_id))
                 return true;
             else

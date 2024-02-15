@@ -39,11 +39,15 @@ public class MiniSimulator {
                     if ((v.getCurrent_action().getId() == Action.GO_DOWN || v.getCurrent_action().getId() == Action.GO_UP) && v.getCurrent_action().isFinished())
                         s.removeVehicle(v.name);
                     s.setDuration(simulation_time);
+                    if (simulation_time == 0.1)
+                        System.out.println("DEBUG1");
                     return s.getCopy();
                 }
 
                 // check for collision --> end of the simulation
                 if (something_collides(s)) {
+                    if (simulation_time == 0.1)
+                        System.out.println("DENUG2");
                     return null;
                 }
             }

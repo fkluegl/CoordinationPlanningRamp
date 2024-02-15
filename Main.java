@@ -17,6 +17,7 @@ public class Main {
 
         State s_init = new State();
 
+        // PROBLEM 1
         /*Vehicle va = new Vehicle("Va", true, false); //va.setY_position(5);
         Vehicle vb = new Vehicle("Vb", true, false); //vb.setY_position(30);
         Vehicle vc = new Vehicle("Vc", true, false); vc.setY_position(30);
@@ -40,6 +41,7 @@ public class Main {
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);*/
 
+        // PROBLEM 2
         //LONG!!!
         /*Vehicle vb = new Vehicle("Vb", true, false);
         Vehicle vc = new Vehicle("Vc", true, false);
@@ -60,7 +62,9 @@ public class Main {
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);*/
 
-        /*Vehicle va = new Vehicle("Va", true, false);
+        // PROBLEM 3
+        // difference with H_react : YES !!!
+        Vehicle va = new Vehicle("Va", true, false);
         Vehicle vb = new Vehicle("Vb", true, false);
         s_init.addVehicle(va, true);
         s_init.addVehicle(vb, true);
@@ -73,10 +77,10 @@ public class Main {
         ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(150);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);*/
+        s_init.addParkingPlace(p3);
 
-/*
-        Vehicle va = new Vehicle("Va", true, false);
+        // PROBLEM 4
+        /*Vehicle va = new Vehicle("Va", true, false);
         //Vehicle vb = new Vehicle("Vb", true, false);
         //Vehicle vc = new Vehicle("Vc", true, false);
         //Vehicle vd = new Vehicle("Vd", true, false);
@@ -103,7 +107,6 @@ public class Main {
         //s_init.addVehicle(v3, true);
         //s_init.addVehicle(v4, true);
         //s_init.addVehicle(v5, true);
-
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(50);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(90);
         //ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(130);
@@ -113,10 +116,11 @@ public class Main {
         s_init.addParkingPlace(p2);
         //s_init.addParkingPlace(p3);
         //s_init.addParkingPlace(p4);
-        //s_init.addParkingPlace(p5);
-*/
+        //s_init.addParkingPlace(p5);*/
+
+        // PROBLEM 5
         // difference with H_react : YES !!!
-        Vehicle va = new Vehicle("Va", true, false);
+        /*Vehicle va = new Vehicle("Va", true, false);
         Vehicle vb = new Vehicle("Vb", true, false);
         s_init.addVehicle(va, true);
         s_init.addVehicle(vb, true);
@@ -125,7 +129,7 @@ public class Main {
         ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(30);
         ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(80);
         s_init.addParkingPlace(p1);
-        s_init.addParkingPlace(p2);
+        s_init.addParkingPlace(p2);*/
 
 
         System.out.println(s_init);
