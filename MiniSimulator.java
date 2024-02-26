@@ -79,20 +79,25 @@ public class MiniSimulator {
     }
 
     public double reactively_simulate(State s) {
+        boolean debug_heuristic = true;
         // make a copy of s because we'll change the actions assigned to vehicles
         State scopy = s.getCopy();
 
         double simulation_time = 0.0;
         double DT = 0.01;
 
-        //display.set_state(scopy);
-        //display.repaint();
-        //try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
+        if (debug_heuristic) {
+            display.set_state(scopy);
+            display.repaint();
+            try {Thread.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+        }
 
         while (true) {
             simulation_time += DT;
-            //display.repaint();
-            //try { Thread.sleep(1); } catch (InterruptedException e) { throw new RuntimeException(e); }
+            if (debug_heuristic) {
+                display.repaint();
+                try {Thread.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+            }
 
             for (Vehicle v : scopy.getVehicles())
             {
@@ -123,7 +128,7 @@ public class MiniSimulator {
                 break;
         }
 
-        System.out.printf("reactive simulation time = %.2f\n", simulation_time);
+        //System.out.printf("reactive simulation time = %.2f\n", simulation_time);
         return simulation_time;
     }
 
@@ -144,15 +149,29 @@ public class MiniSimulator {
 
         // ENTER
         if (!v.isIn_ramp() && v.isFirst()) {
+            /*Vehicle cov = s.get_closest_opposite_vehicle_ahead(v);
+            if (cov == null) {
+                v.setCurrent_action(new Action(Action.ENTER));
+                return;
+            }
+
+            ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
+            if (cov != null && cpp != null) {
+                if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cov.y_position)) {
+                    v.setCurrent_action(new Action(Action.ENTER));
+                    return;
+                }
+            }*/
+
+             //if (v.isDownward() && s.getNdownVehicles_in_ramp() >= s.getParking_places().size())
+             //    return;
+
             Vehicle cv = s.get_closest_vehicle_ahead(v);
 
             if (cv == null) {
                 v.setCurrent_action(new Action(Action.ENTER));
                 return;
             }
-
-            //SceneElement cse = s.get_closest_sceneelement_ahead(v);
-
 
             // case optimistic platooning
             if (cv != null) {
@@ -161,17 +180,6 @@ public class MiniSimulator {
                     return;
                 }
             }
-
-            // case optimistic quick parking
-            //if (cse.isParkingPlace()) {
-            //    Vehicle cv = s.get_closest_vehicle_ahead(v);
-            //    if (cv != null) {
-            //        if (cv.has_opposite_orientation_as(v)) {
-            //            v.setCurrent_action(new Action(Action.ENTER));
-            //            return;
-            //        }
-            //    }
-            //}
         }
     }
 

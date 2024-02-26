@@ -126,8 +126,8 @@ public class Main {
         s_init.addVehicle(vb, true);
         Vehicle v1 = new Vehicle("V1", false, false);
         s_init.addVehicle(v1, true);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(30);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(80);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(20);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(50);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);*/
 

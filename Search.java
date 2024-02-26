@@ -36,7 +36,7 @@ public class Search {
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
-                    succ.f_score = tentative_gScore + H(succ);
+                    succ.f_score = tentative_gScore + H_react(succ);
                     succ.depth = current.depth + 1;
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);

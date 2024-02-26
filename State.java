@@ -264,6 +264,8 @@ public class State {
             if (!se.getTypeString().equals(" [parking]")) {
                 if (((Vehicle)se).is_parking())
                     ret += "   parking operation in progress!";
+                if (((Vehicle)se).is_preparking())
+                    ret += "   PREparking operation in progress!";
                 if (((Vehicle)se).is_unparking())
                     ret += "   UNparking operation in progress!";
                 if (((Vehicle)se).is_exiting())
@@ -310,6 +312,7 @@ public class State {
             String id_str = v.getCurrent_action().getName();
             ret += v.getName() + ": " + id_str;
             if (id == Action.PARK) ret += "(" + v.getCurrent_action().getParameter().name + ") ";
+            else if (id == Action.PREPARK) ret += "(" + v.getCurrent_action().getParameter().name + ") ";
             else                   ret += "     ";
             ret += " ";
         }
@@ -345,11 +348,7 @@ public class State {
         for (State s : next_states) {
             ins ++;
             System.out.printf("[get_next_states] next_state %d / %d\n", ins, next_states.size());
-            if (s.only_wait_actions()) {
-                s.finish_wait_actions();
-                ret.add(s.getCopy());
-            }
-            else {
+            if (!s.only_wait_actions()) {
                 State state_resulting_from_simulation = mini_simulator.simulate(s);  // simulate(x) modifies x, so s is the geometrical result of applying current_actions on s' parent
                 if (state_resulting_from_simulation != null)
                     ret.add(state_resulting_from_simulation);
@@ -447,10 +446,10 @@ public class State {
                     state_copy_1.vehicles.get(vehicle_index).setCurrent_action(new Action(Action.GO_DOWN));
                     state_copy_1.enumerate_actions(vehicle_index + 1, Nv);
                 } else {
-                    System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_DOWN because of Upw vehicle below.");
+                    //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_DOWN because of Upw vehicle below.");
                 }
             } else {
-                System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_DOWN because of precondition false.");
+                //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_DOWN because of precondition false.");
             }
 
             // enumerate GO_UP actions
@@ -463,10 +462,10 @@ public class State {
                     state_copy_1.vehicles.get(vehicle_index).setCurrent_action(new Action(Action.GO_UP));
                     state_copy_1.enumerate_actions(vehicle_index + 1, Nv);
                 } else {
-                    System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_UP because of Dw vehicle above.");
+                    //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_UP because of Dw vehicle above.");
                 }
             } else {
-                System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_UP because of precondition false.");
+                //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot GO_UP because of precondition false.");
             }
 
             // enumerate PARK actions
@@ -477,11 +476,11 @@ public class State {
                     state_copy_2.vehicles.get(vehicle_index).setCurrent_action(new Action(Action.PARK, v.getPreParkingPlace()));
                     state_copy_2.enumerate_actions(vehicle_index + 1, Nv);
                 } else {
-                    System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PARK because of precondition false.");
+                    //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PARK because of precondition false.");
                 }
             }
             else {
-                System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PARK because NO PREPARKING PLACE WAS FOUND !!!!!!!!!!!!!!!");
+                //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PARK because NO PREPARKING PLACE WAS FOUND !!!!!!!!!!!!!!!");
             }
 
             // enumerate PREPARK actions
@@ -493,10 +492,10 @@ public class State {
                         State state_copy_3 = this.getCopy();
                         state_copy_3.enumerate_parking_places(vehicle_index, v.name, pp_id, Nv, Action.PREPARK);
                     } else {
-                        System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PREPARK because of vehicle between it and pp[" + pp_id + "].");
+                        //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PREPARK because of vehicle between it and pp[" + pp_id + "].");
                     }
                 } else {
-                    System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PREPARK because of precondition false.");
+                    //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot PREPARK because of precondition false.");
                 }
             }
 
@@ -517,7 +516,7 @@ public class State {
                 state_copy_6.vehicles.get(vehicle_index).setCurrent_action(new Action(Action.ENTER));
                 state_copy_6.enumerate_actions(vehicle_index + 1, Nv);
             } else {
-                System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot ENTER because of precondition false.");
+                //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot ENTER because of precondition false.");
             }
 
             // enumerate WAIT actions
@@ -527,7 +526,7 @@ public class State {
                 state_copy_5.vehicles.get(vehicle_index).setCurrent_action(new Action(Action.WAIT));
                 state_copy_5.enumerate_actions(vehicle_index + 1, Nv);
             } else {
-                System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot WAIT because of precondition false.");
+                //System.out.println("[ENUM FILTER!!!" + vehicle_index + "] " + v.getName() + " cannot WAIT because of precondition false.");
             }
 
             // if no action applies to this vehicle, we assign the WAIT action and continue with the next vehicle
@@ -572,7 +571,7 @@ public class State {
         }
         else if (action == Action.PREPARK) {
             int pp_id = param[0];
-            if (!v.isParked() && v.isIn_ramp() && !v.isLoaded() && is_prepark_clear(pp_id))
+            if (!v.is_preparking() && !v.isPreparked() && !v.isParked() && v.isIn_ramp() && !v.isLoaded() && is_prepark_clear(pp_id))
                 return true;
             else
                 return false;
@@ -633,22 +632,6 @@ public class State {
 
     public ArrayList<Vehicle> getVehicles() {
         return vehicles;
-    }
-
-    public int getNupVehicles() {
-        int ret = 0;
-        for (Vehicle v : vehicles)
-            if (v.isUpward())
-                ret ++;
-        return ret;
-    }
-
-      public int getNdownVehicles() {
-        int ret = 0;
-        for (Vehicle v : vehicles)
-            if (v.isDownward())
-                ret ++;
-        return ret;
     }
 
     public Vehicle getVehicleByName(String vname) {
@@ -772,6 +755,23 @@ public class State {
         return closest;
     }
 
+    public Vehicle get_closest_opposite_vehicle_ahead(Vehicle v) { // (in-ramp, non-parked)
+        Vehicle closest = null;
+        double dist;
+        double min_dist = 1000;
+        for (Vehicle cv : this.vehicles) {
+            if (cv.isIn_ramp() && !cv.is_parking() && !cv.isParked() && cv.has_opposite_orientation_as(v)) {
+                if (v.isDownward()) dist = cv.y_position - v.y_position;
+                else dist = v.y_position - cv.y_position;
+                if (dist > 0 && dist < min_dist) {
+                    min_dist = dist;
+                    closest = cv;
+                }
+            }
+        }
+        return closest;
+    }
+
     public ParkingPlace get_closest_parkingplace_ahead(Vehicle v) { // (in-ramp, non-parked)
         ParkingPlace closest = null;
         double dist;
@@ -831,8 +831,47 @@ public class State {
         return ret;
     }
 
+    public int getNupVehicles() {
+        int ret = 0;
+        for (Vehicle v : vehicles)
+            if (v.isUpward())
+                ret ++;
+        return ret;
+    }
 
-    
+    public int getNdownVehicles() {
+        int ret = 0;
+        for (Vehicle v : vehicles)
+            if (v.isDownward())
+                ret ++;
+        return ret;
+    }
+
+    public int getNv_in_ramp() {
+        int nvir = 0;
+        for (Vehicle v : vehicles)
+            if (v.isIn_ramp())
+                nvir ++;
+        return nvir;
+    }
+
+    public int get_N_waiting_vehicles() {
+        int ret = 0;
+        for (Vehicle v : vehicles) {
+            if (v.getCurrent_action().getId() != Action.WAIT)
+                ret ++;
+        }
+
+        return ret;
+    }
+
+    public int getNdownVehicles_in_ramp() {
+        int ret = 0;
+        for (Vehicle v : vehicles)
+            if (v.isDownward() && v.isIn_ramp())
+                ret ++;
+        return ret;
+    }
 
     public int getNv() {
         return Nv;
