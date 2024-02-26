@@ -36,7 +36,7 @@ public class Search {
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
-                    succ.f_score = tentative_gScore + H_react(succ);
+                    succ.f_score = tentative_gScore + H(succ);
                     succ.depth = current.depth + 1;
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);
@@ -54,27 +54,11 @@ public class Search {
         return s.getDuration();
     }
     private double H(State s) {
-        if (s.only_wait_actions())
-            return time_to_goal2(s) + s.getNv() * 1000;
-        else
-            return time_to_goal2(s);
+        return time_to_goal2(s);
     }
 
     private double H_react(State s) {
-        if (s.only_wait_actions())
-            return State.mini_simulator.reactively_simulate(s) + s.getNv() * 1000;
-        else
-            return State.mini_simulator.reactively_simulate(s);
-    }
-
-    private double H_test(State s) {
-        int Nmax = Math.max(s.getNdownVehicles(), s.getNupVehicles());
-        double time_to_goal = Nmax * (3 + State.y_max / 5);
-
-        if (s.only_wait_actions())
-            return time_to_goal + s.getNv() * 1000;
-        else
-            return time_to_goal;
+        return State.mini_simulator.reactively_simulate(s);
     }
 
     private double time_to_goal(State s) {

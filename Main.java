@@ -72,12 +72,12 @@ public class Main {
         Vehicle v2 = new Vehicle("V2", false, false);
         s_init.addVehicle(v1, true);
         s_init.addVehicle(v2, true);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(30);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(100);
-        ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(150);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(20);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(30);
+        //ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(60);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        s_init.addParkingPlace(p3);
+        //s_init.addParkingPlace(p3);
 
         // PROBLEM 4
         /*Vehicle va = new Vehicle("Va", true, false);

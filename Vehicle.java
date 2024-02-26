@@ -37,13 +37,13 @@ public class Vehicle extends SceneElement {
         if (this.downward) {
             this.min_speed = 4.0;
             this.max_speed = 8.0;
-            this.speed = 5.0;
+            this.speed = 5.0 + 2 * Math.random() - 1;
         }
         else {
             if (this.loaded) {
-                this.speed = 3.0;
+                this.speed = 3.0 + Math.random() - 0.5;
             } else {
-                this.speed = 4.0;
+                this.speed = 4.0 + Math.random() - 0.5;
             }
         }
         this.has_already_parked = new ArrayList<>();

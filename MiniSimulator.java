@@ -79,7 +79,7 @@ public class MiniSimulator {
     }
 
     public double reactively_simulate(State s) {
-        boolean debug_heuristic = true;
+        boolean debug_heuristic = false;
         // make a copy of s because we'll change the actions assigned to vehicles
         State scopy = s.getCopy();
 
@@ -178,8 +178,17 @@ public class MiniSimulator {
                 if (cv.has_same_orientation_as(v)) {
                     v.setCurrent_action(new Action(Action.ENTER));
                     return;
+                } else { // if closest vehicle ahead is facing, we check if there is a parking place in-between
+                    ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
+                    if (cpp != null) {
+                        if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cv.y_position)) {
+                            v.setCurrent_action(new Action(Action.ENTER));
+                            return;
+                        }
+                    }
                 }
             }
+
         }
     }
 

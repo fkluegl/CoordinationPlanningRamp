@@ -23,7 +23,7 @@ public class Display extends JPanel {
         for (ParkingPlace pp : display_state.getParking_places()) {
             g.setColor(Color.BLACK);
             int X = 400;
-            int Y = (int)pp.getY_position() * 5;
+            int Y = (int)pp.getY_position() * 2;
             g.drawRect(X, Y, 25, 25);
             g.drawString(pp.getName(), 360, Y  + 13);
         }
@@ -41,14 +41,14 @@ public class Display extends JPanel {
                 if (v.isFirst())  X = 500 + (int)v.getX_position() * 10;
                 else              X = 500 + (int)v.getX_position() * 10 + display_state.getVehicles().indexOf(v) * 30; // 500 pixels <--> Vehicle.x = 0 meters + 30 pixels between each vehicle
             }
-            int Y = (int)v.getY_position() * 5;
+            int Y = (int)v.getY_position() * 2;
             g.fillOval(X, Y, 10, 20);
             g.setColor(Color.BLACK);
             g.drawString(v.getName(), X, Y + 10);
         }
 
         g.drawLine(500, 1, 700, 1);
-        g.drawLine(500, 1000, 700, 1000);
+        g.drawLine(500, (int)(State.y_max * 2), 700, (int)(State.y_max * 2));
     }
 
 

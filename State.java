@@ -3,7 +3,7 @@ import java.util.*;
 public class State {
     public final static double parking_speed = 3.34; // m/s
     public final static double y_min = 0.0;   // m
-    public final static double y_max = 200; // m
+    public final static double y_max = 100; // m
     public final static double SAFETY_DISTANCE = 5.0; // m (center-to-center)
     public final static double METRIC_EQUALITY_THRESHOLD = 3.0; // m (center-to-center) larger => fewer states => faster, but less complete
     private double start_time = 0;
@@ -42,7 +42,7 @@ public class State {
                 v.setY_position(0);
                 update_first_in_top_queue();
             } else {
-                v.setY_position(200);
+                v.setY_position(State.y_max);
                 update_first_in_bottom_queue();
             }
         } else {
