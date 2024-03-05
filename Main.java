@@ -62,9 +62,9 @@ public class Main {
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);*/
 
-        // PROBLEM 3
+        // PROBLEM A - Length of the ramp
         // difference with H_react : YES !!!
-        Vehicle va = new Vehicle("Va", true, false);
+        /*Vehicle va = new Vehicle("Va", true, false);
         Vehicle vb = new Vehicle("Vb", true, false);
         s_init.addVehicle(va, true);
         s_init.addVehicle(vb, true);
@@ -72,12 +72,77 @@ public class Main {
         Vehicle v2 = new Vehicle("V2", false, false);
         s_init.addVehicle(v1, true);
         s_init.addVehicle(v2, true);
-        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(20);
-        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(30);
-        //ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(60);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(State.y_max / 10 * 2);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(State.y_max / 10 * 3);
+        s_init.addParkingPlace(p1);
+        s_init.addParkingPlace(p2);*/
+
+        // PROBLEM B - PP positions
+        // difference with H_react : YES !!!
+        /*Vehicle va = new Vehicle("Va", true, false);
+        Vehicle vb = new Vehicle("Vb", true, false);
+        s_init.addVehicle(va, true);
+        s_init.addVehicle(vb, true);
+        Vehicle v1 = new Vehicle("V1", false, true);
+        Vehicle v2 = new Vehicle("V2", false, false);
+        s_init.addVehicle(v1, true);
+        s_init.addVehicle(v2, true);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(State.y_max / 10 * 2);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(State.y_max / 10 * 4);
+        ParkingPlace p3 = new ParkingPlace("P3"); p3.setY_position(State.y_max / 10 * 6);
+        ParkingPlace p4 = new ParkingPlace("P4"); p4.setY_position(State.y_max / 10 * 8);
         s_init.addParkingPlace(p1);
         s_init.addParkingPlace(p2);
-        //s_init.addParkingPlace(p3);
+        s_init.addParkingPlace(p3);
+        s_init.addParkingPlace(p4);*/
+
+        // PROBLEM C - # vehicles
+        // difference with H_react : YES !!!
+        Vehicle va = new Vehicle("Va", true, false);
+        Vehicle vb = new Vehicle("Vb", true, false);
+        Vehicle vc = new Vehicle("Vc", true, false);
+        Vehicle vd = new Vehicle("Vd", true, false);
+        Vehicle ve = new Vehicle("Ve", true, false);
+        Vehicle vf = new Vehicle("Vf", true, false);
+        Vehicle vg = new Vehicle("Vg", true, false);
+        Vehicle vh = new Vehicle("Vh", true, false);
+        Vehicle vi = new Vehicle("Vi", true, false);
+        Vehicle vj = new Vehicle("Vj", true, false);
+        s_init.addVehicle(va, true);
+        s_init.addVehicle(vb, true);
+        //s_init.addVehicle(vc, true);
+        //s_init.addVehicle(vd, true);
+        //s_init.addVehicle(ve, true);
+        //s_init.addVehicle(vf, true);
+        //s_init.addVehicle(vg, true);
+        //s_init.addVehicle(vh, true);
+        //s_init.addVehicle(vi, true);
+        //s_init.addVehicle(vj, true);
+        Vehicle v1 = new Vehicle("V1", false, true);
+        Vehicle v2 = new Vehicle("V2", false, true);
+        Vehicle v3 = new Vehicle("V3", false, true);
+        Vehicle v4 = new Vehicle("V4", false, true);
+        Vehicle v5 = new Vehicle("V5", false, true);
+        Vehicle v6 = new Vehicle("V6", true, false);
+        Vehicle v7 = new Vehicle("V7", true, false);
+        Vehicle v8 = new Vehicle("V8", true, false);
+        Vehicle v9 = new Vehicle("V9", true, false);
+        Vehicle v10 = new Vehicle("V10", true, false);
+        s_init.addVehicle(v1, true);
+        s_init.addVehicle(v2, true);
+        //s_init.addVehicle(v3, true);
+        //s_init.addVehicle(v4, true);
+        //s_init.addVehicle(v5, true);
+        //s_init.addVehicle(v6, true);
+        //s_init.addVehicle(v7, true);
+        //s_init.addVehicle(v8, true);
+        //s_init.addVehicle(v9, true);
+        //s_init.addVehicle(v10, true);
+        ParkingPlace p1 = new ParkingPlace("P1"); p1.setY_position(State.y_max / 10 * 3);
+        ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(State.y_max / 10 * 6);
+        s_init.addParkingPlace(p1);
+        s_init.addParkingPlace(p2);
+
 
         // PROBLEM 4
         /*Vehicle va = new Vehicle("Va", true, false);

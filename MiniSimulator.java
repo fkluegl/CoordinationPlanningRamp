@@ -149,46 +149,59 @@ public class MiniSimulator {
 
         // ENTER
         if (!v.isIn_ramp() && v.isFirst()) {
-            /*Vehicle cov = s.get_closest_opposite_vehicle_ahead(v);
-            if (cov == null) {
+            Vehicle cv = s.get_closest_facing_vehicle(v);
+
+            if (cv == null) { // if the ramp is empty or cv is in the same direction (=> platooning)
                 v.setCurrent_action(new Action(Action.ENTER));
                 return;
             }
 
-            ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
-            if (cov != null && cpp != null) {
-                if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cov.y_position)) {
-                    v.setCurrent_action(new Action(Action.ENTER));
-                    return;
-                }
-            }*/
-
-             //if (v.isDownward() && s.getNdownVehicles_in_ramp() >= s.getParking_places().size())
-             //    return;
-
-            Vehicle cv = s.get_closest_vehicle_ahead(v);
-
-            if (cv == null) {
-                v.setCurrent_action(new Action(Action.ENTER));
-                return;
-            }
-
-            // case optimistic platooning
             if (cv != null) {
-                if (cv.has_same_orientation_as(v)) {
-                    v.setCurrent_action(new Action(Action.ENTER));
-                    return;
-                } else { // if closest vehicle ahead is facing, we check if there is a parking place in-between
-                    ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
-                    if (cpp != null) {
-                        if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cv.y_position)) {
-                            v.setCurrent_action(new Action(Action.ENTER));
-                            return;
-                        }
+                ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
+                if (cpp != null) {
+                    if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cv.y_position)) {
+                        v.setCurrent_action(new Action(Action.ENTER));
+                        return;
                     }
                 }
             }
+        }
+    }
 
+    private void assignHeuristicBehavior_2(State s, Vehicle v) {
+        // unpark if cv is not facing
+        if (v.getCurrent_action().getId() == Action.PARK && v.getCurrent_action().isFinished()) {
+            Vehicle cv = s.get_closest_vehicle_ahead(v);
+            if (cv.isDownward() == v.isDownward())
+                v.setCurrent_action(new Action(Action.UNPARK, v.getCurrent_action().getParameter()));
+            return;
+        }
+
+        // GO UP/DOWN
+        if (v.isIn_ramp() && (v.getCurrent_action().isFinished() || v.getCurrent_action().getId() == Action.WAIT)) {
+            if (v.isDownward()) v.setCurrent_action(new Action(Action.GO_DOWN));
+            else                v.setCurrent_action(new Action(Action.GO_UP));
+            return;
+        }
+
+        // ENTER
+        if (!v.isIn_ramp() && v.isFirst()) {
+            Vehicle cv = s.get_closest_facing_vehicle(v);
+
+            if (cv == null) { // if the ramp is empty or cv is in the same direction (=> platooning)
+                v.setCurrent_action(new Action(Action.ENTER));
+                return;
+            }
+
+            if (cv != null) {
+                ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
+                if (cpp != null) {
+                    if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cv.y_position)) {
+                        v.setCurrent_action(new Action(Action.ENTER));
+                        return;
+                    }
+                }
+            }
         }
     }
 

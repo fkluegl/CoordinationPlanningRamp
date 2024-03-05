@@ -3,7 +3,7 @@ import java.util.*;
 public class State {
     public final static double parking_speed = 3.34; // m/s
     public final static double y_min = 0.0;   // m
-    public final static double y_max = 100; // m
+    public final static double y_max = 200; // m
     public final static double SAFETY_DISTANCE = 5.0; // m (center-to-center)
     public final static double METRIC_EQUALITY_THRESHOLD = 3.0; // m (center-to-center) larger => fewer states => faster, but less complete
     private double start_time = 0;
@@ -17,6 +17,7 @@ public class State {
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> next_states;
     public static MiniSimulator mini_simulator;
+
     // ----------------------------------------------------------------------
     public int depth = 0;
 
@@ -349,9 +350,13 @@ public class State {
             ins ++;
             System.out.printf("[get_next_states] next_state %d / %d\n", ins, next_states.size());
             if (!s.only_wait_actions()) {
+                double start = System.currentTimeMillis();
                 State state_resulting_from_simulation = mini_simulator.simulate(s);  // simulate(x) modifies x, so s is the geometrical result of applying current_actions on s' parent
-                if (state_resulting_from_simulation != null)
+                double end = System.currentTimeMillis();
+
+                if (state_resulting_from_simulation != null) {
                     ret.add(state_resulting_from_simulation);
+                }
             }
         }
 
@@ -666,7 +671,7 @@ public class State {
 
     Vehicle get_closest_upward_vehicle_below(Vehicle v) {
         Vehicle closest = null;
-        double min_dist = 1000;
+        double min_dist = 10000;
         for (Vehicle upv : this.vehicles)
             if (!v.isDownward()) {
                 if (upv.y_position > v.y_position) {
@@ -741,9 +746,26 @@ public class State {
     public Vehicle get_closest_vehicle_ahead(Vehicle v) { // (in-ramp, non-parked)
         Vehicle closest = null;
         double dist;
-        double min_dist = 1000;
+        double min_dist = 10000;
         for (Vehicle cv : this.vehicles) {
             if (cv.isIn_ramp() && !cv.is_parking() && !cv.isParked()) {
+                if (v.isDownward()) dist = cv.y_position - v.y_position;
+                else dist = v.y_position - cv.y_position;
+                if (dist > 0 && dist < min_dist) {
+                    min_dist = dist;
+                    closest = cv;
+                }
+            }
+        }
+        return closest;
+    }
+
+    public Vehicle get_closest_facing_vehicle(Vehicle v) { // (in-ramp, non-parked)
+        Vehicle closest = null;
+        double dist;
+        double min_dist = 10000;
+        for (Vehicle cv : this.vehicles) {
+            if (cv.isIn_ramp() && !cv.is_parking() && !cv.isParked() && cv.isDownward() != v.isDownward()) {
                 if (v.isDownward()) dist = cv.y_position - v.y_position;
                 else dist = v.y_position - cv.y_position;
                 if (dist > 0 && dist < min_dist) {
@@ -758,7 +780,7 @@ public class State {
     public Vehicle get_closest_opposite_vehicle_ahead(Vehicle v) { // (in-ramp, non-parked)
         Vehicle closest = null;
         double dist;
-        double min_dist = 1000;
+        double min_dist = 10000;
         for (Vehicle cv : this.vehicles) {
             if (cv.isIn_ramp() && !cv.is_parking() && !cv.isParked() && cv.has_opposite_orientation_as(v)) {
                 if (v.isDownward()) dist = cv.y_position - v.y_position;
@@ -775,7 +797,7 @@ public class State {
     public ParkingPlace get_closest_parkingplace_ahead(Vehicle v) { // (in-ramp, non-parked)
         ParkingPlace closest = null;
         double dist;
-        double min_dist = 1000;
+        double min_dist = 10000;
         for (ParkingPlace cpp : this.parking_places) {
             if (v.isDownward()) dist = cpp.y_position - v.y_position;
             else                dist = v.y_position - cpp.y_position;

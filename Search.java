@@ -7,6 +7,8 @@ public class Search {
     State final_state;
     PriorityQueue<State> openSet;
     int nb_explored_states;
+    public double t_h = 0;
+    public double t_s = 0;
 
     public Search(State s0, State sN) {
         init_state = s0;
@@ -36,7 +38,7 @@ public class Search {
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
-                    succ.f_score = tentative_gScore + H(succ);
+                    succ.f_score = tentative_gScore + H_react(succ);
                     succ.depth = current.depth + 1;
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);
@@ -58,7 +60,11 @@ public class Search {
     }
 
     private double H_react(State s) {
-        return State.mini_simulator.reactively_simulate(s);
+        double start = System.currentTimeMillis();
+        double ret = State.mini_simulator.reactively_simulate(s);
+        double end = System.currentTimeMillis();
+        t_h += (end - start) / 1000;
+        return ret;
     }
 
     private double time_to_goal(State s) {
@@ -117,6 +123,8 @@ public class Search {
     private ArrayList<State> reconstruct_path(State s) {
         ArrayList<State> ret = new ArrayList<State>();
         float total_duration = 0;
+        double total_h = 0;
+        double total_s = 0;
         State x = s;
         while (x.cameFrom != null) {
             ret.add(x);
@@ -127,6 +135,8 @@ public class Search {
         ret.add(x);
         total_duration += x.getDuration();
         System.out.println("total_duration = " + total_duration);
+        System.out.println("total_h = " + t_h);
+        System.out.println("total_s = " + t_s);
         return ret;
     }
 
