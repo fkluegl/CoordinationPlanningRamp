@@ -3,7 +3,7 @@ import java.util.*;
 public class State {
     public final static double parking_speed = 3.34; // m/s
     public final static double y_min = 0.0;   // m
-    public final static double y_max = 200; // m
+    public static double y_max = 200; // m
     public final static double SAFETY_DISTANCE = 5.0; // m (center-to-center)
     public final static double METRIC_EQUALITY_THRESHOLD = 3.0; // m (center-to-center) larger => fewer states => faster, but less complete
     private double start_time = 0;
@@ -14,6 +14,7 @@ public class State {
     private int Nv = 0;
     private int Npp = 0;
     private double duration;
+    public  double total_duration;
     private ArrayList<ParkingPlace> parking_places;
     private static ArrayList<State> next_states;
     public static MiniSimulator mini_simulator;

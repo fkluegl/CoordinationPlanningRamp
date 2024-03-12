@@ -107,8 +107,6 @@ public class Search {
     private ArrayList<State> reconstruct_path(State s) {
         ArrayList<State> ret = new ArrayList<State>();
         float total_duration = 0;
-        double total_h = 0;
-        double total_s = 0;
         State x = s;
         while (x.cameFrom != null) {
             ret.add(x);
@@ -118,9 +116,8 @@ public class Search {
         //TODO: add s0 ?
         ret.add(x);
         total_duration += x.getDuration();
-        System.out.println("total_duration = " + total_duration);
-        System.out.println("total_h = " + t_h);
-        System.out.println("total_s = " + t_s);
+        //System.out.println("total_duration = " + total_duration);
+        s.total_duration = total_duration;
         return ret;
     }
 
