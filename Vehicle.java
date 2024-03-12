@@ -365,8 +365,8 @@ public class Vehicle extends SceneElement {
             return;
 
         if (has_already_parked.contains(ppname)) {
-            System.out.println("The key was already there : impossible!");
-            System.exit(0);
+            //System.out.println("The key was already there : impossible!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            //System.exit(0);
         } else {
             has_already_parked.add(ppname);
         }

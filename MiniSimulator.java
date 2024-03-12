@@ -101,7 +101,7 @@ public class MiniSimulator {
 
             for (Vehicle v : scopy.getVehicles())
             {
-                assignHeuristicBehavior(scopy, v);
+
                 int event = v.step(DT);
 
                 if (event == Vehicle.ACTION_COMPLETED) {
@@ -113,13 +113,25 @@ public class MiniSimulator {
                     continue;
                 }
 
-                // check for collision --> park
+                // safe parking
+                //if (event == Vehicle.EVENT_PASSED_PARKING && v.isDownward() && !v.is_parking() && !v.isParked()) {
+                //    Vehicle cfv = scopy.get_closest_facing_vehicle(v);
+                //    if (cfv != null) {
+                //        ParkingPlace cpp = scopy.get_closest_parkingplace(v);
+                //        if (cpp != null) {
+                //            if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cfv.y_position)) {
+                //                v.setCurrent_action(new Action(Action.PARK, cpp));
+                //            }
+                //        }
+                //    }
+                //}
+
+                assignHeuristicBehavior_2(scopy, v);
+
+                // check for collision --> park / wait
                 Vehicle collv = scopy.collides_with(v);
                 if (collv != null && v.isDownward() && collv.isUpward()) {
-                    ParkingPlace virtualpp = new ParkingPlace("virtual");
-                    virtualpp.parentState = scopy;
-                    virtualpp.y_position = v.y_position;
-                    v.setCurrent_action(new Action(Action.PARK, virtualpp));
+                    v.setCurrent_action(new Action(Action.WAIT));
                     continue;
                 }
             }
@@ -134,6 +146,11 @@ public class MiniSimulator {
 
 
     private void assignHeuristicBehavior(State s, Vehicle v) {
+        // safe parking
+        //for (Vehicle dv : s.getDownwardVehiclesInRamp()) {
+        //    if (dv.y_position)
+        //}
+
         // optimistic unparking
         if (v.getCurrent_action().getId() == Action.PARK && v.getCurrent_action().isFinished()) {
             v.setCurrent_action(new Action(Action.UNPARK, v.getCurrent_action().getParameter()));
@@ -141,9 +158,11 @@ public class MiniSimulator {
         }
 
         // GO UP/DOWN
-        if (v.isIn_ramp() && (v.getCurrent_action().isFinished() || v.getCurrent_action().getId() == Action.WAIT)) {
-            if (v.isDownward()) v.setCurrent_action(new Action(Action.GO_DOWN));
-            else                v.setCurrent_action(new Action(Action.GO_UP));
+        if (v.isIn_ramp() && (v.getCurrent_action().isFinished() || v.getCurrent_action().getId() == Action.WAIT) && !v.is_parking() && !v.isParked()) {
+            if (v.isDownward())
+                v.setCurrent_action(new Action(Action.GO_DOWN));
+            else
+                v.setCurrent_action(new Action(Action.GO_UP));
             return;
         }
 
@@ -169,18 +188,47 @@ public class MiniSimulator {
     }
 
     private void assignHeuristicBehavior_2(State s, Vehicle v) {
-        // unpark if cv is not facing
+        if (v.getCurrent_action().getId() == Action.GO_DOWN) {
+            Vehicle cv = s.get_closest_facing_vehicle(v);
+            if (cv != null) {
+                int npp = s.get_nb_pp_between(v, cv);
+                if (npp == 1) {
+                    ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
+                    double dv_cv = Math.abs(v.y_position - cv.y_position);
+                    double dv_cpp = Math.abs(v.y_position - cpp.y_position);
+                    if (dv_cpp < dv_cv) { // if cpp in-between v and cv
+                        double dcpp_cv = Math.abs(cpp.y_position - cv.y_position);
+                        if (dv_cpp / v.getSpeed() < dcpp_cv / cv.getSpeed())
+                            v.setCurrent_action(new Action(Action.PREPARK, cpp));
+                        else
+                            cv.setCurrent_action(new Action(Action.PREPARK, cpp));
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (v.getCurrent_action().getId() == Action.PREPARK && v.getCurrent_action().isFinished()) {
+            v.setCurrent_action(new Action(Action.PARK, v.getCurrent_action().getParameter()));
+            return;
+        }
+
         if (v.getCurrent_action().getId() == Action.PARK && v.getCurrent_action().isFinished()) {
-            Vehicle cv = s.get_closest_vehicle_ahead(v);
-            if (cv.isDownward() == v.isDownward())
-                v.setCurrent_action(new Action(Action.UNPARK, v.getCurrent_action().getParameter()));
+            v.setCurrent_action(new Action(Action.UNPARK, v.getCurrent_action().getParameter()));
+            return;
+        }
+
+        if (v.isIn_ramp() && v.getCurrent_action().isFinished() && v.getCurrent_action().getId() == Action.PARK) {
+            v.setCurrent_action(new Action(Action.UNPARK, v.getCurrent_action().getParameter()));
             return;
         }
 
         // GO UP/DOWN
         if (v.isIn_ramp() && (v.getCurrent_action().isFinished() || v.getCurrent_action().getId() == Action.WAIT)) {
-            if (v.isDownward()) v.setCurrent_action(new Action(Action.GO_DOWN));
-            else                v.setCurrent_action(new Action(Action.GO_UP));
+            if (v.isDownward())
+                v.setCurrent_action(new Action(Action.GO_DOWN));
+            else
+                v.setCurrent_action(new Action(Action.GO_UP));
             return;
         }
 
@@ -191,12 +239,10 @@ public class MiniSimulator {
             if (cv == null) { // if the ramp is empty or cv is in the same direction (=> platooning)
                 v.setCurrent_action(new Action(Action.ENTER));
                 return;
-            }
-
-            if (cv != null) {
+            } else {
                 ParkingPlace cpp = s.get_closest_parkingplace_ahead(v);
                 if (cpp != null) {
-                    if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cv.y_position)) {
+                    if (Math.abs(v.y_position - cpp.y_position) / v.getSpeed()  + v.x_position / v.getSpeed() < Math.abs(cpp.y_position - cv.y_position) / cv.getSpeed()) {
                         v.setCurrent_action(new Action(Action.ENTER));
                         return;
                     }

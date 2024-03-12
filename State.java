@@ -639,6 +639,14 @@ public class State {
         return vehicles;
     }
 
+    public ArrayList<Vehicle> getDownwardVehiclesInRamp() {
+        ArrayList<Vehicle> ret = new ArrayList<Vehicle>();
+        for (Vehicle x : vehicles)
+            if (x.isDownward() && x.isIn_ramp() && !x.is_parking() && !x.isParked())
+                ret.add(x);
+        return ret;
+    }
+
     public Vehicle getVehicleByName(String vname) {
         for (Vehicle v : vehicles)
             if (v.name.equals(vname))
@@ -777,6 +785,17 @@ public class State {
         return closest;
     }
 
+    public int get_nb_pp_between(Vehicle v1, Vehicle v2) { // (v2 in-ramp, non-parked)
+        int ret = 0;
+        for (ParkingPlace pp : this.parking_places) {
+            if (v1.y_position < pp.y_position && pp.y_position < v2.y_position)
+                ret ++;
+            else if (v1.y_position > pp.y_position && pp.y_position > v2.y_position)
+                ret ++;
+        }
+        return ret;
+    }
+
     public Vehicle get_closest_opposite_vehicle_ahead(Vehicle v) { // (in-ramp, non-parked)
         Vehicle closest = null;
         double dist;
@@ -794,13 +813,27 @@ public class State {
         return closest;
     }
 
-    public ParkingPlace get_closest_parkingplace_ahead(Vehicle v) { // (in-ramp, non-parked)
+    public ParkingPlace get_closest_parkingplace_ahead(Vehicle v) {
         ParkingPlace closest = null;
         double dist;
         double min_dist = 10000;
         for (ParkingPlace cpp : this.parking_places) {
             if (v.isDownward()) dist = cpp.y_position - v.y_position;
             else                dist = v.y_position - cpp.y_position;
+            if (dist > 0 && dist < min_dist) {
+                min_dist = dist;
+                closest = cpp;
+            }
+        }
+        return closest;
+    }
+
+    public ParkingPlace get_closest_parkingplace(Vehicle v) {
+        ParkingPlace closest = null;
+        double dist;
+        double min_dist = 10000;
+        for (ParkingPlace cpp : this.parking_places) {
+            dist = Math.abs(v.y_position - cpp.y_position);
             if (dist > 0 && dist < min_dist) {
                 min_dist = dist;
                 closest = cpp;
