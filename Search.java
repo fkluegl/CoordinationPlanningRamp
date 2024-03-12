@@ -38,7 +38,7 @@ public class Search {
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
-                    succ.f_score = tentative_gScore + H_react(succ);
+                    succ.f_score = tentative_gScore + H(succ);
                     succ.depth = current.depth + 1;
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);
@@ -67,20 +67,6 @@ public class Search {
         return ret;
     }
 
-    private double time_to_goal(State s) {
-        // under-estimate time_to_goal
-        double maxt = 0;
-        double t;
-        for (Vehicle v : s.getVehicles()) {
-            if (v.isDownward()) t = (State.y_max - v.getY_position()) / v.getSpeed();
-            else                t = v.getY_position() / v.getSpeed();
-            if (t > maxt) {
-                maxt = t;
-            }
-        }
-        return maxt;
-    }
-
     private double time_to_goal2(State s) {
         // over-estimates time_to_goal
         double t = 0;
@@ -96,15 +82,13 @@ public class Search {
         return t;
     }
 
+    private double time_to_goal_silly(State s) {
+        // under-under-estimates time_to_goal
+        double t = 0;
 
-    private double distance_to_goal(State s) {
-        double D = 0;
-        for (Vehicle v : s.getVehicles()) {
-            if (v.isDownward()) D += (State.y_max - v.getY_position());
-            else                D += v.getY_position();
-        }
-        return D;
+        return t;
     }
+
 
     private boolean is_in_openSet(State x) {
         for (State s : openSet) {
