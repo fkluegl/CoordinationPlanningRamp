@@ -16,6 +16,7 @@ public class Search {
     }
 
     public ArrayList<State> AStar() {
+        double t0 = System.currentTimeMillis();
         nb_explored_states = 1;
         openSet = new PriorityQueue<State>(16, new StateComparator());
         openSet.add(init_state);
@@ -23,6 +24,10 @@ public class Search {
         init_state.f_score = 1000; // h(init_state);
 
         while (openSet.size() > 0) {
+            if ((System.currentTimeMillis() - t0) / 1000 > 300) {
+                System.out.println("time out!");
+                return null;
+            }
             State current = openSet.poll();
             nb_explored_states ++;
             //if (current.equals(final_state)) {
@@ -38,7 +43,7 @@ public class Search {
                 if (tentative_gScore < succ.g_score) {
                     succ.cameFrom = current;
                     succ.g_score = tentative_gScore;
-                    succ.f_score = tentative_gScore + H(succ);
+                    succ.f_score = tentative_gScore + H_react(succ);
                     succ.depth = current.depth + 1;
                     if (!is_in_openSet(succ)) {
                         openSet.add(succ);
@@ -55,8 +60,12 @@ public class Search {
         //return 1;
         return s.getDuration();
     }
-    private double H(State s) {
+    private double H_overest(State s) {
         return time_to_goal2(s);
+    }
+
+    private double H_silly(State s) {
+        return time_to_goal_silly(s);
     }
 
     private double H_react(State s) {
@@ -84,9 +93,26 @@ public class Search {
 
     private double time_to_goal_silly(State s) {
         // under-under-estimates time_to_goal
-        double t = 0;
+        double tmax = 0;
 
-        return t;
+        for (Vehicle v : s.getVehicles()) {
+            double t = 0;
+
+            if (v.isDownward()) t = (State.y_max - v.getY_position()) / v.getSpeed();
+            else t = v.getY_position() / v.getSpeed();
+
+            // More optimal: increases search time!
+            if (v.isParked())
+                t += 15 / State.parking_speed;
+
+            if (!v.isIn_ramp())
+                t += 15 / v.getSpeed();
+
+            if (t > tmax)
+                tmax = t;
+        }
+
+        return tmax;
     }
 
 

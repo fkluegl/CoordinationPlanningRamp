@@ -78,7 +78,7 @@ public class MiniSimulator {
         }
     }
 
-    public double reactively_simulate(State s) {
+    public double reactively_simulate(State s) { // (park virtual)
         boolean debug_heuristic = false;
         // make a copy of s because we'll change the actions assigned to vehicles
         State scopy = s.getCopy();
@@ -113,27 +113,32 @@ public class MiniSimulator {
                     continue;
                 }
 
-                // safe parking
-                //if (event == Vehicle.EVENT_PASSED_PARKING && v.isDownward() && !v.is_parking() && !v.isParked()) {
-                //    Vehicle cfv = scopy.get_closest_facing_vehicle(v);
-                //    if (cfv != null) {
-                //        ParkingPlace cpp = scopy.get_closest_parkingplace(v);
-                //        if (cpp != null) {
-                //            if (Math.abs(v.y_position - cpp.y_position) < Math.abs(v.y_position - cfv.y_position)) {
-                //                v.setCurrent_action(new Action(Action.PARK, cpp));
-                //            }
-                //        }
-                //    }
-                //}
-
-                assignHeuristicBehavior_2(scopy, v);
-
-                // check for collision --> park / wait
-                Vehicle collv = scopy.collides_with(v);
-                if (collv != null && v.isDownward() && collv.isUpward()) {
-                    v.setCurrent_action(new Action(Action.WAIT));
-                    continue;
+                if (v.getCurrent_action().getId() == Action.UNPARK && v.getCurrent_action().isFinished()) {
+                    if (v.isDownward())
+                        v.setCurrent_action(new Action(Action.GO_DOWN));
+                    else
+                        v.setCurrent_action(new Action(Action.GO_UP));
                 }
+
+                if (v.getCurrent_action().getId() == Action.ENTER && v.getCurrent_action().isFinished()) {
+                    if (v.isDownward())
+                        v.setCurrent_action(new Action(Action.GO_DOWN));
+                    else
+                        v.setCurrent_action(new Action(Action.GO_UP));
+                }
+
+                // check for collision --> park virtual
+                // TODO: comment for H_react_2
+                /*Vehicle collv = scopy.collides_with(v);
+                if (collv != null && v.isDownward() && collv.isUpward()) {
+                    ParkingPlace vpp = new ParkingPlace("virtual");
+                    vpp.y_position = v.y_position;
+                    v.setCurrent_action(new Action(Action.PARK, vpp));
+                    continue;
+                }*/
+
+                //assignHeuristicBehavior(scopy, v);
+                assignHeuristicBehavior_2(scopy, v);
             }
 
             if (scopy.getNv() == 0)
@@ -146,14 +151,11 @@ public class MiniSimulator {
 
 
     private void assignHeuristicBehavior(State s, Vehicle v) {
-        // safe parking
-        //for (Vehicle dv : s.getDownwardVehiclesInRamp()) {
-        //    if (dv.y_position)
-        //}
-
         // optimistic unparking
-        if (v.getCurrent_action().getId() == Action.PARK && v.getCurrent_action().isFinished()) {
-            v.setCurrent_action(new Action(Action.UNPARK, v.getCurrent_action().getParameter()));
+        if (v.getCurrent_action().getId() == Action.PARK && v.getCurrent_action().isFinished() || v.getCurrent_action().getId() == Action.WAIT) {
+            ParkingPlace vpp = new ParkingPlace("virtual");
+            vpp.y_position = v.y_position;
+            v.setCurrent_action(new Action(Action.UNPARK, vpp));
             return;
         }
 

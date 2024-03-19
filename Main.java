@@ -248,26 +248,26 @@ public class Main {
         ArrayList<State> solution = search.AStar();
         double end = System.currentTimeMillis();
 
-        System.out.println("total_duration = " + solution.get(0).total_duration);
-        System.out.println("---------------------------------------------------------------------------------");
-        System.out.printf("search time = %.2f\n", (end - start) / 1000);
-        System.out.printf("nb explored states = %d\n", search.nb_explored_states);
-
         if (solution == null) {
             System.out.printf("!!! No solution !!!\n");
             // write results to file
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(args[0] + "_Hoverest.result", true));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(args[0] + "_Hreact.result", true));
                 writer.append(String.format("args[1]=%s 999\n", args[1]));
                 writer.close();
             } catch (IOException e) {throw new RuntimeException(e);}
         }
         else
         {
+            System.out.println("total_duration = " + solution.get(0).total_duration);
+            System.out.println("---------------------------------------------------------------------------------");
+            System.out.printf("search time = %.2f\n", (end - start) / 1000);
+            System.out.printf("nb explored states = %d\n", search.nb_explored_states);
+
             // write results to file
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(args[0] + "_Hoverest.result", true));
-                writer.append(String.format("args[1]=%s %.2f %.2f %d %d\n", args[1], solution.get(0).total_duration, (end - start) / 1000, search.nb_explored_states, solution.size()));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(args[0] + "_Hreact.result", true));
+                writer.append(String.format("%s %.2f %.2f %d %d\n", args[1], solution.get(0).total_duration, (end - start) / 1000, search.nb_explored_states, solution.size()));
                 writer.close();
             } catch (IOException e) {throw new RuntimeException(e);}
 
@@ -280,7 +280,7 @@ public class Main {
                 System.out.println("- step" + i + ": " + solution.get(i + 1).vehicles_action_str() + "        (" + duration + "s)");
             }
 
-            if (false) {
+            if (true) {
                 for (int i = 0; i < solution.size() - 1; i++) {
                     State s = solution.get(i);
                     s.assignActions(solution.get(i + 1).getVehicles());
