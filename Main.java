@@ -2,16 +2,24 @@ import javax.swing.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Main {
 
     public static void main(String[] args) {
+        String problemId;
+        double rampLength;
+
         if (args.length <= 0) {
             System.out.println("No command line arguments found.");
-            System.exit(0);
+            problemId = "a";
+            rampLength = 150;
+
+            //System.exit(0);
+        } else {
+            problemId = args[0];
+            rampLength = Double.valueOf(args[1]);
         }
 
         Display display = new Display();
@@ -71,9 +79,9 @@ public class Main {
         s_init.addParkingPlace(p2);
         s_init.addParkingPlace(p3);*/
 
-        if (args[0].equals("a")) {
-            double ramp_length = Double.valueOf(args[1]);
-            State.y_max = ramp_length;
+        if (problemId.equals("a")) {
+            //double ramp_length = Double.valueOf(args[1]);
+            State.y_max = rampLength;
             // PROBLEM A - Length of the ramp
             Vehicle va = new Vehicle("Va", true, false);
             Vehicle vb = new Vehicle("Vb", true, false);
@@ -87,7 +95,7 @@ public class Main {
             ParkingPlace p2 = new ParkingPlace("P2"); p2.setY_position(State.y_max / 10 * 3);
             s_init.addParkingPlace(p1);
             s_init.addParkingPlace(p2);
-        } else if (args[0].equals("b")) { // 1234 6789 2389 2468
+        } else if (problemId.equals("b")) { // 1234 6789 2389 2468
             // PROBLEM B - PP positions
             State.y_max = 200;
             Vehicle va = new Vehicle("Va", true, false);
@@ -131,7 +139,7 @@ public class Main {
             s_init.addParkingPlace(p2);
             s_init.addParkingPlace(p3);
             s_init.addParkingPlace(p4);
-        } else if (args[0].equals("c")) {
+        } else if (problemId.equals("c")) {
             int nb_vehicles = Integer.valueOf(args[1]);
             // PROBLEM C - # vehicles
             Vehicle va = new Vehicle("Va", true, false);
@@ -252,8 +260,8 @@ public class Main {
             System.out.printf("!!! No solution !!!\n");
             // write results to file
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(args[0] + "_Hreact.result", true));
-                writer.append(String.format("args[1]=%s 999\n", args[1]));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(problemId + "_Hreact.result", true));
+                writer.append(String.format("args[1]=%s 999\n", rampLength));
                 writer.close();
             } catch (IOException e) {throw new RuntimeException(e);}
         }
@@ -266,8 +274,8 @@ public class Main {
 
             // write results to file
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(args[0] + "_Hreact.result", true));
-                writer.append(String.format("%s %.2f %.2f %d %d\n", args[1], solution.get(0).total_duration, (end - start) / 1000, search.nb_explored_states, solution.size()));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(problemId + "_Hreact.result", true));
+                writer.append(String.format("%s %.2f %.2f %d %d\n", rampLength, solution.get(0).total_duration, (end - start) / 1000, search.nb_explored_states, solution.size()));
                 writer.close();
             } catch (IOException e) {throw new RuntimeException(e);}
 
